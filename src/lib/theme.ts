@@ -9,11 +9,31 @@ const TOKENS = [
   '--color-muted',
   '--color-primary',
   '--color-primary-soft',
+  '--color-danger',
 ] as const;
 
 /** Theme colors as plain values, for props that don't accept class names. */
 export function useThemeColors() {
-  const [background, surface, surfaceMuted, border, foreground, muted, primary, primarySoft] =
-    useCSSVariable([...TOKENS]) as string[];
-  return { background, surface, surfaceMuted, border, foreground, muted, primary, primarySoft };
+  const [
+    background,
+    surface,
+    surfaceMuted,
+    border,
+    foreground,
+    muted,
+    primary,
+    primarySoft,
+    danger,
+  ] = useCSSVariable([...TOKENS]) as string[];
+  return {
+    background,
+    surface,
+    surfaceMuted,
+    border,
+    foreground,
+    muted,
+    primary,
+    primarySoft,
+    danger,
+  };
 }

@@ -1,9 +1,9 @@
 import Constants from 'expo-constants';
-import type { PropsWithChildren } from 'react';
-import { Alert, ScrollView, Share, Text, View } from 'react-native';
+import { Alert, ScrollView, Share, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/ui/button';
+import { Card, Section } from '@/components/ui/card';
 import { LIBRARY_VERSION } from '@/features/exercises/library';
 import {
   buildTranslationRequestsExport,
@@ -74,17 +74,4 @@ export default function SettingsScreen() {
       </Section>
     </ScrollView>
   );
-}
-
-function Section({ title, children }: PropsWithChildren<{ title: string }>) {
-  return (
-    <View className="gap-2">
-      <Text className="text-sm font-medium tracking-wide text-muted uppercase">{title}</Text>
-      {children}
-    </View>
-  );
-}
-
-function Card({ children }: PropsWithChildren) {
-  return <View className="gap-3 rounded-2xl border border-border bg-surface p-4">{children}</View>;
 }

@@ -30,6 +30,14 @@ export default function RootLayout() {
           <Stack.Screen name="exercises/edit/[id]" options={{ title: "Modifier l'exercice" }} />
           <Stack.Screen name="exercises/new" options={{ title: 'Nouvel exercice' }} />
           <Stack.Screen name="settings" options={{ title: 'Réglages' }} />
+          <Stack.Screen name="programs/new" options={{ title: 'Nouveau programme' }} />
+          <Stack.Screen name="programs/[id]" options={{ title: '' }} />
+          <Stack.Screen name="programs/edit/[id]" options={{ title: 'Modifier le programme' }} />
+          <Stack.Screen name="workouts/[id]" options={{ title: '' }} />
+          <Stack.Screen
+            name="workouts/add-exercises/[id]"
+            options={{ title: 'Ajouter des exercices' }}
+          />
         </Stack>
       </DatabaseGate>
     </ThemeProvider>

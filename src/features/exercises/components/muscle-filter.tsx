@@ -31,6 +31,7 @@ export function MuscleFilter({ selected, onSelect }: MuscleFilterProps) {
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
+      className="grow-0"
       contentContainerClassName="gap-2 px-4"
       keyboardShouldPersistTaps="handled">
       {MUSCLES.map((muscle) => (
