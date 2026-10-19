@@ -1,9 +1,36 @@
-:root {
-  --font-display:
-    Spline Sans, Inter, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji,
-    Segoe UI Symbol, Noto Color Emoji;
-  --font-mono:
-    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
-  --font-rounded: 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif;
-  --font-serif: Georgia, 'Times New Roman', serif;
+@import 'tailwindcss';
+@import 'uniwind';
+
+/*
+ * Design tokens. Every variable must exist in both themes.
+ * `--color-foo` is used as `bg-foo`, `text-foo`, `border-foo`…
+ */
+@layer theme {
+  :root {
+    @variant light {
+      --color-background: #f6f6f7;
+      --color-surface: #ffffff;
+      --color-surface-muted: #ececef;
+      --color-border: #dcdce0;
+      --color-foreground: #111113;
+      --color-muted: #63636b;
+      --color-primary: #e8472b;
+      --color-primary-foreground: #ffffff;
+      --color-success: #1f9d55;
+      --color-danger: #d92d20;
+    }
+
+    @variant dark {
+      --color-background: #0d0d0f;
+      --color-surface: #18181b;
+      --color-surface-muted: #232327;
+      --color-border: #2e2e33;
+      --color-foreground: #f4f4f5;
+      --color-muted: #a0a0a9;
+      --color-primary: #ff5a3c;
+      --color-primary-foreground: #ffffff;
+      --color-success: #34c77b;
+      --color-danger: #f04438;
+    }
+  }
 }

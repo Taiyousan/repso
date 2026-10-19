@@ -1,56 +1,60 @@
-# Welcome to your Expo app 👋
+# Workout Planner
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Application Android de suivi d'entraînement en salle : programmes, séances live avec timer de repos,
+records personnels, statistiques et import/export de programmes au format JSON.
 
-## Get started
+Projet personnel et vitrine portfolio. Les données restent sur l'appareil (local-first).
 
-1. Install dependencies
+## Stack
 
-   ```bash
-   npm install
-   ```
+- [Expo](https://expo.dev) SDK 58, React Native, TypeScript strict
+- [Expo Router](https://docs.expo.dev/router/introduction/) (onglets natifs)
+- [expo-sqlite](https://docs.expo.dev/versions/latest/sdk/sqlite/) + [Drizzle ORM](https://orm.drizzle.team) (migrations, requêtes live)
+- [Uniwind](https://uniwind.dev) (Tailwind CSS 4 pour React Native), thème clair/sombre
+- Zustand pour l'état de la séance en cours
+- Jest (`jest-expo`) pour la logique métier
 
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Démarrer
 
 ```bash
-npm run reset-project
+npm install
+npm start          # serveur de dev (Expo Go ou development build)
+npm run android:build  # development build natif (nécessite Android Studio / SDK Android)
 ```
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+## Scripts
 
-### Other setup steps
+| Script                | Rôle                                                  |
+| --------------------- | ----------------------------------------------------- |
+| `npm run check`       | Lint + typecheck + tests                              |
+| `npm run format`      | Formatage Prettier                                    |
+| `npm run db:generate` | Génère une migration SQL après modification du schéma |
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+## Structure
 
-## Learn more
+```
+src/
+  app/          Routes Expo Router (un fichier = un écran)
+  components/   Composants partagés (ui/)
+  db/           Schéma Drizzle, client SQLite, migrations générées
+  domain/       Logique métier pure et testée (volume, 1RM, records…)
+  global.css    Design tokens (thèmes clair et sombre)
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+## Base de données
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Le schéma est dans [src/db/schema.ts](src/db/schema.ts). Après modification :
 
-## Join the community
+```bash
+npm run db:generate
+```
 
-Join our community of developers creating universal apps.
+Les migrations sont appliquées automatiquement au démarrage de l'app.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Principe clé : une **séance** est une copie d'une **séance type** de programme. Elle peut être modifiée
+librement pendant l'entraînement, puis les changements peuvent être reportés (ou non) dans le programme.
+
+## CI
+
+GitHub Actions : lint, typecheck, tests et formatage sur chaque push/PR, puis build d'un APK installable
+(signé avec la clé de debug) téléchargeable dans les artefacts du workflow.
