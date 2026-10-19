@@ -1,4 +1,4 @@
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
 import { memo } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
@@ -29,9 +29,22 @@ export const ExerciseListItem = memo(function ExerciseListItem({
     .filter(Boolean)
     .join(' · ');
 
+  const thumbnail = <ExerciseThumbnail images={exercise.images} name={exercise.name} />;
+
   const content = (
     <>
-      <ExerciseThumbnail images={exercise.images} name={exercise.name} />
+      {onSelect ? (
+        // In selection mode the thumbnail opens the sheet; the picker stays underneath.
+        <Pressable
+          onPress={() => router.push({ pathname: '/exercises/[id]', params: { id: exercise.id } })}
+          accessibilityRole="button"
+          accessibilityLabel={`Voir la fiche : ${exercise.name}`}
+          hitSlop={4}>
+          {thumbnail}
+        </Pressable>
+      ) : (
+        thumbnail
+      )}
       <View className="flex-1 gap-0.5">
         <View className="flex-row items-center gap-2">
           <Text className="shrink text-base font-medium text-foreground" numberOfLines={1}>

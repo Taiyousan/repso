@@ -87,6 +87,8 @@ export const workoutTemplates = sqliteTable(
     name: text('name').notNull(),
     position: integer('position').notNull(),
     notes: text('notes'),
+    /** Being created: hidden from the program until validated, discarded on next launch. */
+    isDraft: integer('is_draft', { mode: 'boolean' }).notNull().default(false),
   },
   (t) => [index('workout_templates_program_idx').on(t.programId)],
 );

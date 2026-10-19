@@ -22,6 +22,13 @@
       "when": 1792418978466,
       "tag": "0002_translations",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1792423635642,
+      "tag": "0003_workout_drafts",
+      "breakpoints": true
     }
   ]
 }

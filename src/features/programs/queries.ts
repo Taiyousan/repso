@@ -1,4 +1,4 @@
-import { asc, count, eq, inArray } from 'drizzle-orm';
+import { and, asc, count, eq, inArray } from 'drizzle-orm';
 
 import { db } from '@/db/client';
 import { useLiveData } from '@/db/live';
@@ -19,6 +19,7 @@ export function usePrograms() {
       const counts = db
         .select({ programId: workoutTemplates.programId, value: count() })
         .from(workoutTemplates)
+        .where(eq(workoutTemplates.isDraft, false))
         .groupBy(workoutTemplates.programId)
         .all();
       const countByProgram = new Map(counts.map((row) => [row.programId, row.value]));
@@ -41,7 +42,7 @@ export function useProgram(id: number) {
       const templates = db
         .select()
         .from(workoutTemplates)
-        .where(eq(workoutTemplates.programId, id))
+        .where(and(eq(workoutTemplates.programId, id), eq(workoutTemplates.isDraft, false)))
         .orderBy(asc(workoutTemplates.position))
         .all();
       const templateIds = templates.map((template) => template.id);

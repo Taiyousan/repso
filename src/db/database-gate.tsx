@@ -4,13 +4,14 @@ import { type PropsWithChildren, useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
 
 import { seedExerciseLibrary } from '@/features/exercises/library';
+import { discardDraftWorkoutTemplates } from '@/features/programs/mutations';
 
 import { db } from './client';
 import migrations from './migrations/migrations';
 
 /**
- * Runs pending migrations and imports the exercise library, keeping the splash screen up until
- * the database is ready.
+ * Runs pending migrations, imports the exercise library and drops abandoned drafts, keeping the
+ * splash screen up until the database is ready.
  */
 export function DatabaseGate({ children }: PropsWithChildren) {
   const migration = useMigrations(db, migrations);
@@ -21,7 +22,10 @@ export function DatabaseGate({ children }: PropsWithChildren) {
   useEffect(() => {
     if (!migration.success) return;
     Promise.resolve()
-      .then(seedExerciseLibrary)
+      .then(() => {
+        seedExerciseLibrary();
+        discardDraftWorkoutTemplates();
+      })
       .then(
         () => setSeeded(true),
         (e: unknown) => setSeedError(e instanceof Error ? e : new Error(String(e))),

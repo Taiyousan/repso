@@ -1,0 +1,1 @@
+ALTER TABLE `workout_templates` ADD `is_draft` integer DEFAULT false NOT NULL;

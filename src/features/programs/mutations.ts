@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gt, inArray, lt, max } from 'drizzle-orm';
+import { desc, eq, inArray, max } from 'drizzle-orm';
 
 import { db } from '@/db/client';
 import {
@@ -12,8 +12,6 @@ import {
 import { defaultSets, nextSet, type TemplateSetValues } from './sets';
 
 export type ProgramInput = { name: string; description: string | null };
-
-export type MoveDirection = 'up' | 'down';
 
 // ---------------------------------------------------------------------------
 // Programs
@@ -39,7 +37,8 @@ export function deleteProgram(id: number): void {
 // Workout templates
 // ---------------------------------------------------------------------------
 
-export function createWorkoutTemplate(programId: number, name: string): number {
+/** Starts a hidden workout, filled in the creation screen then published or discarded. */
+export function createDraftWorkoutTemplate(programId: number): number {
   const last = db
     .select({ value: max(workoutTemplates.position) })
     .from(workoutTemplates)
@@ -47,9 +46,21 @@ export function createWorkoutTemplate(programId: number, name: string): number {
     .get();
   return db
     .insert(workoutTemplates)
-    .values({ programId, name, position: (last?.value ?? -1) + 1 })
+    .values({ programId, name: '', position: (last?.value ?? -1) + 1, isDraft: true })
     .returning({ id: workoutTemplates.id })
     .get().id;
+}
+
+export function publishWorkoutTemplate(id: number, name: string): void {
+  db.update(workoutTemplates)
+    .set({ name, isDraft: false })
+    .where(eq(workoutTemplates.id, id))
+    .run();
+}
+
+/** Drafts left by an interrupted creation (app closed meanwhile). */
+export function discardDraftWorkoutTemplates(): void {
+  db.delete(workoutTemplates).where(eq(workoutTemplates.isDraft, true)).run();
 }
 
 export function renameWorkoutTemplate(id: number, name: string): void {
@@ -60,35 +71,11 @@ export function deleteWorkoutTemplate(id: number): void {
   db.delete(workoutTemplates).where(eq(workoutTemplates.id, id)).run();
 }
 
-export function moveWorkoutTemplate(id: number, direction: MoveDirection): void {
+export function reorderWorkoutTemplates(orderedIds: number[]): void {
   db.transaction((tx) => {
-    const current = tx.select().from(workoutTemplates).where(eq(workoutTemplates.id, id)).get();
-    if (!current) return;
-    const neighbor = tx
-      .select()
-      .from(workoutTemplates)
-      .where(
-        and(
-          eq(workoutTemplates.programId, current.programId),
-          direction === 'up'
-            ? lt(workoutTemplates.position, current.position)
-            : gt(workoutTemplates.position, current.position),
-        ),
-      )
-      .orderBy(
-        direction === 'up' ? desc(workoutTemplates.position) : asc(workoutTemplates.position),
-      )
-      .limit(1)
-      .get();
-    if (!neighbor) return;
-    tx.update(workoutTemplates)
-      .set({ position: neighbor.position })
-      .where(eq(workoutTemplates.id, current.id))
-      .run();
-    tx.update(workoutTemplates)
-      .set({ position: current.position })
-      .where(eq(workoutTemplates.id, neighbor.id))
-      .run();
+    orderedIds.forEach((id, position) => {
+      tx.update(workoutTemplates).set({ position }).where(eq(workoutTemplates.id, id)).run();
+    });
   });
 }
 
@@ -140,35 +127,11 @@ export function removeTemplateExercise(id: number): void {
   db.delete(templateExercises).where(eq(templateExercises.id, id)).run();
 }
 
-export function moveTemplateExercise(id: number, direction: MoveDirection): void {
+export function reorderTemplateExercises(orderedIds: number[]): void {
   db.transaction((tx) => {
-    const current = tx.select().from(templateExercises).where(eq(templateExercises.id, id)).get();
-    if (!current) return;
-    const neighbor = tx
-      .select()
-      .from(templateExercises)
-      .where(
-        and(
-          eq(templateExercises.templateId, current.templateId),
-          direction === 'up'
-            ? lt(templateExercises.position, current.position)
-            : gt(templateExercises.position, current.position),
-        ),
-      )
-      .orderBy(
-        direction === 'up' ? desc(templateExercises.position) : asc(templateExercises.position),
-      )
-      .limit(1)
-      .get();
-    if (!neighbor) return;
-    tx.update(templateExercises)
-      .set({ position: neighbor.position })
-      .where(eq(templateExercises.id, current.id))
-      .run();
-    tx.update(templateExercises)
-      .set({ position: current.position })
-      .where(eq(templateExercises.id, neighbor.id))
-      .run();
+    orderedIds.forEach((id, position) => {
+      tx.update(templateExercises).set({ position }).where(eq(templateExercises.id, id)).run();
+    });
   });
 }
 

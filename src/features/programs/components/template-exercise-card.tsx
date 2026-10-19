@@ -3,14 +3,10 @@ import { Pressable, Text, View } from 'react-native';
 
 import { Card } from '@/components/ui/card';
 import { IconButton } from '@/components/ui/icon-button';
+import { DragHandle } from '@/components/ui/sortable-list';
 import { ExerciseThumbnail } from '@/features/exercises/components/exercise-thumbnail';
 
-import {
-  addTemplateSet,
-  moveTemplateExercise,
-  removeTemplateExercise,
-  setTemplateExerciseRest,
-} from '../mutations';
+import { addTemplateSet, removeTemplateExercise, setTemplateExerciseRest } from '../mutations';
 import type { TemplateExerciseDetail } from '../queries';
 import { setBadges } from '../sets';
 import { RestSelector } from './rest-selector';
@@ -25,46 +21,32 @@ const COLUMN_LABELS = {
 
 type TemplateExerciseCardProps = {
   item: TemplateExerciseDetail;
-  isFirst: boolean;
-  isLast: boolean;
 };
 
-export function TemplateExerciseCard({ item, isFirst, isLast }: TemplateExerciseCardProps) {
+/** Rendered inside a SortableList: the handle on the left reorders the card. */
+export function TemplateExerciseCard({ item }: TemplateExerciseCardProps) {
   const { exercise, sets } = item;
   const badges = setBadges(sets.map((set) => set.type));
   const [firstColumn, secondColumn] = COLUMN_LABELS[exercise.trackingType];
 
   return (
     <Card>
-      <View className="flex-row items-center gap-3">
+      <View className="flex-row items-center gap-2">
+        <DragHandle label={`Déplacer ${exercise.name}`} />
         <ExerciseThumbnail images={exercise.images} name={exercise.name} />
         <Link href={{ pathname: '/exercises/[id]', params: { id: exercise.id } }} asChild>
-          <Pressable className="flex-1">
+          <Pressable className="flex-1 pl-1">
             <Text className="text-base font-semibold text-foreground" numberOfLines={2}>
               {exercise.name}
             </Text>
           </Pressable>
         </Link>
-        <View className="flex-row">
-          <IconButton
-            icon={{ ios: 'chevron.up', android: 'keyboard_arrow_up' }}
-            label="Monter l'exercice"
-            onPress={() => moveTemplateExercise(item.id, 'up')}
-            disabled={isFirst}
-          />
-          <IconButton
-            icon={{ ios: 'chevron.down', android: 'keyboard_arrow_down' }}
-            label="Descendre l'exercice"
-            onPress={() => moveTemplateExercise(item.id, 'down')}
-            disabled={isLast}
-          />
-          <IconButton
-            icon={{ ios: 'trash', android: 'delete' }}
-            label="Retirer l'exercice"
-            tone="danger"
-            onPress={() => removeTemplateExercise(item.id)}
-          />
-        </View>
+        <IconButton
+          icon={{ ios: 'trash', android: 'delete' }}
+          label="Retirer l'exercice"
+          tone="danger"
+          onPress={() => removeTemplateExercise(item.id)}
+        />
       </View>
 
       <RestSelector
