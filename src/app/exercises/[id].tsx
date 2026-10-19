@@ -6,6 +6,7 @@ import { Chip } from '@/components/ui/chip';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ExerciseAnimation } from '@/features/exercises/components/exercise-animation';
 import { MuscleMap } from '@/features/exercises/components/muscle-map';
+import { TranslationRequestButton } from '@/features/exercises/components/translation-request-button';
 import {
   categoryLabel,
   equipmentLabel,
@@ -62,10 +63,15 @@ export default function ExerciseDetailScreen() {
 
       <ExerciseAnimation images={exercise.images} />
 
-      <View className="flex-row flex-wrap gap-2">
-        {tags.map((tag) => (
-          <Chip key={tag} label={tag} />
-        ))}
+      <View className="gap-2">
+        <View className="flex-row flex-wrap gap-2">
+          {tags.map((tag) => (
+            <Chip key={tag} label={tag} />
+          ))}
+        </View>
+        {exercise.nameEn && exercise.nameEn !== exercise.name ? (
+          <Text className="text-sm text-muted">Nom d&apos;origine : {exercise.nameEn}</Text>
+        ) : null}
       </View>
 
       <View className="gap-3">
@@ -80,13 +86,21 @@ export default function ExerciseDetailScreen() {
 
       {exercise.instructions.length > 0 ? (
         <View className="gap-3">
-          <Text className="text-lg font-semibold text-foreground">Instructions</Text>
+          <View className="flex-row items-baseline justify-between">
+            <Text className="text-lg font-semibold text-foreground">Instructions</Text>
+            {exercise.instructionsLanguage === 'en' ? (
+              <Text className="text-sm text-muted">En anglais</Text>
+            ) : null}
+          </View>
           {exercise.instructions.map((step, index) => (
             <View key={index} className="flex-row gap-3">
               <Text className="w-5 text-base font-semibold text-primary">{index + 1}</Text>
               <Text className="flex-1 text-base leading-6 text-foreground">{step}</Text>
             </View>
           ))}
+          {exercise.instructionsLanguage === 'en' && !exercise.isCustom ? (
+            <TranslationRequestButton exerciseId={exercise.id} />
+          ) : null}
         </View>
       ) : null}
     </ScrollView>

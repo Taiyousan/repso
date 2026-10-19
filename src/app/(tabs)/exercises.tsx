@@ -6,49 +6,76 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { Chip } from '@/components/ui/chip';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Screen } from '@/components/ui/screen';
+import { SegmentedControl } from '@/components/ui/segmented-control';
 import { TextField } from '@/components/ui/text-field';
 import { ExerciseListItem } from '@/features/exercises/components/exercise-list-item';
-import { EQUIPMENT, equipmentLabel, MUSCLES, muscleLabel } from '@/features/exercises/labels';
+import { MuscleFilter } from '@/features/exercises/components/muscle-filter';
+import { EQUIPMENT, equipmentLabel } from '@/features/exercises/labels';
 import { useExerciseList } from '@/features/exercises/queries';
 import { filterExercises } from '@/features/exercises/search';
 
+type Scope = 'essentials' | 'all';
+
 export default function ExercisesScreen() {
   const { data: exercises } = useExerciseList();
+  const [scope, setScope] = useState<Scope>('essentials');
   const [query, setQuery] = useState('');
   const [muscle, setMuscle] = useState<string | null>(null);
   const [equipment, setEquipment] = useState<string | null>(null);
   const deferredQuery = useDeferredValue(query);
 
+  const essentialsCount = useMemo(
+    () => exercises.filter((exercise) => exercise.isEssential || exercise.isCustom).length,
+    [exercises],
+  );
+
   const results = useMemo(
-    () => filterExercises(exercises, { query: deferredQuery, muscle, equipment }),
-    [exercises, deferredQuery, muscle, equipment],
+    () =>
+      filterExercises(exercises, {
+        query: deferredQuery,
+        muscle,
+        equipment,
+        essentialsOnly: scope === 'essentials',
+      }),
+    [exercises, deferredQuery, muscle, equipment, scope],
   );
 
   return (
     <Screen title="Exercices" scrollable={false}>
       <View className="gap-3">
-        <View className="px-4">
+        <View className="gap-3 px-4">
+          <SegmentedControl
+            options={[
+              { value: 'essentials', label: `Essentiels (${essentialsCount})` },
+              { value: 'all', label: `Tous (${exercises.length})` },
+            ]}
+            value={scope}
+            onChange={setScope}
+          />
           <TextField
             value={query}
             onChangeText={setQuery}
-            placeholder={`Rechercher parmi ${exercises.length} exercices`}
+            placeholder="Rechercher (français ou anglais)"
             autoCorrect={false}
             returnKeyType="search"
             clearButtonMode="while-editing"
           />
         </View>
-        <FilterRow
-          options={MUSCLES}
-          selected={muscle}
-          onSelect={setMuscle}
-          getLabel={muscleLabel}
-        />
-        <FilterRow
-          options={EQUIPMENT}
-          selected={equipment}
-          onSelect={setEquipment}
-          getLabel={equipmentLabel}
-        />
+        <MuscleFilter selected={muscle} onSelect={setMuscle} />
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerClassName="gap-2 px-4"
+          keyboardShouldPersistTaps="handled">
+          {EQUIPMENT.map((item) => (
+            <Chip
+              key={item}
+              label={equipmentLabel(item)}
+              selected={equipment === item}
+              onPress={() => setEquipment(equipment === item ? null : item)}
+            />
+          ))}
+        </ScrollView>
       </View>
 
       <View className="flex-1">
@@ -63,7 +90,11 @@ export default function ExercisesScreen() {
             <View className="px-4 pt-4">
               <EmptyState
                 title="Aucun exercice trouvé"
-                description="Modifie ta recherche ou crée ton propre exercice."
+                description={
+                  scope === 'essentials'
+                    ? 'Essaie dans « Tous » ou crée ton propre exercice.'
+                    : 'Modifie ta recherche ou crée ton propre exercice.'
+                }
               />
             </View>
           }
@@ -78,31 +109,5 @@ export default function ExercisesScreen() {
         </Pressable>
       </Link>
     </Screen>
-  );
-}
-
-type FilterRowProps<T extends string> = {
-  options: readonly T[];
-  selected: string | null;
-  onSelect: (value: string | null) => void;
-  getLabel: (value: T) => string;
-};
-
-function FilterRow<T extends string>({ options, selected, onSelect, getLabel }: FilterRowProps<T>) {
-  return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerClassName="gap-2 px-4"
-      keyboardShouldPersistTaps="handled">
-      {options.map((option) => (
-        <Chip
-          key={option}
-          label={getLabel(option)}
-          selected={selected === option}
-          onPress={() => onSelect(selected === option ? null : option)}
-        />
-      ))}
-    </ScrollView>
   );
 }

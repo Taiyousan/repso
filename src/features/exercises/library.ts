@@ -1,11 +1,11 @@
 import { eq, sql } from 'drizzle-orm';
 
 import { db } from '@/db/client';
-import { appMeta, exercises, type TrackingType } from '@/db/schema';
+import { appMeta, type ContentLanguage, exercises, type TrackingType } from '@/db/schema';
 import libraryData from '@/data/exercise-library.json';
 
 /** Bump when src/data/exercise-library.json changes, so installed apps re-import it. */
-export const LIBRARY_VERSION = 1;
+export const LIBRARY_VERSION = 2;
 const LIBRARY_VERSION_KEY = 'exercise_library_version';
 
 /** Same commit as scripts/build-exercise-library.mjs. Images are served by jsDelivr's CDN. */
@@ -14,6 +14,7 @@ const IMAGE_BASE_URL =
 
 type LibraryExercise = Omit<typeof exercises.$inferInsert, 'id' | 'isCustom' | 'createdAt'> & {
   trackingType: TrackingType;
+  instructionsLanguage: ContentLanguage;
 };
 
 const library = libraryData as LibraryExercise[];
@@ -39,6 +40,7 @@ export function seedExerciseLibrary(): void {
           target: exercises.slug,
           set: {
             name: sql`excluded.name`,
+            nameEn: sql`excluded.name_en`,
             primaryMuscles: sql`excluded.primary_muscles`,
             secondaryMuscles: sql`excluded.secondary_muscles`,
             equipment: sql`excluded.equipment`,
@@ -47,8 +49,10 @@ export function seedExerciseLibrary(): void {
             level: sql`excluded.level`,
             mechanic: sql`excluded.mechanic`,
             instructions: sql`excluded.instructions`,
+            instructionsLanguage: sql`excluded.instructions_language`,
             images: sql`excluded.images`,
             trackingType: sql`excluded.tracking_type`,
+            isEssential: sql`excluded.is_essential`,
           },
         })
         .run();

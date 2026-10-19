@@ -1,17 +1,24 @@
-import type { PropsWithChildren } from 'react';
+import type { PropsWithChildren, ReactNode } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type ScreenProps = PropsWithChildren<{
   title: string;
+  /** Rendered next to the title (e.g. a settings button). */
+  action?: ReactNode;
   /** Set to false when the content brings its own list (e.g. FlashList). */
   scrollable?: boolean;
 }>;
 
 /** Base layout of a top-level screen: safe area, large title, content. */
-export function Screen({ title, scrollable = true, children }: ScreenProps) {
+export function Screen({ title, action, scrollable = true, children }: ScreenProps) {
   const insets = useSafeAreaInsets();
-  const heading = <Text className="pt-4 text-3xl font-bold text-foreground">{title}</Text>;
+  const heading = (
+    <View className="flex-row items-center justify-between pt-4">
+      <Text className="text-3xl font-bold text-foreground">{title}</Text>
+      {action}
+    </View>
+  );
 
   return (
     <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>

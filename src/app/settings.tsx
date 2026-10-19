@@ -1,0 +1,90 @@
+import Constants from 'expo-constants';
+import type { PropsWithChildren } from 'react';
+import { Alert, ScrollView, Share, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { Button } from '@/components/ui/button';
+import { LIBRARY_VERSION } from '@/features/exercises/library';
+import {
+  buildTranslationRequestsExport,
+  clearTranslationRequests,
+  useTranslationRequests,
+} from '@/features/exercises/translation-requests';
+
+export default function SettingsScreen() {
+  const insets = useSafeAreaInsets();
+  const { data: requests } = useTranslationRequests();
+
+  const exportRequests = () => {
+    Share.share({
+      title: 'Demandes de traduction',
+      message: buildTranslationRequestsExport(requests),
+    });
+  };
+
+  const confirmClear = () => {
+    Alert.alert('Vider la liste ?', 'Les demandes de traduction seront supprimées.', [
+      { text: 'Annuler', style: 'cancel' },
+      { text: 'Vider', style: 'destructive', onPress: clearTranslationRequests },
+    ]);
+  };
+
+  return (
+    <ScrollView
+      className="flex-1 bg-background"
+      contentContainerClassName="gap-6 p-4"
+      contentContainerStyle={{ paddingBottom: insets.bottom + 16 }}>
+      <Section title="Développeur">
+        <Card>
+          <Text className="text-base font-semibold text-foreground">Demandes de traduction</Text>
+          <Text className="text-muted">
+            {requests.length === 0
+              ? 'Aucune demande. Utilise « Demander la traduction » sur la fiche d’un exercice.'
+              : `${requests.length} exercice${requests.length > 1 ? 's' : ''} en attente`}
+          </Text>
+          {requests.map((request) => (
+            <Text key={request.slug} className="text-foreground">
+              • {request.name}
+            </Text>
+          ))}
+          <Button
+            label="Exporter la liste"
+            onPress={exportRequests}
+            disabled={requests.length === 0}
+          />
+          <Button
+            label="Vider la liste"
+            variant="secondary"
+            onPress={confirmClear}
+            disabled={requests.length === 0}
+          />
+        </Card>
+      </Section>
+
+      <Section title="À propos">
+        <Card>
+          <Text className="text-foreground">
+            Version {Constants.expoConfig?.version ?? '?'} · Bibliothèque v{LIBRARY_VERSION}
+          </Text>
+          <Text className="text-sm text-muted">
+            Exercices : free-exercise-db (domaine public). Silhouettes :
+            react-native-body-highlighter (MIT).
+          </Text>
+        </Card>
+      </Section>
+    </ScrollView>
+  );
+}
+
+function Section({ title, children }: PropsWithChildren<{ title: string }>) {
+  return (
+    <View className="gap-2">
+      <Text className="text-sm font-medium tracking-wide text-muted uppercase">{title}</Text>
+      {children}
+    </View>
+  );
+}
+
+function Card({ children }: PropsWithChildren) {
+  return <View className="gap-3 rounded-2xl border border-border bg-surface p-4">{children}</View>;
+}

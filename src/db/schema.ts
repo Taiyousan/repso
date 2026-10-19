@@ -8,6 +8,9 @@ export type SetType = (typeof SET_TYPES)[number];
 export const TRACKING_TYPES = ['weight_reps', 'bodyweight_reps', 'duration', 'distance'] as const;
 export type TrackingType = (typeof TRACKING_TYPES)[number];
 
+export const CONTENT_LANGUAGES = ['fr', 'en'] as const;
+export type ContentLanguage = (typeof CONTENT_LANGUAGES)[number];
+
 const createdAt = () =>
   integer('created_at', { mode: 'timestamp_ms' })
     .notNull()
@@ -30,6 +33,8 @@ export const exercises = sqliteTable(
     /** Stable identifier, also used by program import/export. */
     slug: text('slug').notNull().unique(),
     name: text('name').notNull(),
+    /** Original English name of library exercises, kept for search and import matching. */
+    nameEn: text('name_en'),
     primaryMuscles: text('primary_muscles', { mode: 'json' }).$type<string[]>().notNull(),
     secondaryMuscles: text('secondary_muscles', { mode: 'json' }).$type<string[]>().notNull(),
     equipment: text('equipment'),
@@ -38,13 +43,26 @@ export const exercises = sqliteTable(
     level: text('level'),
     mechanic: text('mechanic'),
     instructions: text('instructions', { mode: 'json' }).$type<string[]>().notNull(),
+    instructionsLanguage: text('instructions_language', { enum: CONTENT_LANGUAGES })
+      .notNull()
+      .default('fr'),
     images: text('images', { mode: 'json' }).$type<string[]>().notNull(),
     trackingType: text('tracking_type', { enum: TRACKING_TYPES }).notNull().default('weight_reps'),
+    /** Common exercises, shown by default in the library. */
+    isEssential: integer('is_essential', { mode: 'boolean' }).notNull().default(false),
     isCustom: integer('is_custom', { mode: 'boolean' }).notNull().default(false),
     createdAt: createdAt(),
   },
   (t) => [index('exercises_name_idx').on(t.name)],
 );
+
+/** Library exercises whose instructions the user asked to translate (exported from settings). */
+export const translationRequests = sqliteTable('translation_requests', {
+  exerciseId: integer('exercise_id')
+    .primaryKey()
+    .references(() => exercises.id, { onDelete: 'cascade' }),
+  requestedAt: createdAt(),
+});
 
 // ---------------------------------------------------------------------------
 // Programs (templates)
