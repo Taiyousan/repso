@@ -51,40 +51,42 @@ export function ExerciseBrowser({ selectedIds, onSelect, bottomInset = 96 }: Exe
 
   return (
     <View className="flex-1 gap-3">
-      <View className="gap-3 px-4">
-        <SegmentedControl
-          options={[
-            { value: 'essentials', label: `Essentiels (${essentialsCount})` },
-            { value: 'all', label: `Tous (${exercises.length})` },
-          ]}
-          value={scope}
-          onChange={setScope}
-        />
-        <TextField
-          value={query}
-          onChangeText={setQuery}
-          placeholder="Rechercher (français ou anglais)"
-          autoCorrect={false}
-          returnKeyType="search"
-          clearButtonMode="while-editing"
-        />
-      </View>
-      <MuscleFilter selected={muscle} onSelect={setMuscle} />
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        className="grow-0"
-        contentContainerClassName="gap-2 px-4"
-        keyboardShouldPersistTaps="handled">
-        {EQUIPMENT.map((item) => (
-          <Chip
-            key={item}
-            label={equipmentLabel(item)}
-            selected={equipment === item}
-            onPress={() => setEquipment(equipment === item ? null : item)}
+      {/* Not flex: horizontal ScrollViews grow to fill a flex parent and stretch their items. */}
+      <View className="gap-3">
+        <View className="gap-3 px-4">
+          <SegmentedControl
+            options={[
+              { value: 'essentials', label: `Essentiels (${essentialsCount})` },
+              { value: 'all', label: `Tous (${exercises.length})` },
+            ]}
+            value={scope}
+            onChange={setScope}
           />
-        ))}
-      </ScrollView>
+          <TextField
+            value={query}
+            onChangeText={setQuery}
+            placeholder="Rechercher (français ou anglais)"
+            autoCorrect={false}
+            returnKeyType="search"
+            clearButtonMode="while-editing"
+          />
+        </View>
+        <MuscleFilter selected={muscle} onSelect={setMuscle} />
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerClassName="gap-2 px-4"
+          keyboardShouldPersistTaps="handled">
+          {EQUIPMENT.map((item) => (
+            <Chip
+              key={item}
+              label={equipmentLabel(item)}
+              selected={equipment === item}
+              onPress={() => setEquipment(equipment === item ? null : item)}
+            />
+          ))}
+        </ScrollView>
+      </View>
 
       <View className="flex-1">
         <FlashList
