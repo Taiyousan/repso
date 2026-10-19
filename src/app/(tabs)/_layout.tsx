@@ -1,18 +1,20 @@
 import { NativeTabs } from 'expo-router/native-tabs';
-import { useCSSVariable } from 'uniwind';
+
+import { useThemeColors } from '@/lib/theme';
 
 export default function TabsLayout() {
-  const [surface, foreground, primary] = useCSSVariable([
-    '--color-surface',
-    '--color-foreground',
-    '--color-primary',
-  ]) as string[];
+  const colors = useThemeColors();
 
   return (
     <NativeTabs
-      backgroundColor={surface}
-      tintColor={primary}
-      labelStyle={{ selected: { color: foreground } }}>
+      backgroundColor={colors.surface}
+      // Every state is set explicitly: Android's defaults don't follow the app theme.
+      iconColor={{ default: colors.muted, selected: colors.primary }}
+      labelStyle={{ default: { color: colors.muted }, selected: { color: colors.foreground } }}
+      // Android hides unselected labels beyond three tabs by default.
+      labelVisibilityMode="labeled"
+      indicatorColor={colors.surfaceMuted}
+      rippleColor={colors.surfaceMuted}>
       <NativeTabs.Trigger name="index">
         <NativeTabs.Trigger.Label>Séance</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="figure.strengthtraining.traditional" md="fitness_center" />
