@@ -1,15 +1,7 @@
-import { desc, eq, inArray, max } from 'drizzle-orm';
+import { eq, max } from 'drizzle-orm';
 
 import { db } from '@/db/client';
-import {
-  exercises,
-  programs,
-  templateExercises,
-  templateSets,
-  workoutTemplates,
-} from '@/db/schema';
-
-import { defaultSets, nextSet, type TemplateSetValues } from './sets';
+import { programs, templateExercises, workoutTemplates } from '@/db/schema';
 
 export type ProgramInput = { name: string; description: string | null };
 
@@ -83,7 +75,7 @@ export function reorderWorkoutTemplates(orderedIds: number[]): void {
 // Template exercises
 // ---------------------------------------------------------------------------
 
-/** Appends exercises in the given order, each with default sets for its tracking type. */
+/** Appends exercises in the given order. */
 export function addExercisesToTemplate(templateId: number, exerciseIds: number[]): void {
   if (exerciseIds.length === 0) return;
 
@@ -93,33 +85,16 @@ export function addExercisesToTemplate(templateId: number, exerciseIds: number[]
       .from(templateExercises)
       .where(eq(templateExercises.templateId, templateId))
       .get();
-    let position = (last?.value ?? -1) + 1;
-
-    const rows = tx
-      .select({ id: exercises.id, trackingType: exercises.trackingType })
-      .from(exercises)
-      .where(inArray(exercises.id, exerciseIds))
-      .all();
-    const trackingTypeById = new Map(rows.map((row) => [row.id, row.trackingType]));
-
-    for (const exerciseId of exerciseIds) {
-      const trackingType = trackingTypeById.get(exerciseId);
-      if (!trackingType) continue;
-      const item = tx
-        .insert(templateExercises)
-        .values({ templateId, exerciseId, position: position++ })
-        .returning({ id: templateExercises.id })
-        .get();
-      tx.insert(templateSets)
-        .values(
-          defaultSets(trackingType).map((set, index) => ({
-            ...set,
-            templateExerciseId: item.id,
-            position: index,
-          })),
-        )
-        .run();
-    }
+    const start = (last?.value ?? -1) + 1;
+    tx.insert(templateExercises)
+      .values(
+        exerciseIds.map((exerciseId, index) => ({
+          templateId,
+          exerciseId,
+          position: start + index,
+        })),
+      )
+      .run();
   });
 }
 
@@ -140,44 +115,10 @@ export function setTemplateExerciseRest(id: number, restSeconds: number | null):
   db.update(templateExercises).set({ restSeconds }).where(eq(templateExercises.id, id)).run();
 }
 
-// ---------------------------------------------------------------------------
-// Template sets
-// ---------------------------------------------------------------------------
-
-export function addTemplateSet(templateExerciseId: number): void {
-  db.transaction((tx) => {
-    const item = tx
-      .select({ trackingType: exercises.trackingType })
-      .from(templateExercises)
-      .innerJoin(exercises, eq(exercises.id, templateExercises.exerciseId))
-      .where(eq(templateExercises.id, templateExerciseId))
-      .get();
-    if (!item) return;
-    const last = tx
-      .select()
-      .from(templateSets)
-      .where(eq(templateSets.templateExerciseId, templateExerciseId))
-      .orderBy(desc(templateSets.position))
-      .limit(1)
-      .get();
-    const values = nextSet(last, item.trackingType);
-    tx.insert(templateSets)
-      .values({
-        type: values.type,
-        targetReps: values.targetReps,
-        targetWeight: values.targetWeight,
-        targetDurationSeconds: values.targetDurationSeconds,
-        templateExerciseId,
-        position: (last?.position ?? -1) + 1,
-      })
-      .run();
-  });
-}
-
-export function updateTemplateSet(id: number, values: Partial<TemplateSetValues>): void {
-  db.update(templateSets).set(values).where(eq(templateSets.id, id)).run();
-}
-
-export function removeTemplateSet(id: number): void {
-  db.delete(templateSets).where(eq(templateSets.id, id)).run();
+/** Free text such as "4 × 8-10"; empty clears it. */
+export function setTemplateExerciseTarget(id: number, target: string): void {
+  db.update(templateExercises)
+    .set({ target: target.trim() || null })
+    .where(eq(templateExercises.id, id))
+    .run();
 }

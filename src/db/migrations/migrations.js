@@ -5,6 +5,7 @@ import m0000 from './0000_init.sql';
 import m0001 from './0001_app_meta.sql';
 import m0002 from './0002_translations.sql';
 import m0003 from './0003_workout_drafts.sql';
+import m0004 from './0004_exercise_list_templates.sql';
 
   export default {
     journal,
@@ -12,7 +13,8 @@ import m0003 from './0003_workout_drafts.sql';
       m0000,
 m0001,
 m0002,
-m0003
+m0003,
+m0004
     }
   }
   

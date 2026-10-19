@@ -1,33 +1,37 @@
 import { Link } from 'expo-router';
+import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { Card } from '@/components/ui/card';
 import { IconButton } from '@/components/ui/icon-button';
 import { DragHandle } from '@/components/ui/sortable-list';
+import { TextField } from '@/components/ui/text-field';
 import { ExerciseThumbnail } from '@/features/exercises/components/exercise-thumbnail';
 
-import { addTemplateSet, removeTemplateExercise, setTemplateExerciseRest } from '../mutations';
+import {
+  removeTemplateExercise,
+  setTemplateExerciseRest,
+  setTemplateExerciseTarget,
+} from '../mutations';
 import type { TemplateExerciseDetail } from '../queries';
-import { setBadges } from '../sets';
-import { RestSelector } from './rest-selector';
-import { TemplateSetRow } from './template-set-row';
+import { DEFAULT_REST_SECONDS, formatDuration } from '../sets';
+import { RestPresets } from './rest-presets';
 
-const COLUMN_LABELS = {
-  weight_reps: ['Reps', 'Kg'],
-  bodyweight_reps: ['Reps', ''],
-  duration: ['Secondes', ''],
-  distance: ['Secondes', ''],
-} as const;
-
-type TemplateExerciseCardProps = {
-  item: TemplateExerciseDetail;
-};
+type Panel = 'rest' | 'target' | null;
 
 /** Rendered inside a SortableList: the handle on the left reorders the card. */
-export function TemplateExerciseCard({ item }: TemplateExerciseCardProps) {
-  const { exercise, sets } = item;
-  const badges = setBadges(sets.map((set) => set.type));
-  const [firstColumn, secondColumn] = COLUMN_LABELS[exercise.trackingType];
+export function TemplateExerciseCard({ item }: { item: TemplateExerciseDetail }) {
+  const { exercise } = item;
+  const [panel, setPanel] = useState<Panel>(null);
+  const [target, setTarget] = useState(item.target ?? '');
+
+  const toggle = (next: Exclude<Panel, null>) =>
+    setPanel((current) => (current === next ? null : next));
+
+  const saveTarget = () => {
+    setTemplateExerciseTarget(item.id, target);
+    setPanel(null);
+  };
 
   return (
     <Card>
@@ -49,35 +53,58 @@ export function TemplateExerciseCard({ item }: TemplateExerciseCardProps) {
         />
       </View>
 
-      <RestSelector
-        restSeconds={item.restSeconds}
-        onChange={(restSeconds) => setTemplateExerciseRest(item.id, restSeconds)}
-      />
-
-      <View className="gap-2">
-        <View className="flex-row items-center gap-3">
-          <Text className="w-9 text-center text-xs text-muted">Série</Text>
-          <Text className="flex-1 text-center text-xs text-muted">{firstColumn}</Text>
-          <Text className="flex-1 text-center text-xs text-muted">{secondColumn}</Text>
-          <View className="w-8" />
-        </View>
-        {sets.map((set, index) => (
-          <TemplateSetRow
-            key={set.id}
-            set={set}
-            badge={badges[index]}
-            trackingType={exercise.trackingType}
-            canRemove={sets.length > 1}
-          />
-        ))}
+      {/* Settings stay folded into one line; tapping a part opens it below. */}
+      <View className="flex-row items-center justify-between gap-3">
+        <Pressable
+          onPress={() => toggle('rest')}
+          accessibilityRole="button"
+          accessibilityState={{ expanded: panel === 'rest' }}
+          hitSlop={6}>
+          <Text className="text-sm text-muted">
+            Repos{' '}
+            <Text className="font-semibold text-foreground">
+              {formatDuration(item.restSeconds ?? DEFAULT_REST_SECONDS)}
+            </Text>
+            {item.restSeconds == null ? ' (défaut)' : ''}
+          </Text>
+        </Pressable>
+        <Pressable
+          onPress={() => toggle('target')}
+          accessibilityRole="button"
+          accessibilityState={{ expanded: panel === 'target' }}
+          hitSlop={6}
+          className="shrink">
+          {item.target ? (
+            <Text className="text-sm text-muted" numberOfLines={1}>
+              Objectif <Text className="font-semibold text-foreground">{item.target}</Text>
+            </Text>
+          ) : (
+            <Text className="text-sm text-primary">+ Objectif</Text>
+          )}
+        </Pressable>
       </View>
 
-      <Pressable
-        onPress={() => addTemplateSet(item.id)}
-        accessibilityRole="button"
-        className="items-center rounded-lg bg-surface-muted py-2 active:opacity-80">
-        <Text className="text-sm font-semibold text-foreground">+ Ajouter une série</Text>
-      </Pressable>
+      {panel === 'rest' ? (
+        <RestPresets
+          restSeconds={item.restSeconds}
+          onChange={(restSeconds) => {
+            setTemplateExerciseRest(item.id, restSeconds);
+            setPanel(null);
+          }}
+        />
+      ) : null}
+
+      {panel === 'target' ? (
+        <TextField
+          value={target}
+          onChangeText={setTarget}
+          placeholder="Ex. 4 × 8-10, RPE 8, 3 × max"
+          autoFocus
+          returnKeyType="done"
+          onSubmitEditing={saveTarget}
+          onEndEditing={saveTarget}
+        />
+      ) : null}
     </Card>
   );
 }

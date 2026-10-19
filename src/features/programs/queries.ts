@@ -2,13 +2,7 @@ import { and, asc, count, eq, inArray } from 'drizzle-orm';
 
 import { db } from '@/db/client';
 import { useLiveData } from '@/db/live';
-import {
-  exercises,
-  programs,
-  templateExercises,
-  templateSets,
-  workoutTemplates,
-} from '@/db/schema';
+import { exercises, programs, templateExercises, workoutTemplates } from '@/db/schema';
 
 import { mainMuscles } from './sets';
 
@@ -60,21 +54,6 @@ export function useProgram(id: number) {
               .where(inArray(templateExercises.templateId, templateIds))
               .all();
 
-      const setCounts =
-        templateIds.length === 0
-          ? []
-          : db
-              .select({ templateId: templateExercises.templateId, value: count() })
-              .from(templateSets)
-              .innerJoin(
-                templateExercises,
-                eq(templateExercises.id, templateSets.templateExerciseId),
-              )
-              .where(inArray(templateExercises.templateId, templateIds))
-              .groupBy(templateExercises.templateId)
-              .all();
-      const setCountByTemplate = new Map(setCounts.map((row) => [row.templateId, row.value]));
-
       return {
         ...program,
         workouts: templates.map((template) => {
@@ -82,13 +61,12 @@ export function useProgram(id: number) {
           return {
             ...template,
             exerciseCount: templateItems.length,
-            setCount: setCountByTemplate.get(template.id) ?? 0,
             muscles: mainMuscles(templateItems),
           };
         }),
       };
     },
-    ['programs', 'workout_templates', 'template_exercises', 'template_sets'],
+    ['programs', 'workout_templates', 'template_exercises'],
     id,
   );
 }
@@ -112,29 +90,13 @@ export function useWorkoutTemplate(id: number) {
         .where(eq(templateExercises.templateId, id))
         .orderBy(asc(templateExercises.position))
         .all();
-      const itemIds = rows.map((row) => row.item.id);
-
-      const sets =
-        itemIds.length === 0
-          ? []
-          : db
-              .select()
-              .from(templateSets)
-              .where(inArray(templateSets.templateExerciseId, itemIds))
-              .orderBy(asc(templateSets.position))
-              .all();
-
       return {
         ...template,
         programName: program?.name ?? '',
-        exercises: rows.map(({ item, exercise }) => ({
-          ...item,
-          exercise,
-          sets: sets.filter((set) => set.templateExerciseId === item.id),
-        })),
+        exercises: rows.map(({ item, exercise }) => ({ ...item, exercise })),
       };
     },
-    ['workout_templates', 'template_exercises', 'template_sets'],
+    ['workout_templates', 'template_exercises'],
     id,
   );
 }

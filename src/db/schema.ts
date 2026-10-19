@@ -106,25 +106,11 @@ export const templateExercises = sqliteTable(
     position: integer('position').notNull(),
     /** Null falls back to the global default rest time. */
     restSeconds: integer('rest_seconds'),
+    /** Free-text target shown during the session, e.g. "4 × 8-10" (from an imported program). */
+    target: text('target'),
     notes: text('notes'),
   },
   (t) => [index('template_exercises_template_idx').on(t.templateId)],
-);
-
-export const templateSets = sqliteTable(
-  'template_sets',
-  {
-    id: integer('id').primaryKey({ autoIncrement: true }),
-    templateExerciseId: integer('template_exercise_id')
-      .notNull()
-      .references(() => templateExercises.id, { onDelete: 'cascade' }),
-    position: integer('position').notNull(),
-    type: text('type', { enum: SET_TYPES }).notNull().default('normal'),
-    targetReps: integer('target_reps'),
-    targetWeight: real('target_weight'),
-    targetDurationSeconds: integer('target_duration_seconds'),
-  },
-  (t) => [index('template_sets_template_exercise_idx').on(t.templateExerciseId)],
 );
 
 // ---------------------------------------------------------------------------
@@ -217,7 +203,6 @@ export type Exercise = typeof exercises.$inferSelect;
 export type Program = typeof programs.$inferSelect;
 export type WorkoutTemplate = typeof workoutTemplates.$inferSelect;
 export type TemplateExercise = typeof templateExercises.$inferSelect;
-export type TemplateSet = typeof templateSets.$inferSelect;
 export type WorkoutSession = typeof workoutSessions.$inferSelect;
 export type SessionExercise = typeof sessionExercises.$inferSelect;
 export type SessionSet = typeof sessionSets.$inferSelect;

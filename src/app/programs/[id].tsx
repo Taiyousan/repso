@@ -75,8 +75,7 @@ export default function ProgramScreen() {
                   <Pressable className="flex-1 gap-1 p-4 pl-2 active:opacity-80">
                     <Text className="text-base font-semibold text-foreground">{workout.name}</Text>
                     <Text className="text-sm text-muted">
-                      {workout.exerciseCount} exercice{workout.exerciseCount > 1 ? 's' : ''} ·{' '}
-                      {workout.setCount} série{workout.setCount > 1 ? 's' : ''}
+                      {workout.exerciseCount} exercice{workout.exerciseCount > 1 ? 's' : ''}
                     </Text>
                     {workout.muscles.length > 0 ? (
                       <Text className="text-sm text-muted" numberOfLines={1}>
