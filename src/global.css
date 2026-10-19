@@ -15,6 +15,7 @@
       --color-foreground: #111113;
       --color-muted: #63636b;
       --color-primary: #e8472b;
+      --color-primary-soft: #f6b4a6;
       --color-primary-foreground: #ffffff;
       --color-success: #1f9d55;
       --color-danger: #d92d20;
@@ -28,6 +29,7 @@
       --color-foreground: #f4f4f5;
       --color-muted: #a0a0a9;
       --color-primary: #ff5a3c;
+      --color-primary-soft: #8c3626;
       --color-primary-foreground: #ffffff;
       --color-success: #34c77b;
       --color-danger: #f04438;

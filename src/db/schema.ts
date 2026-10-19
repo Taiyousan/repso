@@ -13,6 +13,12 @@ const createdAt = () =>
     .notNull()
     .default(sql`(unixepoch() * 1000)`);
 
+/** Internal key/value store (e.g. version of the bundled exercise library). */
+export const appMeta = sqliteTable('app_meta', {
+  key: text('key').primaryKey(),
+  value: text('value').notNull(),
+});
+
 // ---------------------------------------------------------------------------
 // Exercise library
 // ---------------------------------------------------------------------------
