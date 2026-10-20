@@ -11,7 +11,7 @@ import { RestPresets } from '@/features/programs/components/rest-presets';
 import { DEFAULT_REST_SECONDS, formatDuration, setBadges } from '@/features/programs/sets';
 import { useThemeColors } from '@/lib/theme';
 
-import { bestSet, formatPerformance, isExerciseComplete, previousFor } from '../logic';
+import { isExerciseComplete, previousFor } from '../logic';
 import {
   addSessionSet,
   removeLastPendingSet,
@@ -62,7 +62,6 @@ export function SessionExerciseCard({ item, onSetCompleted }: SessionExerciseCar
   };
 
   if (isComplete && !expanded) {
-    const best = bestSet(sets, exercise.trackingType);
     return (
       <Pressable
         onPress={() => setExpanded(true)}
@@ -79,8 +78,7 @@ export function SessionExerciseCard({ item, onSetCompleted }: SessionExerciseCar
             {exercise.name}
           </Text>
           <Text className="text-sm text-muted" numberOfLines={1}>
-            {sets.length} série{sets.length > 1 ? 's' : ''} · meilleure{' '}
-            {formatPerformance(best, exercise.trackingType)}
+            {sets.length} série{sets.length > 1 ? 's' : ''}
           </Text>
         </View>
         <Icon name={{ ios: 'chevron.down', android: 'expand_more' }} color={colors.muted} />

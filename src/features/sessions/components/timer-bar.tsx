@@ -1,32 +1,30 @@
-import * as Haptics from 'expo-haptics';
-import { useEffect } from 'react';
+import { router } from 'expo-router';
 import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { formatDuration } from '@/features/programs/sets';
-import { useNow } from '@/lib/use-now';
 
-import { remainingSeconds } from '../logic';
-import { markRestFinished, useRestTimer } from '../rest-timer';
+import { useTimer } from '../timer';
+import { useTimerTicker } from '../use-timer-ticker';
 
-/** Countdown docked at the bottom of the session screen while resting. */
-export function RestTimerBar() {
+/** Countdown docked at the bottom of the session screen; tapping it opens the timer screen. */
+export function TimerBar() {
   const insets = useSafeAreaInsets();
-  const { endsAt, totalSeconds, label, adjust, stop } = useRestTimer();
-  const now = useNow(250, endsAt != null);
+  const { status, kind, totalSeconds, label, adjust, stop } = useTimer();
+  const remainingMs = useTimerTicker();
 
-  const remaining = endsAt == null ? 0 : remainingSeconds(endsAt, now);
-  const isOver = endsAt != null && remaining === 0;
+  if (status === 'idle') return null;
 
-  useEffect(() => {
-    if (!isOver) return;
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    markRestFinished();
-  }, [isOver]);
-
-  if (endsAt == null) return null;
-
+  const remaining = Math.ceil(remainingMs / 1000);
   const progress = totalSeconds > 0 ? 1 - remaining / totalSeconds : 1;
+  const caption =
+    status === 'paused'
+      ? 'En pause'
+      : kind === 'rest'
+        ? label
+          ? `Repos · ensuite ${label}`
+          : 'Repos'
+        : 'Minuteur';
 
   return (
     <View
@@ -35,21 +33,25 @@ export function RestTimerBar() {
       <View className="h-1.5 overflow-hidden rounded-full bg-surface-muted">
         <View
           className="h-full bg-primary"
-          style={{ width: `${Math.min(100, progress * 100)}%` }}
+          style={{ width: `${Math.min(100, Math.max(0, progress * 100))}%` }}
         />
       </View>
       <View className="flex-row items-center gap-3">
         <TimerButton label="−15 s" onPress={() => adjust(-1)} />
-        <View className="flex-1 items-center">
+        <Pressable
+          onPress={() => router.push('/timer')}
+          accessibilityRole="button"
+          accessibilityLabel="Ouvrir le minuteur"
+          className="flex-1 items-center active:opacity-70">
           <Text
             className="text-3xl font-bold text-foreground"
             style={{ fontVariant: ['tabular-nums'] }}>
             {formatDuration(remaining)}
           </Text>
           <Text className="text-xs text-muted" numberOfLines={1}>
-            {label ? `Repos · ensuite ${label}` : 'Repos'}
+            {caption}
           </Text>
-        </View>
+        </Pressable>
         <TimerButton label="+15 s" onPress={() => adjust(1)} />
         <TimerButton label="Passer" onPress={stop} primary />
       </View>

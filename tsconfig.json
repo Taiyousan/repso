@@ -4,6 +4,7 @@
     "strict": true,
     "types": ["jest"],
     "paths": {
+      "@/modules/*": ["./modules/*"],
       "@/*": ["./src/*"],
       "@/assets/*": ["./assets/*"]
     }

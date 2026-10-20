@@ -19,6 +19,10 @@ type ProgressRingProps = PropsWithChildren<{
   progress: number;
   size?: number;
   strokeWidth?: number;
+  /** Fill animation length; short and linear suits a ticking countdown. */
+  animationMs?: number;
+  /** Turn green when full (progress of a list); off for a countdown. */
+  highlightComplete?: boolean;
 }>;
 
 /**
@@ -29,6 +33,8 @@ export function ProgressRing({
   progress,
   size = 48,
   strokeWidth = 5,
+  animationMs = FILL_DURATION_MS,
+  highlightComplete = true,
   children,
 }: ProgressRingProps) {
   const colors = useThemeColors();
@@ -40,10 +46,10 @@ export function ProgressRing({
 
   useEffect(() => {
     animatedProgress.value = withTiming(clamped, {
-      duration: FILL_DURATION_MS,
-      easing: Easing.out(Easing.cubic),
+      duration: animationMs,
+      easing: animationMs === FILL_DURATION_MS ? Easing.out(Easing.cubic) : Easing.linear,
     });
-  }, [animatedProgress, clamped]);
+  }, [animatedProgress, clamped, animationMs]);
 
   const arcProps = useAnimatedProps(() => ({
     strokeDashoffset: circumference * (1 - animatedProgress.value),
@@ -67,7 +73,7 @@ export function ProgressRing({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke={clamped >= 1 ? colors.success : colors.primary}
+          stroke={highlightComplete && clamped >= 1 ? colors.success : colors.primary}
           strokeWidth={strokeWidth}
           strokeLinecap="round"
           strokeDasharray={`${circumference} ${circumference}`}

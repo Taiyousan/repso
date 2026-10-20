@@ -44,6 +44,7 @@ export default function RootLayout() {
               options={{ title: 'Ajouter des exercices' }}
             />
             <Stack.Screen name="session/[id]" options={{ title: '' }} />
+            <Stack.Screen name="timer" options={{ title: 'Minuteur', presentation: 'modal' }} />
             <Stack.Screen
               name="session/add-exercises/[id]"
               options={{ title: 'Ajouter des exercices' }}

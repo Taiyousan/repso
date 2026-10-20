@@ -41,17 +41,14 @@ export function ensureNotificationsReady(): Promise<boolean> {
 }
 
 /**
- * Schedules the end-of-rest notification at `endsAt`. 'alarmClock' delivery is exact: the default
- * lets Android defer the alarm to save battery, which delayed it by a few seconds.
+ * Schedules the end-of-timer alert at `endsAt`. 'alarmClock' delivery is exact: the default lets
+ * Android defer the alarm to save battery, which delayed it by a few seconds.
  */
-export async function scheduleRestEnd(endsAt: number, nextExercise: string): Promise<void> {
+export async function scheduleTimerEnd(endsAt: number, title: string, body: string): Promise<void> {
   if (!(await ensureNotificationsReady())) return;
   await Notifications.scheduleNotificationAsync({
     identifier: REST_NOTIFICATION_ID,
-    content: {
-      title: 'Repos terminé',
-      body: nextExercise ? `C'est reparti : ${nextExercise}` : "C'est reparti !",
-    },
+    content: { title, body },
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.DATE,
       date: endsAt,
@@ -61,7 +58,7 @@ export async function scheduleRestEnd(endsAt: number, nextExercise: string): Pro
   });
 }
 
-export async function cancelRestEnd(): Promise<void> {
+export async function cancelTimerEnd(): Promise<void> {
   await Notifications.cancelScheduledNotificationAsync(REST_NOTIFICATION_ID).catch(() => undefined);
 }
 

@@ -6,10 +6,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
+import { Icon } from '@/components/ui/icon';
 import { ProgressRing } from '@/components/ui/progress-ring';
 import { SortableList } from '@/components/ui/sortable-list';
 import { DEFAULT_REST_SECONDS } from '@/features/programs/sets';
-import { RestTimerBar } from '@/features/sessions/components/rest-timer-bar';
+import { TimerBar } from '@/features/sessions/components/timer-bar';
 import { SessionExerciseCard } from '@/features/sessions/components/session-exercise-card';
 import { formatElapsed, isExerciseComplete } from '@/features/sessions/logic';
 import {
@@ -22,7 +23,7 @@ import {
   type SessionExerciseDetail,
   useSession,
 } from '@/features/sessions/queries';
-import { useRestTimer } from '@/features/sessions/rest-timer';
+import { useTimer } from '@/features/sessions/timer';
 import { useThemeColors } from '@/lib/theme';
 import { useNow } from '@/lib/use-now';
 
@@ -71,11 +72,11 @@ function LiveSession({ session }: { session: SessionDetail }) {
               other.position > item.position && other.sets.some((set) => set.completedAt == null),
           );
     if (!next) return; // nothing left to do: no rest needed
-    useRestTimer.getState().start(item.restSeconds ?? DEFAULT_REST_SECONDS, next.exercise.name);
+    useTimer.getState().startRest(item.restSeconds ?? DEFAULT_REST_SECONDS, next.exercise.name);
   };
 
   const leave = (action: () => void) => {
-    useRestTimer.getState().stop();
+    useTimer.getState().stop();
     router.back();
     // After the screen left, so it doesn't flash an empty state while animating out.
     setTimeout(action, 500);
@@ -114,7 +115,7 @@ function LiveSession({ session }: { session: SessionDetail }) {
         {
           text: 'Terminer',
           onPress: () => {
-            useRestTimer.getState().stop();
+            useTimer.getState().stop();
             finishSession(session.id);
             router.back();
           },
@@ -133,9 +134,18 @@ function LiveSession({ session }: { session: SessionDetail }) {
         options={{
           title: session.name,
           headerRight: () => (
-            <Pressable onPress={confirmFinish} hitSlop={8}>
-              <Text className="text-base font-semibold text-primary">Terminer</Text>
-            </Pressable>
+            <View className="flex-row items-center gap-4">
+              <Pressable
+                onPress={() => router.push('/timer')}
+                accessibilityRole="button"
+                accessibilityLabel="Minuteur"
+                hitSlop={8}>
+                <Icon name={{ ios: 'timer', android: 'timer' }} color={colors.foreground} />
+              </Pressable>
+              <Pressable onPress={confirmFinish} hitSlop={8}>
+                <Text className="text-base font-semibold text-primary">Terminer</Text>
+              </Pressable>
+            </View>
           ),
         }}
       />
@@ -193,7 +203,7 @@ function LiveSession({ session }: { session: SessionDetail }) {
         <Button label="Abandonner la séance" variant="danger" onPress={confirmDiscard} />
       </Animated.ScrollView>
 
-      <RestTimerBar />
+      <TimerBar />
     </KeyboardAvoidingView>
   );
 }
