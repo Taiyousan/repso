@@ -42,12 +42,16 @@ export default function RootLayout() {
             <Stack.Screen
               name="workouts/add-exercises/[id]"
               options={{ title: 'Ajouter des exercices' }}
+              // A slow push tapped twice must not stack the catalog twice.
+              dangerouslySingular
             />
             <Stack.Screen name="session/[id]" options={{ title: '' }} />
             <Stack.Screen name="timer" options={{ title: 'Minuteur', presentation: 'modal' }} />
             <Stack.Screen
               name="session/add-exercises/[id]"
               options={{ title: 'Ajouter des exercices' }}
+              // A slow push tapped twice must not stack the catalog twice.
+              dangerouslySingular
             />
           </Stack>
         </DatabaseGate>

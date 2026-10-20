@@ -4,13 +4,22 @@ import { useMemo } from 'react';
 
 import { db } from '@/db/client';
 import { exercises } from '@/db/schema';
+import { normalizeText } from '@/lib/text';
 
-// SQLite's default collation sorts accented letters after "z" ("Écarté" after "Zercher").
-const collator = new Intl.Collator('fr', { sensitivity: 'base' });
+/**
+ * SQLite's default collation sorts accented letters after "z" ("Écarté" after "Zercher").
+ * Sorting on accent-free keys computed once avoids ~10k Intl.Collator calls, slow on Hermes.
+ */
+function sortByName<T extends { name: string }>(items: T[]): T[] {
+  return items
+    .map((item) => ({ item, key: normalizeText(item.name) }))
+    .sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0))
+    .map(({ item }) => item);
+}
 
 export function useExerciseList() {
   const { data, ...rest } = useLiveQuery(db.select().from(exercises));
-  const sorted = useMemo(() => [...data].sort((a, b) => collator.compare(a.name, b.name)), [data]);
+  const sorted = useMemo(() => sortByName(data), [data]);
   return { data: sorted, ...rest };
 }
 
