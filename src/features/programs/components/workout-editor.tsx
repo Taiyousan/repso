@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { SortableList } from '@/components/ui/sortable-list';
 import { TextField } from '@/components/ui/text-field';
+import { startAndOpenSession } from '@/features/sessions/start';
 import { useThemeColors } from '@/lib/theme';
 
 import {
@@ -116,6 +117,10 @@ export function WorkoutEditor({ workout, mode }: WorkoutEditorProps) {
           />
           <Text className="text-sm text-muted">Programme : {workout.programName}</Text>
         </View>
+
+        {!isCreating && workout.exercises.length > 0 ? (
+          <Button label="Démarrer cette séance" onPress={() => startAndOpenSession(workout.id)} />
+        ) : null}
 
         {workout.exercises.length === 0 ? (
           <EmptyState

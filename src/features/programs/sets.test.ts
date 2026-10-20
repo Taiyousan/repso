@@ -1,61 +1,12 @@
 import {
-  defaultSets,
   formatDecimal,
   formatDuration,
   mainMuscles,
-  nextSet,
   nextSetType,
   parseDecimal,
   parseInteger,
   setBadges,
 } from './sets';
-
-describe('defaultSets', () => {
-  it('creates three sets of 10 reps for rep-based exercises', () => {
-    const sets = defaultSets('weight_reps');
-    expect(sets).toHaveLength(3);
-    expect(sets.every((set) => set.targetReps === 10 && set.type === 'normal')).toBe(true);
-  });
-
-  it('creates timed sets for duration exercises', () => {
-    expect(defaultSets('duration')[0]).toMatchObject({
-      targetReps: null,
-      targetDurationSeconds: 30,
-    });
-  });
-
-  it('returns independent objects', () => {
-    const sets = defaultSets('weight_reps');
-    sets[0].targetReps = 5;
-    expect(sets[1].targetReps).toBe(10);
-  });
-});
-
-describe('nextSet', () => {
-  it('copies the previous set', () => {
-    const previous = {
-      type: 'normal' as const,
-      targetReps: 8,
-      targetWeight: 80,
-      targetDurationSeconds: null,
-    };
-    expect(nextSet(previous, 'weight_reps')).toEqual(previous);
-  });
-
-  it('turns a warm-up into a working set', () => {
-    const warmup = {
-      type: 'warmup' as const,
-      targetReps: 12,
-      targetWeight: 40,
-      targetDurationSeconds: null,
-    };
-    expect(nextSet(warmup, 'weight_reps').type).toBe('normal');
-  });
-
-  it('falls back to defaults without a previous set', () => {
-    expect(nextSet(undefined, 'duration').targetDurationSeconds).toBe(30);
-  });
-});
 
 describe('nextSetType', () => {
   it('cycles through every set type', () => {

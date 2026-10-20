@@ -1,4 +1,6 @@
 import '@/global.css';
+// Registers the notification handler before anything can schedule a notification.
+import '@/features/sessions/notifications';
 
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -39,6 +41,11 @@ export default function RootLayout() {
             <Stack.Screen name="workouts/new/[id]" options={{ title: 'Nouvelle séance' }} />
             <Stack.Screen
               name="workouts/add-exercises/[id]"
+              options={{ title: 'Ajouter des exercices' }}
+            />
+            <Stack.Screen name="session/[id]" options={{ title: '' }} />
+            <Stack.Screen
+              name="session/add-exercises/[id]"
               options={{ title: 'Ajouter des exercices' }}
             />
           </Stack>

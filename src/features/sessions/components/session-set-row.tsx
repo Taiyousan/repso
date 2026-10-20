@@ -1,0 +1,156 @@
+import * as Haptics from 'expo-haptics';
+import { useState } from 'react';
+import { Pressable, Text, TextInput, type TextInputProps, View } from 'react-native';
+
+import { Icon } from '@/components/ui/icon';
+import type { SessionSet, SetType, TrackingType } from '@/db/schema';
+import { formatDecimal, nextSetType, SET_TYPE_LABELS } from '@/features/programs/sets';
+import { useThemeColors } from '@/lib/theme';
+
+import {
+  canComplete,
+  formatPerformance,
+  resolveSetValues,
+  type SetInput,
+  type SetPerformance,
+} from '../logic';
+import { completeSessionSet, uncompleteSessionSet, updateSessionSet } from '../mutations';
+
+const BADGE_STYLES: Record<SetType, { container: string; label: string }> = {
+  normal: { container: 'bg-surface-muted', label: 'text-foreground' },
+  warmup: { container: 'border border-border bg-surface', label: 'text-muted' },
+  dropset: { container: 'bg-primary-soft', label: 'text-foreground' },
+  failure: { container: 'bg-danger', label: 'text-primary-foreground' },
+};
+
+type SessionSetRowProps = {
+  set: SessionSet;
+  badge: string;
+  trackingType: TrackingType;
+  /** Same set last time, shown as placeholder and used when validating empty fields. */
+  previous: SetPerformance | null;
+  onCompleted: () => void;
+};
+
+const toText = (value: number | null) => (value == null ? '' : String(value));
+
+export function SessionSetRow({
+  set,
+  badge,
+  trackingType,
+  previous,
+  onCompleted,
+}: SessionSetRowProps) {
+  const colors = useThemeColors();
+  // Inputs keep local text and save when editing ends, so typing never fights the database.
+  const [input, setInput] = useState<SetInput>({
+    weight: formatDecimal(set.weight),
+    reps: toText(set.reps),
+    duration: toText(set.durationSeconds),
+  });
+  const done = set.completedAt != null;
+  const isTimed = trackingType === 'duration' || trackingType === 'distance';
+  const resolved = resolveSetValues(input, previous, trackingType);
+  const style = BADGE_STYLES[set.type];
+
+  const change = (field: keyof SetInput) => (text: string) =>
+    setInput((current) => ({ ...current, [field]: text }));
+
+  const saveTyped = () => {
+    const typed = resolveSetValues(input, null, trackingType);
+    updateSessionSet(set.id, typed);
+  };
+
+  const toggleDone = () => {
+    if (done) {
+      uncompleteSessionSet(set.id);
+      return;
+    }
+    if (!canComplete(resolved, trackingType)) return;
+    completeSessionSet(set.id, resolved);
+    setInput({
+      weight: formatDecimal(resolved.weight),
+      reps: toText(resolved.reps),
+      duration: toText(resolved.durationSeconds),
+    });
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    onCompleted();
+  };
+
+  return (
+    <View
+      className={`flex-row items-center gap-2 rounded-lg px-1 py-1 ${done ? 'bg-surface-muted' : ''}`}>
+      <Pressable
+        onPress={() => updateSessionSet(set.id, { type: nextSetType(set.type) })}
+        accessibilityRole="button"
+        accessibilityLabel={`${SET_TYPE_LABELS[set.type]}. Toucher pour changer le type`}
+        className={`size-9 items-center justify-center rounded-lg ${style.container}`}>
+        <Text className={`text-sm font-bold ${style.label}`}>{badge}</Text>
+      </Pressable>
+
+      <Text className="w-16 text-center text-xs text-muted" numberOfLines={1}>
+        {formatPerformance(previous, trackingType)}
+      </Text>
+
+      {isTimed ? (
+        <NumberInput
+          value={input.duration}
+          onChangeText={change('duration')}
+          onEndEditing={saveTyped}
+          placeholder={toText(previous?.durationSeconds ?? null) || 's'}
+          accessibilityLabel="Durée en secondes"
+          editable={!done}
+        />
+      ) : (
+        <>
+          {trackingType === 'weight_reps' ? (
+            <NumberInput
+              value={input.weight}
+              onChangeText={change('weight')}
+              onEndEditing={saveTyped}
+              placeholder={formatDecimal(previous?.weight ?? null) || 'kg'}
+              keyboardType="decimal-pad"
+              accessibilityLabel="Poids en kilos"
+              editable={!done}
+            />
+          ) : null}
+          <NumberInput
+            value={input.reps}
+            onChangeText={change('reps')}
+            onEndEditing={saveTyped}
+            placeholder={toText(previous?.reps ?? null) || 'reps'}
+            accessibilityLabel="Répétitions"
+            editable={!done}
+          />
+        </>
+      )}
+
+      <Pressable
+        onPress={toggleDone}
+        accessibilityRole="checkbox"
+        accessibilityState={{ checked: done }}
+        accessibilityLabel="Valider la série"
+        hitSlop={4}
+        className={`size-10 items-center justify-center rounded-lg ${done ? 'bg-success' : 'border border-border bg-surface'}`}>
+        <Icon
+          name={{ ios: 'checkmark', android: 'check' }}
+          size={22}
+          color={done ? '#ffffff' : colors.muted}
+        />
+      </Pressable>
+    </View>
+  );
+}
+
+function NumberInput(props: Omit<TextInputProps, 'className' | 'placeholderTextColor'>) {
+  const colors = useThemeColors();
+  return (
+    <TextInput
+      keyboardType="number-pad"
+      selectTextOnFocus
+      placeholderTextColor={colors.muted}
+      {...props}
+      className="flex-1 rounded-lg border border-border bg-background px-2 py-2 text-center text-base text-foreground"
+    />
+  );
+}
