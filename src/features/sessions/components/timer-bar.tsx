@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { formatDuration } from '@/features/programs/sets';
 
-import { useTimer } from '../timer';
+import { timerCaption, useTimer } from '../timer';
 import { useTimerTicker } from '../use-timer-ticker';
 
 /** Countdown docked at the bottom of the session screen; tapping it opens the timer screen. */
@@ -17,14 +17,7 @@ export function TimerBar() {
 
   const remaining = Math.ceil(remainingMs / 1000);
   const progress = totalSeconds > 0 ? 1 - remaining / totalSeconds : 1;
-  const caption =
-    status === 'paused'
-      ? 'En pause'
-      : kind === 'rest'
-        ? label
-          ? `Repos · ensuite ${label}`
-          : 'Repos'
-        : 'Minuteur';
+  const caption = timerCaption({ status, kind, label });
 
   return (
     <View

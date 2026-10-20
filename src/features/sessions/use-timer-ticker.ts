@@ -13,9 +13,10 @@ export function useTimerTicker(): number {
   const now = useNow(250, status === 'running');
 
   useEffect(() => {
-    if (useTimer.getState().finishIfOver(now)) {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    }
+    const finished = useTimer.getState().finishIfOver(now);
+    if (!finished) return;
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    finished.onFinish?.();
   }, [now]);
 
   return timerRemainingMs({ status, endsAt, remainingMs }, now);

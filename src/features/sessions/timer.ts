@@ -11,8 +11,11 @@ const ADJUST_STEP_SECONDS = 15;
 export const DEFAULT_MANUAL_SECONDS = 60;
 export const TIMER_PRESETS = [30, 45, 60, 90, 120, 180, 300] as const;
 
-/** rest: started automatically after a set. manual: started from the timer screen. */
-export type TimerKind = 'rest' | 'manual';
+/**
+ * rest: started automatically after a set. manual: started from the timer screen.
+ * set: a timed set (plank…), validated when the countdown ends.
+ */
+export type TimerKind = 'rest' | 'manual' | 'set';
 export type TimerStatus = 'idle' | 'running' | 'paused';
 
 type TimerState = {
@@ -24,18 +27,26 @@ type TimerState = {
   remainingMs: number;
   /** Full length of the current countdown, for progress display. */
   totalSeconds: number;
-  /** Rest: the exercise coming next. */
+  /** Rest: the exercise coming next. Set: the exercise being done. */
   label: string;
+  /** Timed set being counted down, if any. */
+  setId: number | null;
+  /** Run when the countdown reaches zero (not when stopped). */
+  onFinish: (() => void) | null;
 
   startRest: (seconds: number, nextExercise: string) => void;
   startManual: (seconds: number) => void;
+  startSet: (seconds: number, exercise: string, setId: number, onFinish: () => void) => void;
   setDuration: (seconds: number) => void;
   pause: () => void;
   resume: () => void;
   adjust: (direction: 1 | -1) => void;
   stop: () => void;
-  /** Called by the UI on each tick; returns true only the first time the countdown is over. */
-  finishIfOver: (now: number) => boolean;
+  /**
+   * Called by the UI on each tick. The first call after the countdown is over ends it and
+   * returns what to run; every other call returns null.
+   */
+  finishIfOver: (now: number) => { onFinish: (() => void) | null } | null;
 };
 
 // Notification calls are chained so a quick sequence of actions applies in order.
@@ -45,19 +56,29 @@ const queue = (task: () => Promise<void> | void) => {
 };
 
 function texts(kind: TimerKind, label: string) {
-  return kind === 'rest'
-    ? {
+  switch (kind) {
+    case 'rest':
+      return {
         countdownTitle: 'Repos',
         countdownBody: label ? `Ensuite : ${label}` : 'Séance en cours',
         endTitle: 'Repos terminé',
         endBody: label ? `C'est reparti : ${label}` : "C'est reparti !",
-      }
-    : {
+      };
+    case 'set':
+      return {
+        countdownTitle: label || 'Série en cours',
+        countdownBody: 'Tiens bon !',
+        endTitle: 'Série terminée',
+        endBody: label ? `${label} : validée` : 'Validée',
+      };
+    case 'manual':
+      return {
         countdownTitle: 'Minuteur',
         countdownBody: 'En cours',
         endTitle: 'Minuteur terminé',
         endBody: 'Temps écoulé !',
       };
+  }
 }
 
 function notifyRunning(kind: TimerKind, label: string, endsAt: number) {
@@ -75,84 +96,115 @@ function notifyStopped() {
   });
 }
 
-const IDLE = { status: 'idle' as const, endsAt: null, label: '' };
+/** Back to idle; a manual timer keeps its duration, ready to be started again. */
+function idleState(kind: TimerKind, totalSeconds: number) {
+  return {
+    status: 'idle' as const,
+    kind: 'manual' as const,
+    endsAt: null,
+    label: '',
+    setId: null,
+    onFinish: null,
+    remainingMs: (kind === 'manual' ? totalSeconds : DEFAULT_MANUAL_SECONDS) * 1000,
+    totalSeconds: kind === 'manual' ? totalSeconds : DEFAULT_MANUAL_SECONDS,
+  };
+}
 
-/** The app's single countdown: rest between sets, or a manual timer (planks, intervals…). */
-export const useTimer = create<TimerState>((set, get) => ({
-  ...IDLE,
-  kind: 'manual',
-  remainingMs: DEFAULT_MANUAL_SECONDS * 1000,
-  totalSeconds: DEFAULT_MANUAL_SECONDS,
-
-  startRest(seconds, nextExercise) {
+/** The app's single countdown: rest between sets, timed sets, or a manual timer. */
+export const useTimer = create<TimerState>((set, get) => {
+  const run = (
+    kind: TimerKind,
+    seconds: number,
+    extra: Partial<Pick<TimerState, 'label' | 'setId' | 'onFinish'>> = {},
+  ) => {
     const endsAt = Date.now() + seconds * 1000;
-    set({ status: 'running', kind: 'rest', endsAt, totalSeconds: seconds, label: nextExercise });
-    notifyRunning('rest', nextExercise, endsAt);
-  },
-
-  startManual(seconds) {
-    const endsAt = Date.now() + seconds * 1000;
-    set({ status: 'running', kind: 'manual', endsAt, totalSeconds: seconds, label: '' });
-    notifyRunning('manual', '', endsAt);
-  },
-
-  setDuration(seconds) {
-    if (get().status !== 'idle') return;
-    const clamped = Math.max(5, seconds);
-    set({ kind: 'manual', remainingMs: clamped * 1000, totalSeconds: clamped });
-  },
-
-  pause() {
-    const { status, endsAt } = get();
-    if (status !== 'running' || endsAt == null) return;
-    set({ status: 'paused', endsAt: null, remainingMs: Math.max(0, endsAt - Date.now()) });
-    notifyStopped();
-  },
-
-  resume() {
-    const { status, remainingMs, kind, label } = get();
-    if (status !== 'paused') return;
-    const endsAt = Date.now() + remainingMs;
-    set({ status: 'running', endsAt });
+    const label = extra.label ?? '';
+    set({
+      status: 'running',
+      kind,
+      endsAt,
+      totalSeconds: seconds,
+      remainingMs: seconds * 1000,
+      label,
+      setId: extra.setId ?? null,
+      onFinish: extra.onFinish ?? null,
+    });
     notifyRunning(kind, label, endsAt);
-  },
+  };
 
-  adjust(direction) {
-    const { status, endsAt, remainingMs, totalSeconds, kind, label } = get();
-    const deltaMs = direction * ADJUST_STEP_SECONDS * 1000;
-    const nextTotal = Math.max(0, totalSeconds + direction * ADJUST_STEP_SECONDS);
-    if (status === 'running' && endsAt != null) {
-      const nextEndsAt = Math.max(Date.now(), endsAt + deltaMs);
-      set({ endsAt: nextEndsAt, totalSeconds: nextTotal });
-      notifyRunning(kind, label, nextEndsAt);
-    } else if (status === 'paused') {
-      set({ remainingMs: Math.max(0, remainingMs + deltaMs), totalSeconds: nextTotal });
-    } else {
-      get().setDuration(Math.round(remainingMs / 1000) + direction * ADJUST_STEP_SECONDS);
-    }
-  },
+  return {
+    ...idleState('manual', DEFAULT_MANUAL_SECONDS),
 
-  stop() {
-    const { kind, totalSeconds } = get();
-    // A manual timer goes back to its duration, ready to be started again.
-    set({
-      ...IDLE,
-      remainingMs: (kind === 'manual' ? totalSeconds : DEFAULT_MANUAL_SECONDS) * 1000,
-    });
-    notifyStopped();
-  },
+    startRest: (seconds, nextExercise) => run('rest', seconds, { label: nextExercise }),
+    startManual: (seconds) => run('manual', seconds),
+    startSet: (seconds, exercise, setId, onFinish) =>
+      run('set', seconds, { label: exercise, setId, onFinish }),
 
-  finishIfOver(now) {
-    const { status, endsAt, kind, totalSeconds } = get();
-    if (status !== 'running' || endsAt == null || now < endsAt) return false;
-    // The system delivers the end alert and removes the countdown notification by itself.
-    set({
-      ...IDLE,
-      remainingMs: (kind === 'manual' ? totalSeconds : DEFAULT_MANUAL_SECONDS) * 1000,
-    });
-    return true;
-  },
-}));
+    setDuration(seconds) {
+      if (get().status !== 'idle') return;
+      const clamped = Math.max(5, seconds);
+      set({ kind: 'manual', remainingMs: clamped * 1000, totalSeconds: clamped });
+    },
+
+    pause() {
+      const { status, endsAt } = get();
+      if (status !== 'running' || endsAt == null) return;
+      set({ status: 'paused', endsAt: null, remainingMs: Math.max(0, endsAt - Date.now()) });
+      notifyStopped();
+    },
+
+    resume() {
+      const { status, remainingMs, kind, label } = get();
+      if (status !== 'paused') return;
+      const endsAt = Date.now() + remainingMs;
+      set({ status: 'running', endsAt });
+      notifyRunning(kind, label, endsAt);
+    },
+
+    adjust(direction) {
+      const { status, endsAt, remainingMs, totalSeconds, kind, label } = get();
+      const deltaMs = direction * ADJUST_STEP_SECONDS * 1000;
+      const nextTotal = Math.max(0, totalSeconds + direction * ADJUST_STEP_SECONDS);
+      if (status === 'running' && endsAt != null) {
+        const nextEndsAt = Math.max(Date.now(), endsAt + deltaMs);
+        set({ endsAt: nextEndsAt, totalSeconds: nextTotal });
+        notifyRunning(kind, label, nextEndsAt);
+      } else if (status === 'paused') {
+        set({ remainingMs: Math.max(0, remainingMs + deltaMs), totalSeconds: nextTotal });
+      } else {
+        get().setDuration(Math.round(remainingMs / 1000) + direction * ADJUST_STEP_SECONDS);
+      }
+    },
+
+    stop() {
+      const { kind, totalSeconds } = get();
+      set(idleState(kind, totalSeconds));
+      notifyStopped();
+    },
+
+    finishIfOver(now) {
+      const { status, endsAt, kind, totalSeconds, onFinish } = get();
+      if (status !== 'running' || endsAt == null || now < endsAt) return null;
+      // The system delivers the end alert and removes the countdown notification by itself.
+      set(idleState(kind, totalSeconds));
+      return { onFinish };
+    },
+  };
+});
+
+/** One-line description of the timer, for the bar and the timer screen. */
+export function timerCaption(state: Pick<TimerState, 'status' | 'kind' | 'label'>): string {
+  if (state.status === 'idle') return 'Choisis une durée';
+  if (state.status === 'paused') return 'En pause';
+  switch (state.kind) {
+    case 'rest':
+      return state.label ? `Repos · ensuite ${state.label}` : 'Repos';
+    case 'set':
+      return state.label ? `Série en cours · ${state.label}` : 'Série en cours';
+    case 'manual':
+      return 'Minuteur';
+  }
+}
 
 /** Milliseconds left, whatever the state. */
 export function timerRemainingMs(

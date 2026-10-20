@@ -1,10 +1,16 @@
 import * as Haptics from 'expo-haptics';
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, Text, TextInput, type TextInputProps, View } from 'react-native';
 
 import { Icon } from '@/components/ui/icon';
 import type { SessionSet, SetType, TrackingType } from '@/db/schema';
-import { formatDecimal, nextSetType, SET_TYPE_LABELS } from '@/features/programs/sets';
+import {
+  formatDecimal,
+  formatDuration,
+  nextSetType,
+  SET_TYPE_LABELS,
+} from '@/features/programs/sets';
 import { useThemeColors } from '@/lib/theme';
 
 import {
@@ -15,6 +21,8 @@ import {
   type SetPerformance,
 } from '../logic';
 import { completeSessionSet, uncompleteSessionSet, updateSessionSet } from '../mutations';
+import { useTimer } from '../timer';
+import { useTimerTicker } from '../use-timer-ticker';
 
 const BADGE_STYLES: Record<SetType, { container: string; label: string }> = {
   normal: { container: 'bg-surface-muted', label: 'text-foreground' },
@@ -23,8 +31,12 @@ const BADGE_STYLES: Record<SetType, { container: string; label: string }> = {
   failure: { container: 'bg-danger', label: 'text-primary-foreground' },
 };
 
+const DEFAULT_TIMED_SET_SECONDS = 30;
+
 type SessionSetRowProps = {
   set: SessionSet;
+  /** Shown in the countdown notification of a timed set. */
+  exerciseName: string;
   badge: string;
   trackingType: TrackingType;
   /** Same set last time, shown as placeholder and used when validating empty fields. */
@@ -36,6 +48,7 @@ const toText = (value: number | null) => (value == null ? '' : String(value));
 
 export function SessionSetRow({
   set,
+  exerciseName,
   badge,
   trackingType,
   previous,
@@ -50,6 +63,8 @@ export function SessionSetRow({
   });
   const done = set.completedAt != null;
   const isTimed = trackingType === 'duration' || trackingType === 'distance';
+  const timerSetId = useTimer((state) => state.setId);
+  const isCounting = timerSetId === set.id;
   const resolved = resolveSetValues(input, previous, trackingType);
   const style = BADGE_STYLES[set.type];
 
@@ -77,6 +92,16 @@ export function SessionSetRow({
     onCompleted();
   };
 
+  /** Counts the set down (typed duration, else last time's, else 30 s), then validates it. */
+  const startTimedSet = () => {
+    const seconds = resolved.durationSeconds ?? DEFAULT_TIMED_SET_SECONDS;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    useTimer.getState().startSet(seconds, exerciseName, set.id, () => {
+      completeSessionSet(set.id, { weight: null, reps: null, durationSeconds: seconds });
+      onCompleted();
+    });
+  };
+
   return (
     <View
       className={`flex-row items-center gap-2 rounded-lg px-1 py-1 ${done ? 'bg-surface-muted' : ''}`}>
@@ -93,19 +118,40 @@ export function SessionSetRow({
       </Text>
 
       {isTimed ? (
-        <NumberInput
-          value={input.duration}
-          onChangeText={change('duration')}
-          onEndEditing={saveTyped}
-          placeholder={toText(previous?.durationSeconds ?? null) || 's'}
-          accessibilityLabel="Durée en secondes"
-          editable={!done}
-        />
+        <>
+          <NumberInput
+            value={done ? toText(set.durationSeconds) : input.duration}
+            onChangeText={change('duration')}
+            onEndEditing={saveTyped}
+            placeholder={toText(previous?.durationSeconds ?? null) || 's'}
+            accessibilityLabel="Durée en secondes"
+            editable={!done && !isCounting}
+          />
+          {!done ? (
+            isCounting ? (
+              <SetCountdown />
+            ) : (
+              <Pressable
+                onPress={startTimedSet}
+                accessibilityRole="button"
+                accessibilityLabel="Lancer le minuteur de la série"
+                hitSlop={4}
+                style={{ width: 40, height: 40 }}
+                className="items-center justify-center rounded-lg bg-primary">
+                <Icon
+                  name={{ ios: 'play.fill', android: 'play_arrow' }}
+                  size={22}
+                  color="#ffffff"
+                />
+              </Pressable>
+            )
+          ) : null}
+        </>
       ) : (
         <>
           {trackingType === 'weight_reps' ? (
             <NumberInput
-              value={input.weight}
+              value={done ? formatDecimal(set.weight) : input.weight}
               onChangeText={change('weight')}
               onEndEditing={saveTyped}
               placeholder={formatDecimal(previous?.weight ?? null) || 'kg'}
@@ -115,7 +161,7 @@ export function SessionSetRow({
             />
           ) : null}
           <NumberInput
-            value={input.reps}
+            value={done ? toText(set.reps) : input.reps}
             onChangeText={change('reps')}
             onEndEditing={saveTyped}
             placeholder={toText(previous?.reps ?? null) || 'reps'}
@@ -131,7 +177,8 @@ export function SessionSetRow({
         accessibilityState={{ checked: done }}
         accessibilityLabel="Valider la série"
         hitSlop={4}
-        className={`size-10 items-center justify-center rounded-lg ${done ? 'bg-success' : 'border border-border bg-surface'}`}>
+        style={{ width: 40, height: 40 }}
+        className={`items-center justify-center rounded-lg ${done ? 'bg-success' : 'border border-border bg-surface'}`}>
         <Icon
           name={{ ios: 'checkmark', android: 'check' }}
           size={22}
@@ -139,6 +186,23 @@ export function SessionSetRow({
         />
       </Pressable>
     </View>
+  );
+}
+
+/** Time left of the timed set being counted down; opens the timer screen. */
+function SetCountdown() {
+  const remainingMs = useTimerTicker();
+  return (
+    <Pressable
+      onPress={() => router.push('/timer')}
+      accessibilityRole="button"
+      accessibilityLabel="Ouvrir le minuteur"
+      style={{ width: 40, height: 40 }}
+      className="items-center justify-center rounded-lg bg-primary-soft">
+      <Text className="text-xs font-bold text-foreground" style={{ fontVariant: ['tabular-nums'] }}>
+        {formatDuration(Math.ceil(remainingMs / 1000))}
+      </Text>
+    </Pressable>
   );
 }
 

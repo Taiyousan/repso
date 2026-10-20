@@ -152,12 +152,17 @@ export function SessionExerciseCard({ item, onSetCompleted }: SessionExerciseCar
               {column}
             </Text>
           ))}
-          <View className="w-10" />
+          {/* Room for the play button of timed sets, then the check button. */}
+          {exercise.trackingType === 'duration' || exercise.trackingType === 'distance' ? (
+            <View style={{ width: 40 }} />
+          ) : null}
+          <View style={{ width: 40 }} />
         </View>
         {sets.map((set, index) => (
           <SessionSetRow
             key={set.id}
             set={set}
+            exerciseName={exercise.name}
             badge={badges[index]}
             trackingType={exercise.trackingType}
             previous={previousFor(previous, index)}
