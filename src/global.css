@@ -18,6 +18,7 @@
       --color-primary-soft: #f6b4a6;
       --color-primary-foreground: #ffffff;
       --color-success: #1f9d55;
+      --color-success-soft: #e4f5ea;
       --color-danger: #d92d20;
     }
 
@@ -32,6 +33,7 @@
       --color-primary-soft: #8c3626;
       --color-primary-foreground: #ffffff;
       --color-success: #34c77b;
+      --color-success-soft: #13301f;
       --color-danger: #f04438;
     }
   }

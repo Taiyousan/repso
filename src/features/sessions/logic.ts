@@ -85,3 +85,30 @@ export function formatElapsed(totalSeconds: number): string {
   const mm = hours > 0 ? String(minutes).padStart(2, '0') : String(minutes);
   return `${hours > 0 ? `${hours}:` : ''}${mm}:${String(seconds).padStart(2, '0')}`;
 }
+
+/** An exercise is done once every one of its sets is validated. */
+export function isExerciseComplete(sets: { completedAt: Date | null }[]): boolean {
+  return sets.length > 0 && sets.every((set) => set.completedAt != null);
+}
+
+/** Best set of an exercise: heaviest (then most reps), most reps, or longest. */
+export function bestSet(sets: SetPerformance[], trackingType: TrackingType): SetPerformance | null {
+  const score = (set: SetPerformance): [number, number] => {
+    if (trackingType === 'duration' || trackingType === 'distance') {
+      return [set.durationSeconds ?? 0, 0];
+    }
+    if (trackingType === 'bodyweight_reps') return [set.reps ?? 0, 0];
+    return [set.weight ?? 0, set.reps ?? 0];
+  };
+  let best: SetPerformance | null = null;
+  for (const set of sets) {
+    if (!best) {
+      best = set;
+      continue;
+    }
+    const [a1, a2] = score(set);
+    const [b1, b2] = score(best);
+    if (a1 > b1 || (a1 === b1 && a2 > b2)) best = set;
+  }
+  return best;
+}

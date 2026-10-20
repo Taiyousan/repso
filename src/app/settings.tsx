@@ -10,6 +10,7 @@ import {
   clearTranslationRequests,
   useTranslationRequests,
 } from '@/features/exercises/translation-requests';
+import { NotificationStatusCard } from '@/features/sessions/components/notification-status-card';
 
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
@@ -34,6 +35,10 @@ export default function SettingsScreen() {
       className="flex-1 bg-background"
       contentContainerClassName="gap-6 p-4"
       contentContainerStyle={{ paddingBottom: insets.bottom + 16 }}>
+      <Section title="Notifications">
+        <NotificationStatusCard />
+      </Section>
+
       <Section title="Développeur">
         <Card>
           <Text className="text-base font-semibold text-foreground">Demandes de traduction</Text>

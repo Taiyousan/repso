@@ -3,6 +3,8 @@ import { AndroidImportance } from 'expo-notifications';
 import { Platform } from 'react-native';
 
 const REST_CHANNEL_ID = 'rest-timer';
+/** A single rest notification at a time: scheduling again replaces it. */
+const REST_NOTIFICATION_ID = 'rest-end';
 
 // Rest notifications also show (with sound) while the app is open.
 Notifications.setNotificationHandler({
@@ -38,24 +40,44 @@ export function ensureNotificationsReady(): Promise<boolean> {
   return ready;
 }
 
-export async function scheduleRestEnd(
-  seconds: number,
-  nextExercise: string,
-): Promise<string | null> {
-  if (!(await ensureNotificationsReady())) return null;
-  return Notifications.scheduleNotificationAsync({
+/**
+ * Schedules the end-of-rest notification at `endsAt`. 'alarmClock' delivery is exact: the default
+ * lets Android defer the alarm to save battery, which delayed it by a few seconds.
+ */
+export async function scheduleRestEnd(endsAt: number, nextExercise: string): Promise<void> {
+  if (!(await ensureNotificationsReady())) return;
+  await Notifications.scheduleNotificationAsync({
+    identifier: REST_NOTIFICATION_ID,
     content: {
       title: 'Repos terminé',
       body: nextExercise ? `C'est reparti : ${nextExercise}` : "C'est reparti !",
     },
     trigger: {
-      type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-      seconds: Math.max(1, seconds),
+      type: Notifications.SchedulableTriggerInputTypes.DATE,
+      date: endsAt,
       channelId: REST_CHANNEL_ID,
+      delivery: 'alarmClock',
     },
   });
 }
 
-export async function cancelRestEnd(id: string | null): Promise<void> {
-  if (id) await Notifications.cancelScheduledNotificationAsync(id).catch(() => undefined);
+export async function cancelRestEnd(): Promise<void> {
+  await Notifications.cancelScheduledNotificationAsync(REST_NOTIFICATION_ID).catch(() => undefined);
+}
+
+export type NotificationStatus = { notifications: boolean; exactAlarms: boolean };
+
+/** Shown in settings to check what the rest timer can rely on. */
+export async function getNotificationStatus(): Promise<NotificationStatus> {
+  const [notifications, exactAlarms] = await Promise.all([
+    Notifications.getPermissionsAsync(),
+    Platform.OS === 'android'
+      ? Notifications.getExactAlarmPermissionsAsync()
+      : Promise.resolve({ granted: true }),
+  ]);
+  return { notifications: notifications.granted, exactAlarms: exactAlarms.granted };
+}
+
+export async function requestExactAlarms(): Promise<void> {
+  await Notifications.requestExactAlarmPermissionsAsync().catch(() => undefined);
 }

@@ -14,16 +14,11 @@ type RestTimerState = {
   stop: () => void;
 };
 
-// The pending notification lives outside the state: it's an effect, not something to render.
-let notification: Promise<string | null> = Promise.resolve(null);
-
-function reschedule(seconds: number, label: string) {
-  const previous = notification;
-  notification = previous.then(async (id) => {
-    await cancelRestEnd(id);
-    return seconds > 0 ? scheduleRestEnd(seconds, label) : null;
-  });
-}
+// Notification calls are chained so a quick start/adjust/stop sequence applies in order.
+let pending: Promise<void> = Promise.resolve();
+const queue = (task: () => Promise<void>) => {
+  pending = pending.then(task).catch(() => undefined);
+};
 
 /** Rest countdown between sets, backed by a scheduled notification (fires in background). */
 export const useRestTimer = create<RestTimerState>((set, get) => ({
@@ -32,30 +27,29 @@ export const useRestTimer = create<RestTimerState>((set, get) => ({
   label: '',
 
   start(seconds, label) {
-    set({ endsAt: Date.now() + seconds * 1000, totalSeconds: seconds, label });
-    reschedule(seconds, label);
+    const endsAt = Date.now() + seconds * 1000;
+    set({ endsAt, totalSeconds: seconds, label });
+    queue(() => scheduleRestEnd(endsAt, label));
   },
 
   adjust(direction) {
     const { endsAt, totalSeconds, label } = get();
     if (endsAt == null) return;
-    const now = Date.now();
-    const nextEndsAt = Math.max(now, endsAt + direction * ADJUST_STEP_SECONDS * 1000);
+    const nextEndsAt = Math.max(Date.now(), endsAt + direction * ADJUST_STEP_SECONDS * 1000);
     set({
       endsAt: nextEndsAt,
       totalSeconds: Math.max(0, totalSeconds + direction * ADJUST_STEP_SECONDS),
     });
-    reschedule(Math.round((nextEndsAt - now) / 1000), label);
+    queue(() => scheduleRestEnd(nextEndsAt, label));
   },
 
   stop() {
     set({ endsAt: null, totalSeconds: 0, label: '' });
-    reschedule(0, '');
+    queue(cancelRestEnd);
   },
 }));
 
-/** Clears the countdown once it reached zero, keeping the (already delivered) notification. */
+/** Clears the countdown once it reached zero; the notification is delivered by the system. */
 export function markRestFinished() {
-  notification = Promise.resolve(null);
   useRestTimer.setState({ endsAt: null, totalSeconds: 0, label: '' });
 }

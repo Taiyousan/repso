@@ -3,13 +3,15 @@ import { useState } from 'react';
 import { Alert, Pressable, Text, View } from 'react-native';
 
 import { Card } from '@/components/ui/card';
+import { Icon } from '@/components/ui/icon';
 import { IconButton } from '@/components/ui/icon-button';
 import { DragHandle } from '@/components/ui/sortable-list';
 import { ExerciseThumbnail } from '@/features/exercises/components/exercise-thumbnail';
 import { RestPresets } from '@/features/programs/components/rest-presets';
 import { DEFAULT_REST_SECONDS, formatDuration, setBadges } from '@/features/programs/sets';
+import { useThemeColors } from '@/lib/theme';
 
-import { previousFor } from '../logic';
+import { bestSet, formatPerformance, isExerciseComplete, previousFor } from '../logic';
 import {
   addSessionSet,
   removeLastPendingSet,
@@ -34,10 +36,19 @@ type SessionExerciseCardProps = {
 /** Rendered inside a SortableList: the handle on the left reorders the card. */
 export function SessionExerciseCard({ item, onSetCompleted }: SessionExerciseCardProps) {
   const { exercise, sets, previous } = item;
+  const colors = useThemeColors();
   const [restOpen, setRestOpen] = useState(false);
   const badges = setBadges(sets.map((set) => set.type));
   const doneCount = sets.filter((set) => set.completedAt != null).length;
   const hasPendingSet = doneCount < sets.length;
+  const isComplete = isExerciseComplete(sets);
+  // A finished exercise folds into one line; it can be reopened.
+  const [expanded, setExpanded] = useState(!isComplete);
+
+  const handleSetCompleted = () => {
+    if (doneCount === sets.length - 1) setExpanded(false); // that was the last set
+    onSetCompleted(item);
+  };
 
   const confirmRemove = () => {
     if (doneCount === 0) {
@@ -50,8 +61,35 @@ export function SessionExerciseCard({ item, onSetCompleted }: SessionExerciseCar
     ]);
   };
 
+  if (isComplete && !expanded) {
+    const best = bestSet(sets, exercise.trackingType);
+    return (
+      <Pressable
+        onPress={() => setExpanded(true)}
+        accessibilityRole="button"
+        accessibilityLabel={`${exercise.name}, terminé. Toucher pour afficher les séries`}
+        className="flex-row items-center gap-2 rounded-2xl border border-success bg-success-soft p-3 active:opacity-80">
+        <DragHandle label={`Déplacer ${exercise.name}`} />
+        <Icon
+          name={{ ios: 'checkmark.circle.fill', android: 'check_circle' }}
+          color={colors.success}
+        />
+        <View className="flex-1">
+          <Text className="text-base font-semibold text-foreground" numberOfLines={1}>
+            {exercise.name}
+          </Text>
+          <Text className="text-sm text-muted" numberOfLines={1}>
+            {sets.length} série{sets.length > 1 ? 's' : ''} · meilleure{' '}
+            {formatPerformance(best, exercise.trackingType)}
+          </Text>
+        </View>
+        <Icon name={{ ios: 'chevron.down', android: 'expand_more' }} color={colors.muted} />
+      </Pressable>
+    );
+  }
+
   return (
-    <Card>
+    <Card tone={isComplete ? 'success' : 'default'}>
       <View className="flex-row items-center gap-2">
         <DragHandle label={`Déplacer ${exercise.name}`} />
         <ExerciseThumbnail images={exercise.images} name={exercise.name} />
@@ -62,6 +100,13 @@ export function SessionExerciseCard({ item, onSetCompleted }: SessionExerciseCar
             </Text>
           </Pressable>
         </Link>
+        {isComplete ? (
+          <IconButton
+            icon={{ ios: 'chevron.up', android: 'expand_less' }}
+            label="Réduire"
+            onPress={() => setExpanded(false)}
+          />
+        ) : null}
         <IconButton
           icon={{ ios: 'trash', android: 'delete' }}
           label="Retirer l'exercice"
@@ -118,7 +163,7 @@ export function SessionExerciseCard({ item, onSetCompleted }: SessionExerciseCar
             badge={badges[index]}
             trackingType={exercise.trackingType}
             previous={previousFor(previous, index)}
-            onCompleted={() => onSetCompleted(item)}
+            onCompleted={handleSetCompleted}
           />
         ))}
       </View>

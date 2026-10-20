@@ -6,11 +6,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
+import { ProgressRing } from '@/components/ui/progress-ring';
 import { SortableList } from '@/components/ui/sortable-list';
 import { DEFAULT_REST_SECONDS } from '@/features/programs/sets';
 import { RestTimerBar } from '@/features/sessions/components/rest-timer-bar';
 import { SessionExerciseCard } from '@/features/sessions/components/session-exercise-card';
-import { formatElapsed } from '@/features/sessions/logic';
+import { formatElapsed, isExerciseComplete } from '@/features/sessions/logic';
 import {
   discardSession,
   finishSession,
@@ -54,6 +55,10 @@ function LiveSession({ session }: { session: SessionDetail }) {
   const allSets = session.exercises.flatMap((item) => item.sets);
   const doneCount = allSets.filter((set) => set.completedAt != null).length;
   const pendingCount = allSets.length - doneCount;
+  const exerciseCount = session.exercises.length;
+  const completedExercises = session.exercises.filter((item) =>
+    isExerciseComplete(item.sets),
+  ).length;
 
   const startRest = (item: SessionExerciseDetail) => {
     // The set just validated is still pending in this render.
@@ -141,9 +146,21 @@ function LiveSession({ session }: { session: SessionDetail }) {
           style={{ fontVariant: ['tabular-nums'] }}>
           {formatElapsed(elapsedSeconds)}
         </Text>
-        <Text className="text-sm text-muted">
-          {doneCount} / {allSets.length} série{allSets.length > 1 ? 's' : ''}
-        </Text>
+        <View className="flex-row items-center gap-3">
+          <View className="items-end">
+            <Text className="text-sm font-medium text-foreground">Exercices</Text>
+            <Text className="text-xs text-muted">
+              {doneCount} / {allSets.length} série{allSets.length > 1 ? 's' : ''}
+            </Text>
+          </View>
+          <ProgressRing
+            progress={exerciseCount === 0 ? 0 : completedExercises / exerciseCount}
+            size={52}>
+            <Text className="text-sm font-bold text-foreground">
+              {completedExercises}/{exerciseCount}
+            </Text>
+          </ProgressRing>
+        </View>
       </View>
 
       <Animated.ScrollView

@@ -1,8 +1,10 @@
 import {
+  bestSet,
   canComplete,
   formatElapsed,
   formatPerformance,
   initialSetTypes,
+  isExerciseComplete,
   previousFor,
   remainingSeconds,
   resolveSetValues,
@@ -112,5 +114,38 @@ describe('timers', () => {
     expect(formatElapsed(65)).toBe('1:05');
     expect(formatElapsed(754)).toBe('12:34');
     expect(formatElapsed(3754)).toBe('1:02:34');
+  });
+});
+
+describe('isExerciseComplete', () => {
+  it('needs every set validated', () => {
+    const done = { completedAt: new Date() };
+    const pending = { completedAt: null };
+    expect(isExerciseComplete([done, done])).toBe(true);
+    expect(isExerciseComplete([done, pending])).toBe(false);
+    expect(isExerciseComplete([])).toBe(false);
+  });
+});
+
+describe('bestSet', () => {
+  it('prefers the heaviest set, then the most reps', () => {
+    const sets = [
+      set({ weight: 80, reps: 8 }),
+      set({ weight: 85, reps: 5 }),
+      set({ weight: 85, reps: 6 }),
+    ];
+    expect(bestSet(sets, 'weight_reps')).toMatchObject({ weight: 85, reps: 6 });
+  });
+
+  it('uses reps for bodyweight and duration for timed exercises', () => {
+    expect(bestSet([set({ reps: 10 }), set({ reps: 14 })], 'bodyweight_reps')?.reps).toBe(14);
+    expect(
+      bestSet([set({ durationSeconds: 40 }), set({ durationSeconds: 60 })], 'duration')
+        ?.durationSeconds,
+    ).toBe(60);
+  });
+
+  it('returns null without sets', () => {
+    expect(bestSet([], 'weight_reps')).toBeNull();
   });
 });

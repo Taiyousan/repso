@@ -1,8 +1,16 @@
 import type { PropsWithChildren } from 'react';
 import { Text, View } from 'react-native';
 
-export function Card({ children }: PropsWithChildren) {
-  return <View className="gap-3 rounded-2xl border border-border bg-surface p-4">{children}</View>;
+const TONES = {
+  default: 'border-border bg-surface',
+  success: 'border-success bg-surface',
+};
+
+export function Card({
+  children,
+  tone = 'default',
+}: PropsWithChildren<{ tone?: keyof typeof TONES }>) {
+  return <View className={`gap-3 rounded-2xl border p-4 ${TONES[tone]}`}>{children}</View>;
 }
 
 /** Titled group of content on a page. */
