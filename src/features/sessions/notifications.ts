@@ -62,6 +62,11 @@ export async function cancelTimerEnd(): Promise<void> {
   await Notifications.cancelScheduledNotificationAsync(REST_NOTIFICATION_ID).catch(() => undefined);
 }
 
+/** Removes the end alert from the notification shade once delivered. */
+export async function dismissTimerEnd(): Promise<void> {
+  await Notifications.dismissNotificationAsync(REST_NOTIFICATION_ID).catch(() => undefined);
+}
+
 export type NotificationStatus = { notifications: boolean; exactAlarms: boolean };
 
 /** Shown in settings to check what the rest timer can rely on. */

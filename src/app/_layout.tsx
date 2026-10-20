@@ -1,6 +1,6 @@
 import '@/global.css';
-// Registers the notification handler before anything can schedule a notification.
-import '@/features/sessions/notifications';
+// Registers the notification handler and clears timer notifications left by a previous run.
+import '@/features/sessions/timer';
 
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';

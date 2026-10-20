@@ -102,8 +102,8 @@ export default function TimerScreen() {
           accessibilityRole="button"
           hitSlop={8}
           className="flex-row items-center gap-1.5 active:opacity-70">
-          <Icon name={{ ios: 'stop.fill', android: 'stop' }} size={18} color={colors.muted} />
-          <Text className="text-base font-semibold text-muted">Arrêter</Text>
+          <Icon name={{ ios: 'stop.fill', android: 'stop' }} size={18} color={colors.danger} />
+          <Text className="text-base font-semibold text-danger">Arrêter</Text>
         </Pressable>
       ) : null}
     </ScrollView>

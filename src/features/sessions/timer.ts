@@ -1,3 +1,4 @@
+import { AppState } from 'react-native';
 import { create } from 'zustand';
 
 import {
@@ -5,7 +6,7 @@ import {
   showCountdownNotification,
 } from '@/modules/countdown-notification';
 
-import { cancelTimerEnd, scheduleTimerEnd } from './notifications';
+import { cancelTimerEnd, dismissTimerEnd, scheduleTimerEnd } from './notifications';
 
 const ADJUST_STEP_SECONDS = 15;
 export const DEFAULT_MANUAL_SECONDS = 60;
@@ -93,7 +94,18 @@ function notifyStopped() {
   queue(async () => {
     dismissCountdownNotification();
     await cancelTimerEnd();
+    await dismissTimerEnd();
   });
+}
+
+/** Leaves the end alert visible a moment, then clears it unless another countdown started. */
+const END_ALERT_VISIBLE_MS = 5000;
+
+function notifyFinished() {
+  dismissCountdownNotification();
+  setTimeout(() => {
+    if (useTimer.getState().status === 'idle') void dismissTimerEnd();
+  }, END_ALERT_VISIBLE_MS);
 }
 
 /** Back to idle; a manual timer keeps its duration, ready to be started again. */
@@ -185,8 +197,8 @@ export const useTimer = create<TimerState>((set, get) => {
     finishIfOver(now) {
       const { status, endsAt, kind, totalSeconds, onFinish } = get();
       if (status !== 'running' || endsAt == null || now < endsAt) return null;
-      // The system delivers the end alert and removes the countdown notification by itself.
       set(idleState(kind, totalSeconds));
+      notifyFinished();
       return { onFinish };
     },
   };
@@ -214,3 +226,18 @@ export function timerRemainingMs(
   if (state.status === 'running' && state.endsAt != null) return Math.max(0, state.endsAt - now);
   return state.remainingMs;
 }
+
+/**
+ * No notification may outlive the timer: clear leftovers (app killed while counting down, alert
+ * left in the shade) at launch and whenever the app comes back to the foreground.
+ */
+function clearIdleNotifications() {
+  if (useTimer.getState().status !== 'idle') return;
+  dismissCountdownNotification();
+  void dismissTimerEnd();
+}
+
+clearIdleNotifications();
+AppState.addEventListener('change', (state) => {
+  if (state === 'active') clearIdleNotifications();
+});

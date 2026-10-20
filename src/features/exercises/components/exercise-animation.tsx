@@ -2,9 +2,19 @@ import { Image } from 'expo-image';
 import { useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
 
+import { SegmentedControl } from '@/components/ui/segmented-control';
+
 import { exerciseImageUrl } from '../library';
 
 const FRAME_DURATION_MS = 900;
+
+type Mode = 'animate' | '0' | '1';
+
+const MODES: { value: Mode; label: string }[] = [
+  { value: 'animate', label: 'Animation' },
+  { value: '0', label: 'Départ' },
+  { value: '1', label: 'Arrivée' },
+];
 
 type ExerciseAnimationProps = {
   images: string[];
@@ -12,19 +22,19 @@ type ExerciseAnimationProps = {
 
 /**
  * free-exercise-db provides a start and an end position: alternating them gives a simple
- * animation. Both frames stay mounted so switching never waits for a download.
+ * animation, which can be frozen on either position. Both frames stay mounted so switching
+ * never waits for a download.
  */
 export function ExerciseAnimation({ images }: ExerciseAnimationProps) {
-  const [frame, setFrame] = useState(0);
+  const [mode, setMode] = useState<Mode>('animate');
+  const [tick, setTick] = useState(0);
+  const animates = mode === 'animate' && images.length >= 2;
 
   useEffect(() => {
-    if (images.length < 2) return;
-    const interval = setInterval(
-      () => setFrame((current) => (current + 1) % images.length),
-      FRAME_DURATION_MS,
-    );
+    if (!animates) return;
+    const interval = setInterval(() => setTick((current) => current + 1), FRAME_DURATION_MS);
     return () => clearInterval(interval);
-  }, [images.length]);
+  }, [animates]);
 
   if (images.length === 0) {
     return (
@@ -34,17 +44,24 @@ export function ExerciseAnimation({ images }: ExerciseAnimationProps) {
     );
   }
 
+  const frame = animates ? tick % images.length : mode === 'animate' ? 0 : Number(mode);
+
   return (
-    <View className="aspect-[3/2] overflow-hidden rounded-2xl bg-white">
-      {images.map((path, index) => (
-        <Image
-          key={path}
-          source={{ uri: exerciseImageUrl(path) }}
-          contentFit="contain"
-          accessibilityIgnoresInvertColors
-          style={{ position: 'absolute', inset: 0, opacity: index === frame ? 1 : 0 }}
-        />
-      ))}
+    <View className="gap-2">
+      <View className="aspect-[3/2] overflow-hidden rounded-2xl bg-white">
+        {images.map((path, index) => (
+          <Image
+            key={path}
+            source={{ uri: exerciseImageUrl(path) }}
+            contentFit="contain"
+            accessibilityIgnoresInvertColors
+            style={{ position: 'absolute', inset: 0, opacity: index === frame ? 1 : 0 }}
+          />
+        ))}
+      </View>
+      {images.length >= 2 ? (
+        <SegmentedControl options={MODES} value={mode} onChange={setMode} />
+      ) : null}
     </View>
   );
 }
