@@ -1,5 +1,6 @@
 import { useKeepAwake } from 'expo-keep-awake';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
+import { useState } from 'react';
 import { Alert, KeyboardAvoidingView, Pressable, Text, View } from 'react-native';
 import Animated, { useAnimatedRef } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -12,6 +13,7 @@ import { SortableList } from '@/components/ui/sortable-list';
 import { DEFAULT_REST_SECONDS } from '@/features/programs/sets';
 import { TimerBar } from '@/features/sessions/components/timer-bar';
 import { SessionExerciseCard } from '@/features/sessions/components/session-exercise-card';
+import { SessionRecap } from '@/features/sessions/components/session-recap';
 import { formatElapsed, isExerciseComplete } from '@/features/sessions/logic';
 import {
   discardSession,
@@ -30,18 +32,19 @@ import { useNow } from '@/lib/use-now';
 export default function SessionScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const session = useSession(Number(id));
+  // A session finished on this screen turns into its recap.
+  const [openedLive] = useState(() => session != null && session.endedAt == null);
 
-  if (!session || session.endedAt) {
+  if (!session) {
     return (
       <View className="flex-1 bg-background p-4">
         <Stack.Screen options={{ title: '' }} />
-        <EmptyState
-          title={session ? 'Séance terminée' : 'Séance introuvable'}
-          description={session ? 'Retrouve-la dans ton historique.' : undefined}
-        />
+        <EmptyState title="Séance introuvable" />
       </View>
     );
   }
+
+  if (session.endedAt) return <SessionRecap session={session} justFinished={openedLive} />;
 
   return <LiveSession session={session} />;
 }
@@ -116,8 +119,7 @@ function LiveSession({ session }: { session: SessionDetail }) {
           text: 'Terminer',
           onPress: () => {
             useTimer.getState().stop();
-            finishSession(session.id);
-            router.back();
+            finishSession(session.id); // the screen shows the recap from now on
           },
         },
       ],

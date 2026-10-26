@@ -48,6 +48,11 @@ export default function RootLayout() {
             <Stack.Screen name="session/[id]" options={{ title: '' }} />
             <Stack.Screen name="timer" options={{ title: 'Minuteur', presentation: 'modal' }} />
             <Stack.Screen
+              name="session/tags/[id]"
+              options={{ title: 'Tags', presentation: 'modal' }}
+              dangerouslySingular
+            />
+            <Stack.Screen
               name="session/add-exercises/[id]"
               options={{ title: 'Ajouter des exercices' }}
               // A slow push tapped twice must not stack the catalog twice.

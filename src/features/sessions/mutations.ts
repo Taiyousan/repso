@@ -1,17 +1,21 @@
-import { and, asc, desc, eq, inArray, isNull, max } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray, isNull, max, notInArray } from 'drizzle-orm';
 
 import { db } from '@/db/client';
 import {
   sessionExercises,
   sessionSets,
+  sessionTags,
   type SetType,
+  tags,
   templateExercises,
   workoutSessions,
   workoutTemplates,
 } from '@/db/schema';
+import { normalizeText } from '@/lib/text';
 
 import { initialSetTypes, type SetPerformance } from './logic';
 import { readPreviousPerformance } from './queries';
+import type { PlannedItem } from './recap';
 
 type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
@@ -208,6 +212,94 @@ export function finishSession(id: number): void {
   });
 }
 
+/** Also used to delete a finished session from the history. */
 export function discardSession(id: number): void {
   db.delete(workoutSessions).where(eq(workoutSessions.id, id)).run();
+}
+
+export function setSessionEffort(id: number, perceivedEffort: number | null): void {
+  db.update(workoutSessions).set({ perceivedEffort }).where(eq(workoutSessions.id, id)).run();
+}
+
+export function setSessionNotes(id: number, notes: string): void {
+  db.update(workoutSessions)
+    .set({ notes: notes.trim() || null })
+    .where(eq(workoutSessions.id, id))
+    .run();
+}
+
+export function setSessionTag(sessionId: number, tagId: number, enabled: boolean): void {
+  if (enabled) {
+    db.insert(sessionTags).values({ sessionId, tagId }).onConflictDoNothing().run();
+  } else {
+    db.delete(sessionTags)
+      .where(and(eq(sessionTags.sessionId, sessionId), eq(sessionTags.tagId, tagId)))
+      .run();
+  }
+}
+
+/** Tags the session, creating the tag unless one already has this name (ignoring case and accents). */
+export function addSessionTagByName(sessionId: number, name: string): void {
+  const trimmed = name.trim();
+  if (!trimmed) return;
+  db.transaction((tx) => {
+    const key = normalizeText(trimmed);
+    const existing = tx
+      .select({ id: tags.id, name: tags.name })
+      .from(tags)
+      .all()
+      .find((tag) => normalizeText(tag.name) === key);
+    const tagId =
+      existing?.id ?? tx.insert(tags).values({ name: trimmed }).returning({ id: tags.id }).get().id;
+    tx.insert(sessionTags).values({ sessionId, tagId }).onConflictDoNothing().run();
+  });
+}
+
+/** Removes the tag from every session. */
+export function deleteTag(id: number): void {
+  db.delete(tags).where(eq(tags.id, id)).run();
+}
+
+/** Rewrites a workout template as planned from a session, and links the session to it. */
+export function updateTemplateFromSession(templateId: number, plan: PlannedItem[]): void {
+  db.transaction((tx) => {
+    const kept = plan.flatMap((item) =>
+      item.templateExerciseId == null ? [] : [item.templateExerciseId],
+    );
+    tx.delete(templateExercises)
+      .where(
+        and(
+          eq(templateExercises.templateId, templateId),
+          kept.length > 0 ? notInArray(templateExercises.id, kept) : undefined,
+        ),
+      )
+      .run();
+
+    plan.forEach((item, position) => {
+      let templateExerciseId = item.templateExerciseId;
+      if (templateExerciseId == null) {
+        templateExerciseId = tx
+          .insert(templateExercises)
+          .values({
+            templateId,
+            exerciseId: item.exerciseId,
+            position,
+            restSeconds: item.restSeconds,
+          })
+          .returning({ id: templateExercises.id })
+          .get().id;
+      } else {
+        tx.update(templateExercises)
+          .set({ position, restSeconds: item.restSeconds })
+          .where(eq(templateExercises.id, templateExerciseId))
+          .run();
+      }
+      if (item.sessionExerciseId != null) {
+        tx.update(sessionExercises)
+          .set({ sourceTemplateExerciseId: templateExerciseId })
+          .where(eq(sessionExercises.id, item.sessionExerciseId))
+          .run();
+      }
+    });
+  });
 }

@@ -4,12 +4,14 @@ type ChipProps = {
   label: string;
   selected?: boolean;
   onPress?: () => void;
+  onLongPress?: () => void;
 };
 
-export function Chip({ label, selected = false, onPress }: ChipProps) {
+export function Chip({ label, selected = false, onPress, onLongPress }: ChipProps) {
   return (
     <Pressable
       onPress={onPress}
+      onLongPress={onLongPress}
       disabled={!onPress}
       accessibilityRole={onPress ? 'button' : 'text'}
       accessibilityState={{ selected }}

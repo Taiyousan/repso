@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, inArray, isNotNull, isNull, ne } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray, isNotNull, isNull, lt, ne, type SQL, sql } from 'drizzle-orm';
 
 import { db } from '@/db/client';
 import { useLiveData } from '@/db/live';
@@ -7,6 +7,8 @@ import {
   programs,
   sessionExercises,
   sessionSets,
+  sessionTags,
+  tags,
   templateExercises,
   workoutSessions,
   workoutTemplates,
@@ -15,12 +17,13 @@ import {
 import type { SetPerformance } from './logic';
 
 /**
- * Last finished performance of each exercise, whatever the session it was done in.
- * Finished sessions only keep completed sets, so every match has at least one set.
+ * Last finished performance of each exercise, whatever the session it was done in, optionally
+ * before a date. Finished sessions only keep completed sets, so every match has at least one set.
  */
 export function readPreviousPerformance(
   exerciseIds: number[],
   excludeSessionId?: number,
+  before?: Date,
 ): Map<number, SetPerformance[]> {
   const result = new Map<number, SetPerformance[]>();
   if (exerciseIds.length === 0) return result;
@@ -34,6 +37,7 @@ export function readPreviousPerformance(
         inArray(sessionExercises.exerciseId, exerciseIds),
         isNotNull(workoutSessions.endedAt),
         excludeSessionId == null ? undefined : ne(workoutSessions.id, excludeSessionId),
+        before == null ? undefined : lt(workoutSessions.startedAt, before),
       ),
     )
     .orderBy(desc(workoutSessions.startedAt), desc(sessionExercises.position))
@@ -116,13 +120,24 @@ export function useSession(id: number) {
               .orderBy(asc(sessionSets.position))
               .all();
 
+      // Before this session, so a past one is compared with what preceded it.
       const previous = readPreviousPerformance(
         rows.map((row) => row.exercise.id),
         id,
+        session.startedAt,
       );
+
+      const sessionTagList = db
+        .select({ id: tags.id, name: tags.name })
+        .from(sessionTags)
+        .innerJoin(tags, eq(tags.id, sessionTags.tagId))
+        .where(eq(sessionTags.sessionId, id))
+        .orderBy(asc(tags.name))
+        .all();
 
       return {
         ...session,
+        tags: sessionTagList,
         exercises: rows.map(({ item, exercise, target }) => ({
           ...item,
           exercise,
@@ -132,7 +147,7 @@ export function useSession(id: number) {
         })),
       };
     },
-    ['workout_sessions', 'session_exercises', 'session_sets'],
+    ['workout_sessions', 'session_exercises', 'session_sets', 'session_tags', 'tags'],
     id,
   );
 }
@@ -171,4 +186,107 @@ export function useStartableWorkouts() {
     ['programs', 'workout_templates'],
     'startable',
   );
+}
+
+// ---------------------------------------------------------------------------
+// History
+// ---------------------------------------------------------------------------
+
+/** Finished sessions with their totals (working sets only, as in recap.ts), newest first. */
+function readSessionSummaries(where?: SQL, limit?: number) {
+  const working = sql`${sessionSets.type} != 'warmup'`;
+  const query = db
+    .select({
+      id: workoutSessions.id,
+      name: workoutSessions.name,
+      startedAt: workoutSessions.startedAt,
+      endedAt: workoutSessions.endedAt,
+      perceivedEffort: workoutSessions.perceivedEffort,
+      setCount: sql<number>`count(case when ${working} then 1 end)`,
+      volume: sql<number>`coalesce(sum(case when ${working} then ${sessionSets.weight} * ${sessionSets.reps} end), 0)`,
+    })
+    .from(workoutSessions)
+    .leftJoin(sessionExercises, eq(sessionExercises.sessionId, workoutSessions.id))
+    .leftJoin(sessionSets, eq(sessionSets.sessionExerciseId, sessionExercises.id))
+    .where(and(isNotNull(workoutSessions.endedAt), where))
+    .groupBy(workoutSessions.id)
+    .orderBy(desc(workoutSessions.startedAt));
+  return limit == null ? query.all() : query.limit(limit).all();
+}
+
+export type SessionSummary = ReturnType<typeof readSessionSummaries>[number] & {
+  endedAt: Date;
+  tags: string[];
+};
+
+export function useSessionHistory() {
+  return useLiveData(
+    (): SessionSummary[] => {
+      const summaries = readSessionSummaries();
+      const tagRows = db
+        .select({ sessionId: sessionTags.sessionId, name: tags.name })
+        .from(sessionTags)
+        .innerJoin(tags, eq(tags.id, sessionTags.tagId))
+        .orderBy(asc(tags.name))
+        .all();
+      return summaries.map((summary) => ({
+        ...summary,
+        endedAt: summary.endedAt!,
+        tags: tagRows.filter((row) => row.sessionId === summary.id).map((row) => row.name),
+      }));
+    },
+    ['workout_sessions', 'session_exercises', 'session_sets', 'session_tags', 'tags'],
+    'history',
+  );
+}
+
+/** Last finished session of the same workout before `before`, to compare with. */
+export function readPreviousTemplateSession(templateId: number, before: Date) {
+  return readSessionSummaries(
+    and(eq(workoutSessions.templateId, templateId), lt(workoutSessions.startedAt, before)),
+    1,
+  ).at(0);
+}
+
+export function useTags() {
+  return useLiveData(() => db.select().from(tags).orderBy(asc(tags.name)).all(), ['tags'], 'tags');
+}
+
+export function useSessionTagIds(sessionId: number) {
+  return useLiveData(
+    () =>
+      new Set(
+        db
+          .select({ id: sessionTags.tagId })
+          .from(sessionTags)
+          .where(eq(sessionTags.sessionId, sessionId))
+          .all()
+          .map((row) => row.id),
+      ),
+    ['session_tags'],
+    sessionId,
+  );
+}
+
+/** Current content of a workout template, to diff a session against it. */
+export function readTemplateForUpdate(templateId: number) {
+  const template = db
+    .select({ id: workoutTemplates.id, name: workoutTemplates.name })
+    .from(workoutTemplates)
+    .where(and(eq(workoutTemplates.id, templateId), eq(workoutTemplates.isDraft, false)))
+    .get();
+  if (!template) return undefined;
+  const items = db
+    .select({
+      id: templateExercises.id,
+      exerciseId: templateExercises.exerciseId,
+      restSeconds: templateExercises.restSeconds,
+      name: exercises.name,
+    })
+    .from(templateExercises)
+    .innerJoin(exercises, eq(exercises.id, templateExercises.exerciseId))
+    .where(eq(templateExercises.templateId, templateId))
+    .orderBy(asc(templateExercises.position))
+    .all();
+  return { ...template, items };
 }

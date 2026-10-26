@@ -91,8 +91,8 @@ export function isExerciseComplete(sets: { completedAt: Date | null }[]): boolea
   return sets.length > 0 && sets.every((set) => set.completedAt != null);
 }
 
-/** Best set of an exercise: heaviest (then most reps), most reps, or longest. */
-export function bestSet(sets: SetPerformance[], trackingType: TrackingType): SetPerformance | null {
+/** Positive when `a` beats `b`: heavier (then more reps), more reps, or longer. */
+export function compareSets(a: SetPerformance, b: SetPerformance, trackingType: TrackingType) {
   const score = (set: SetPerformance): [number, number] => {
     if (trackingType === 'duration' || trackingType === 'distance') {
       return [set.durationSeconds ?? 0, 0];
@@ -100,15 +100,16 @@ export function bestSet(sets: SetPerformance[], trackingType: TrackingType): Set
     if (trackingType === 'bodyweight_reps') return [set.reps ?? 0, 0];
     return [set.weight ?? 0, set.reps ?? 0];
   };
+  const [a1, a2] = score(a);
+  const [b1, b2] = score(b);
+  return a1 !== b1 ? a1 - b1 : a2 - b2;
+}
+
+/** Best set of an exercise, see compareSets. */
+export function bestSet(sets: SetPerformance[], trackingType: TrackingType): SetPerformance | null {
   let best: SetPerformance | null = null;
   for (const set of sets) {
-    if (!best) {
-      best = set;
-      continue;
-    }
-    const [a1, a2] = score(set);
-    const [b1, b2] = score(best);
-    if (a1 > b1 || (a1 === b1 && a2 > b2)) best = set;
+    if (!best || compareSets(set, best, trackingType) > 0) best = set;
   }
   return best;
 }
