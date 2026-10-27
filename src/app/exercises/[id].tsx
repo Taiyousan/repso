@@ -4,6 +4,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Chip } from '@/components/ui/chip';
 import { EmptyState } from '@/components/ui/empty-state';
+import { Icon } from '@/components/ui/icon';
+import type { TrackingType } from '@/db/schema';
+import {
+  type ExerciseRecords,
+  formatRecord,
+  RECORD_LABELS,
+  recordKindsFor,
+} from '@/domain/records';
 import { ExerciseAnimation } from '@/features/exercises/components/exercise-animation';
 import { MuscleMap } from '@/features/exercises/components/muscle-map';
 import { TranslationRequestButton } from '@/features/exercises/components/translation-request-button';
@@ -16,10 +24,14 @@ import {
   TRACKING_TYPE_LABELS,
 } from '@/features/exercises/labels';
 import { useExercise } from '@/features/exercises/queries';
+import { useExerciseRecords } from '@/features/sessions/queries';
+import { formatDay } from '@/lib/dates';
+import { useThemeColors } from '@/lib/theme';
 
 export default function ExerciseDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { exercise } = useExercise(Number(id));
+  const records = useExerciseRecords(Number(id));
   const insets = useSafeAreaInsets();
 
   if (!exercise) {
@@ -74,6 +86,8 @@ export default function ExerciseDetailScreen() {
         ) : null}
       </View>
 
+      <Records trackingType={exercise.trackingType} records={records} />
+
       <View className="gap-3">
         <Text className="text-lg font-semibold text-foreground">Muscles travaillés</Text>
         <MuscleMap
@@ -104,6 +118,55 @@ export default function ExerciseDetailScreen() {
         </View>
       ) : null}
     </ScrollView>
+  );
+}
+
+/**
+ * Best values reached on this exercise, with the day they were set. Drawn in the accent color:
+ * these are the user's own data, not documentation about the exercise.
+ */
+function Records({
+  trackingType,
+  records,
+}: {
+  trackingType: TrackingType;
+  records: ExerciseRecords;
+}) {
+  const colors = useThemeColors();
+  const kinds = recordKindsFor(trackingType).filter((kind) => records[kind]);
+  if (kinds.length === 0) return null;
+
+  return (
+    <View className="gap-3 rounded-2xl border border-primary bg-primary-soft p-4">
+      <View className="flex-row items-center gap-2">
+        <Icon name={{ ios: 'trophy.fill', android: 'trophy' }} size={18} color={colors.primary} />
+        <Text className="text-sm font-semibold tracking-wide text-foreground uppercase">
+          Tes records
+        </Text>
+      </View>
+      <View className="flex-row gap-2">
+        {kinds.map((kind) => {
+          const record = records[kind]!;
+          return (
+            <View key={kind} className="flex-1 items-center gap-0.5 rounded-xl bg-surface p-3">
+              <Text
+                className="text-lg font-bold text-foreground"
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                style={{ fontVariant: ['tabular-nums'] }}>
+                {formatRecord(kind, record.value)}
+              </Text>
+              <Text className="text-center text-xs text-muted" numberOfLines={2}>
+                {RECORD_LABELS[kind]}
+              </Text>
+              <Text className="text-xs text-muted" numberOfLines={1}>
+                {formatDay(record.at)}
+              </Text>
+            </View>
+          );
+        })}
+      </View>
+    </View>
   );
 }
 

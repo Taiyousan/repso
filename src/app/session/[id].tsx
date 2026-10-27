@@ -49,12 +49,23 @@ export default function SessionScreen() {
   return <LiveSession session={session} />;
 }
 
+/** On its own so the ticking clock doesn't re-render the exercise cards every second. */
+function SessionClock({ startedAt }: { startedAt: Date }) {
+  const now = useNow(1000);
+  const elapsedSeconds = Math.max(0, Math.floor((now - startedAt.getTime()) / 1000));
+
+  return (
+    <Text className="text-2xl font-bold text-foreground" style={{ fontVariant: ['tabular-nums'] }}>
+      {formatElapsed(elapsedSeconds)}
+    </Text>
+  );
+}
+
 function LiveSession({ session }: { session: SessionDetail }) {
   useKeepAwake();
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
-  const now = useNow(1000);
 
   const allSets = session.exercises.flatMap((item) => item.sets);
   const doneCount = allSets.filter((set) => set.completedAt != null).length;
@@ -126,8 +137,6 @@ function LiveSession({ session }: { session: SessionDetail }) {
     );
   };
 
-  const elapsedSeconds = Math.max(0, Math.floor((now - session.startedAt.getTime()) / 1000));
-
   return (
     <KeyboardAvoidingView
       behavior="padding"
@@ -153,11 +162,7 @@ function LiveSession({ session }: { session: SessionDetail }) {
       />
 
       <View className="flex-row items-center justify-between border-b border-border px-4 pb-3">
-        <Text
-          className="text-2xl font-bold text-foreground"
-          style={{ fontVariant: ['tabular-nums'] }}>
-          {formatElapsed(elapsedSeconds)}
-        </Text>
+        <SessionClock startedAt={session.startedAt} />
         <View className="flex-row items-center gap-3">
           <View className="items-end">
             <Text className="text-sm font-medium text-foreground">Exercices</Text>

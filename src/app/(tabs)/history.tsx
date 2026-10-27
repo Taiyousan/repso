@@ -5,7 +5,7 @@ import { Pressable, Text, View } from 'react-native';
 
 import { EmptyState } from '@/components/ui/empty-state';
 import { Screen } from '@/components/ui/screen';
-import { formatVolume } from '@/features/sessions/recap';
+import { formatVolume } from '@/domain/volume';
 import { type SessionSummary, useSessionHistory } from '@/features/sessions/queries';
 import { formatDay, formatDurationLong, formatMonth, formatTime, monthKey } from '@/lib/dates';
 

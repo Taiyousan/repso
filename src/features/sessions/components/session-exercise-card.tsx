@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Alert, Pressable, Text, View } from 'react-native';
 
 import { Card } from '@/components/ui/card';
+import { recordSetIds } from '@/domain/records';
 import { Icon } from '@/components/ui/icon';
 import { IconButton } from '@/components/ui/icon-button';
 import { DragHandle } from '@/components/ui/sortable-list';
@@ -39,6 +40,12 @@ export function SessionExerciseCard({ item, onSetCompleted }: SessionExerciseCar
   const colors = useThemeColors();
   const [restOpen, setRestOpen] = useState(false);
   const badges = setBadges(sets.map((set) => set.type));
+  // Validated sets only: an unvalidated one can already carry values typed then left alone.
+  const records = recordSetIds(
+    sets.filter((set) => set.completedAt != null),
+    item.records,
+    exercise.trackingType,
+  );
   const doneCount = sets.filter((set) => set.completedAt != null).length;
   const hasPendingSet = doneCount < sets.length;
   const isComplete = isExerciseComplete(sets);
@@ -166,6 +173,7 @@ export function SessionExerciseCard({ item, onSetCompleted }: SessionExerciseCar
             badge={badges[index]}
             trackingType={exercise.trackingType}
             previous={previousFor(previous, index)}
+            isRecord={records.has(set.id)}
             onCompleted={handleSetCompleted}
           />
         ))}

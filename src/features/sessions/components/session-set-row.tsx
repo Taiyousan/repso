@@ -1,6 +1,6 @@
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { type ComponentRef, useRef, useState } from 'react';
 import { Pressable, Text, TextInput, type TextInputProps, View } from 'react-native';
 
 import { Icon } from '@/components/ui/icon';
@@ -41,6 +41,8 @@ type SessionSetRowProps = {
   trackingType: TrackingType;
   /** Same set last time, shown as placeholder and used when validating empty fields. */
   previous: SetPerformance | null;
+  /** This set holds a new record of the exercise. */
+  isRecord: boolean;
   onCompleted: () => void;
 };
 
@@ -52,6 +54,7 @@ export function SessionSetRow({
   badge,
   trackingType,
   previous,
+  isRecord,
   onCompleted,
 }: SessionSetRowProps) {
   const colors = useThemeColors();
@@ -113,9 +116,19 @@ export function SessionSetRow({
         <Text className={`text-sm font-bold ${style.label}`}>{badge}</Text>
       </Pressable>
 
-      <Text className="w-16 text-center text-xs text-muted" numberOfLines={1}>
-        {formatPerformance(previous, trackingType)}
-      </Text>
+      {isRecord ? (
+        <View
+          accessible
+          accessibilityLabel="Record battu"
+          className="w-16 flex-row items-center justify-center gap-1">
+          <Icon name={{ ios: 'trophy.fill', android: 'trophy' }} size={14} color={colors.primary} />
+          <Text className="text-xs font-bold text-primary">Record</Text>
+        </View>
+      ) : (
+        <Text className="w-16 text-center text-xs text-muted" numberOfLines={1}>
+          {formatPerformance(previous, trackingType)}
+        </Text>
+      )}
 
       {isTimed ? (
         <>
@@ -206,14 +219,29 @@ function SetCountdown() {
   );
 }
 
-function NumberInput(props: Omit<TextInputProps, 'className' | 'placeholderTextColor'>) {
+/**
+ * The value is selected when the field is focused, so a new one just overwrites it. Done by hand
+ * rather than with `selectTextOnFocus`, which Android re-applies on every re-render: the second
+ * digit typed would replace the first.
+ */
+function NumberInput({
+  onFocus,
+  ...props
+}: Omit<TextInputProps, 'className' | 'placeholderTextColor'>) {
   const colors = useThemeColors();
+  const ref = useRef<ComponentRef<typeof TextInput>>(null);
+
   return (
     <TextInput
+      ref={ref}
       keyboardType="number-pad"
-      selectTextOnFocus
       placeholderTextColor={colors.muted}
       {...props}
+      onFocus={(event) => {
+        const length = String(props.value ?? '').length;
+        if (length > 0) ref.current?.setSelection(0, length);
+        onFocus?.(event);
+      }}
       className="flex-1 rounded-lg border border-border bg-background px-2 py-2 text-center text-base text-foreground"
     />
   );

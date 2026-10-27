@@ -1,4 +1,4 @@
-import { estimateOneRepMax, setVolume, totalVolume } from './volume';
+import { estimateOneRepMax, formatVolume, setVolume, totalVolume } from './volume';
 
 describe('setVolume', () => {
   it('multiplies weight by reps', () => {
@@ -33,5 +33,12 @@ describe('estimateOneRepMax', () => {
 
   it('returns 0 for invalid input', () => {
     expect(estimateOneRepMax(0, 5)).toBe(0);
+  });
+});
+
+describe('formatVolume', () => {
+  it('groups thousands', () => {
+    expect(formatVolume(4250.6)).toBe('4 251 kg');
+    expect(formatVolume(980)).toBe('980 kg');
   });
 });

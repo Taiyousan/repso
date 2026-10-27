@@ -5,8 +5,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/ui/button';
 import { Card, Section } from '@/components/ui/card';
+import { Icon } from '@/components/ui/icon';
 import { TextField } from '@/components/ui/text-field';
-import { isWorkingSet } from '@/domain/volume';
+import { formatRecord, RECORD_LABELS, sessionNewRecords } from '@/domain/records';
+import { formatVolume, isWorkingSet } from '@/domain/volume';
 import { MuscleMap } from '@/features/exercises/components/muscle-map';
 import { formatDay, formatDurationLong, formatTime } from '@/lib/dates';
 import { useThemeColors } from '@/lib/theme';
@@ -18,7 +20,7 @@ import {
   type SessionDetail,
   type SessionExerciseDetail,
 } from '../queries';
-import { formatDelta, formatVolume, sessionTotals, workedMuscles } from '../recap';
+import { formatDelta, sessionTotals, workedMuscles } from '../recap';
 import { EffortPicker } from './effort-picker';
 import { SessionTags } from './tag-picker';
 import { TemplateUpdateCard } from './template-update-card';
@@ -46,6 +48,7 @@ export function SessionRecap({ session, justFinished }: SessionRecapProps) {
     ? previous.endedAt!.getTime() - previous.startedAt.getTime()
     : 0;
   const muscles = workedMuscles(session.exercises.map((item) => item.exercise));
+  const newRecords = sessionNewRecords(session.exercises);
 
   const confirmDelete = () => {
     Alert.alert('Supprimer cette séance ?', 'Elle disparaîtra de ton historique.', [
@@ -127,6 +130,33 @@ export function SessionRecap({ session, justFinished }: SessionRecapProps) {
             </Text>
           ) : null}
         </View>
+
+        {newRecords.length > 0 ? (
+          <Section title={newRecords.length > 1 ? 'Records battus' : 'Record battu'}>
+            <Card tone="success">
+              {newRecords.map((record) => (
+                <View
+                  key={`${record.exerciseId}-${record.kind}`}
+                  className="flex-row items-center gap-3">
+                  <Icon
+                    name={{ ios: 'trophy.fill', android: 'trophy' }}
+                    size={20}
+                    color={colors.success}
+                  />
+                  <View className="flex-1">
+                    <Text className="text-base font-semibold text-foreground" numberOfLines={1}>
+                      {record.exerciseName}
+                    </Text>
+                    <Text className="text-sm text-muted">{RECORD_LABELS[record.kind]}</Text>
+                  </View>
+                  <Text className="text-base font-semibold text-foreground">
+                    {formatRecord(record.kind, record.value)}
+                  </Text>
+                </View>
+              ))}
+            </Card>
+          </Section>
+        ) : null}
 
         {justFinished ? <TemplateUpdateCard session={session} /> : null}
 

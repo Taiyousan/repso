@@ -28,3 +28,8 @@ export function estimateOneRepMax(weight: number, reps: number): number {
   if (reps === 1) return weight;
   return weight * (1 + reps / 30);
 }
+
+/** 4250.5 -> "4 251 kg" (narrow no-break space between thousands) */
+export function formatVolume(volume: number): string {
+  return `${String(Math.round(volume)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} kg`;
+}

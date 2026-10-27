@@ -1,7 +1,6 @@
 import {
   effortLabel,
   formatDelta,
-  formatVolume,
   planTemplateUpdate,
   type SessionItem,
   sessionTotals,
@@ -120,9 +119,7 @@ describe('sessionTotals', () => {
 });
 
 describe('formatting', () => {
-  it('formats volumes and deltas', () => {
-    expect(formatVolume(4250.6)).toBe('4 251 kg');
-    expect(formatVolume(980)).toBe('980 kg');
+  it('formats deltas', () => {
     expect(formatDelta(120)).toBe('+120');
     expect(formatDelta(-3)).toBe('−3');
     expect(formatDelta(0)).toBe('=');

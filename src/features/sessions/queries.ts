@@ -1,6 +1,7 @@
 import { and, asc, desc, eq, inArray, isNotNull, isNull, lt, ne, type SQL, sql } from 'drizzle-orm';
 
 import { db } from '@/db/client';
+import { computeRecords, type ExerciseRecords } from '@/domain/records';
 import { useLiveData } from '@/db/live';
 import {
   exercises,
@@ -72,6 +73,80 @@ export function readPreviousPerformance(
   return result;
 }
 
+/**
+ * Best value of each record of the given exercises, over finished sessions only. `before` and
+ * `excludeSessionId` leave out a session, so its own sets don't hide the records it beat.
+ */
+export function readExerciseRecords(
+  exerciseIds: number[],
+  excludeSessionId?: number,
+  before?: Date,
+): Map<number, ExerciseRecords> {
+  const result = new Map<number, ExerciseRecords>();
+  if (exerciseIds.length === 0) return result;
+
+  const rows = db
+    .select({
+      exerciseId: sessionExercises.exerciseId,
+      trackingType: exercises.trackingType,
+      type: sessionSets.type,
+      weight: sessionSets.weight,
+      reps: sessionSets.reps,
+      durationSeconds: sessionSets.durationSeconds,
+      at: workoutSessions.startedAt,
+    })
+    .from(sessionSets)
+    .innerJoin(sessionExercises, eq(sessionExercises.id, sessionSets.sessionExerciseId))
+    .innerJoin(exercises, eq(exercises.id, sessionExercises.exerciseId))
+    .innerJoin(workoutSessions, eq(workoutSessions.id, sessionExercises.sessionId))
+    .where(
+      and(
+        inArray(sessionExercises.exerciseId, exerciseIds),
+        isNotNull(workoutSessions.endedAt),
+        isNotNull(sessionSets.completedAt),
+        ne(sessionSets.type, 'warmup'),
+        excludeSessionId == null ? undefined : ne(workoutSessions.id, excludeSessionId),
+        before == null ? undefined : lt(workoutSessions.startedAt, before),
+      ),
+    )
+    .orderBy(asc(workoutSessions.startedAt))
+    .all();
+
+  for (const exerciseId of exerciseIds) {
+    const own = rows.filter((row) => row.exerciseId === exerciseId);
+    if (own.length === 0) continue;
+    result.set(exerciseId, computeRecords(own, own[0].trackingType));
+  }
+  return result;
+}
+
+/** Exercises done in a finished session, most recently done first. */
+export function useRecentExerciseIds() {
+  return useLiveData(
+    () =>
+      db
+        .select({ exerciseId: sessionExercises.exerciseId })
+        .from(sessionExercises)
+        .innerJoin(workoutSessions, eq(workoutSessions.id, sessionExercises.sessionId))
+        .where(isNotNull(workoutSessions.endedAt))
+        .groupBy(sessionExercises.exerciseId)
+        .orderBy(desc(sql`max(${workoutSessions.startedAt})`))
+        .all()
+        .map((row) => row.exerciseId),
+    ['workout_sessions', 'session_exercises'],
+    'recent-exercises',
+  );
+}
+
+/** Records of one exercise, for its detail screen. */
+export function useExerciseRecords(exerciseId: number) {
+  return useLiveData(
+    () => readExerciseRecords([exerciseId]).get(exerciseId) ?? {},
+    ['workout_sessions', 'session_exercises', 'session_sets'],
+    exerciseId,
+  );
+}
+
 /** The session in progress, if any (only one at a time). */
 export function readActiveSession() {
   return db
@@ -126,6 +201,11 @@ export function useSession(id: number) {
         id,
         session.startedAt,
       );
+      const records = readExerciseRecords(
+        rows.map((row) => row.exercise.id),
+        id,
+        session.startedAt,
+      );
 
       const sessionTagList = db
         .select({ id: tags.id, name: tags.name })
@@ -144,6 +224,7 @@ export function useSession(id: number) {
           target,
           sets: sets.filter((set) => set.sessionExerciseId === item.id),
           previous: previous.get(exercise.id) ?? [],
+          records: records.get(exercise.id) ?? {},
         })),
       };
     },
