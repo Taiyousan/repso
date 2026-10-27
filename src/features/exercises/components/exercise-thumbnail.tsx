@@ -6,12 +6,25 @@ import { exerciseImageUrl } from '../library';
 type ExerciseThumbnailProps = {
   images: string[];
   name: string;
+  /** Side of the square in a row, or the height when `fill` stretches it to the parent's width. */
+  size?: number;
+  /** Full width, square corners: the parent card clips it. */
+  fill?: boolean;
 };
 
-export function ExerciseThumbnail({ images, name }: ExerciseThumbnailProps) {
+export function ExerciseThumbnail({
+  images,
+  name,
+  size = 56,
+  fill = false,
+}: ExerciseThumbnailProps) {
+  const layout = fill
+    ? { width: '100%' as const, height: size, borderRadius: 0 }
+    : { width: size, height: size, borderRadius: 12 };
+
   if (images.length === 0) {
     return (
-      <View className="size-14 items-center justify-center rounded-xl bg-surface-muted">
+      <View style={layout} className="items-center justify-center bg-surface-muted">
         <Text className="text-lg font-bold text-muted">{name.charAt(0).toUpperCase()}</Text>
       </View>
     );
@@ -21,10 +34,11 @@ export function ExerciseThumbnail({ images, name }: ExerciseThumbnailProps) {
     <Image
       source={{ uri: exerciseImageUrl(images[0]) }}
       recyclingKey={images[0]}
-      contentFit="cover"
+      // Cropping a wide card would cut the figure's head and feet off.
+      contentFit={fill ? 'contain' : 'cover'}
       transition={150}
       accessibilityIgnoresInvertColors
-      style={{ width: 56, height: 56, borderRadius: 12, backgroundColor: '#ffffff' }}
+      style={{ ...layout, backgroundColor: '#ffffff' }}
     />
   );
 }

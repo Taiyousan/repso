@@ -1,5 +1,5 @@
 import { memo, useMemo } from 'react';
-import { Pressable, ScrollView, Text } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import type { BodyPart } from 'react-native-body-highlighter';
 import { bodyBack } from 'react-native-body-highlighter/dist/assets/bodyBack';
 import { bodyFront } from 'react-native-body-highlighter/dist/assets/bodyFront';
@@ -44,23 +44,20 @@ type MuscleFilterProps = {
   onSelect: (muscle: string | null) => void;
 };
 
-/** Horizontal row of mini body maps, one per muscle. */
+/** Named grid of mini body maps, for the filters overlay. */
 export function MuscleFilter({ selected, onSelect }: MuscleFilterProps) {
   return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerClassName="gap-2 px-4"
-      keyboardShouldPersistTaps="handled">
+    <View className="flex-row flex-wrap gap-2">
       {MUSCLES.map((muscle) => (
         <MuscleTile
           key={muscle}
           muscle={muscle}
           selected={selected === muscle}
           onPress={() => onSelect(selected === muscle ? null : muscle)}
+          showLabel
         />
       ))}
-    </ScrollView>
+    </View>
   );
 }
 
@@ -68,9 +65,16 @@ type MuscleTileProps = {
   muscle: Muscle;
   selected: boolean;
   onPress: () => void;
+  /** Names the muscle under the body; without it the tile is a compact icon. */
+  showLabel?: boolean;
 };
 
-const MuscleTile = memo(function MuscleTile({ muscle, selected, onPress }: MuscleTileProps) {
+export const MuscleTile = memo(function MuscleTile({
+  muscle,
+  selected,
+  onPress,
+  showLabel = false,
+}: MuscleTileProps) {
   const colors = useThemeColors();
   const highlighted = useMemo(
     () => new Set(toBodyParts([muscle], []).map((part) => part.slug)),
@@ -85,10 +89,12 @@ const MuscleTile = memo(function MuscleTile({ muscle, selected, onPress }: Muscl
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityState={{ selected }}
-      className={`w-24 items-center gap-1 rounded-2xl border bg-surface py-2 ${
-        selected ? 'border-primary' : 'border-border'
-      }`}>
-      <Svg viewBox={silhouette.viewBox} width={44} height={88}>
+      style={showLabel ? undefined : { width: 52, height: 64 }}
+      className={`items-center justify-center rounded-2xl border bg-surface ${
+        showLabel ? 'w-24 gap-1 py-1.5' : ''
+      } ${selected ? 'border-primary' : 'border-border'}`}>
+      {/* The silhouettes keep the 1:2 ratio of their viewBox. */}
+      <Svg viewBox={silhouette.viewBox} width={showLabel ? 34 : 26} height={showLabel ? 68 : 52}>
         {silhouette.parts.map((part, index) => (
           <Path
             key={index}
@@ -97,11 +103,13 @@ const MuscleTile = memo(function MuscleTile({ muscle, selected, onPress }: Muscl
           />
         ))}
       </Svg>
-      <Text
-        numberOfLines={1}
-        className={`px-1 text-xs ${selected ? 'font-semibold text-primary' : 'text-muted'}`}>
-        {label}
-      </Text>
+      {showLabel ? (
+        <Text
+          numberOfLines={1}
+          className={`px-1 text-xs ${selected ? 'font-semibold text-primary' : 'text-muted'}`}>
+          {label}
+        </Text>
+      ) : null}
     </Pressable>
   );
 });
