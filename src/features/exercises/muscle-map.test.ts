@@ -1,4 +1,4 @@
-import { PRIMARY_INTENSITY, SECONDARY_INTENSITY, toBodyParts } from './muscle-map';
+import { PRIMARY_INTENSITY, SECONDARY_INTENSITY, toBodyHeat, toBodyParts } from './muscle-map';
 
 describe('toBodyParts', () => {
   it('maps primary and secondary muscles to body parts', () => {
@@ -16,5 +16,37 @@ describe('toBodyParts', () => {
 
   it('ignores unknown muscles', () => {
     expect(toBodyParts(['unknown'], [])).toEqual([]);
+  });
+});
+
+describe('toBodyHeat', () => {
+  it('scales intensities on the highest value', () => {
+    expect(
+      toBodyHeat(
+        [
+          { muscle: 'chest', value: 12 },
+          { muscle: 'triceps', value: 6 },
+          { muscle: 'biceps', value: 1 },
+        ],
+        4,
+      ),
+    ).toEqual([
+      { slug: 'chest', intensity: 4 },
+      { slug: 'triceps', intensity: 2 },
+      { slug: 'biceps', intensity: 1 },
+    ]);
+  });
+
+  it('keeps the bigger value of muscles sharing a part, and skips zeros', () => {
+    expect(
+      toBodyHeat(
+        [
+          { muscle: 'lats', value: 3 },
+          { muscle: 'middle back', value: 8 },
+          { muscle: 'calves', value: 0 },
+        ],
+        4,
+      ),
+    ).toEqual([{ slug: 'upper-back', intensity: 4 }]);
   });
 });

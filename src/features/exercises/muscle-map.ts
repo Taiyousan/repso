@@ -43,3 +43,23 @@ export function toBodyParts(
     ...secondary.map((slug) => ({ slug, intensity: SECONDARY_INTENSITY })),
   ];
 }
+
+/**
+ * Highlight data scaled on a value per muscle: intensity 1 (least) to `levels` (most), relative to
+ * the highest value. Muscles sharing a part show the bigger value.
+ */
+export function toBodyHeat(values: { muscle: string; value: number }[], levels: number) {
+  const byPart = new Map<Slug, number>();
+  for (const { muscle, value } of values) {
+    for (const slug of BODY_PARTS[muscle as Muscle] ?? []) {
+      byPart.set(slug, Math.max(byPart.get(slug) ?? 0, value));
+    }
+  }
+  const max = Math.max(0, ...byPart.values());
+  return [...byPart]
+    .filter(([, value]) => value > 0)
+    .map(([slug, value]): ExtendedBodyPart => ({
+      slug,
+      intensity: Math.max(1, Math.ceil((value / max) * levels)),
+    }));
+}

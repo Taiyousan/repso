@@ -60,3 +60,14 @@ export function formatDurationLong(ms: number): string {
   if (hours === 0) return `${minutes} min`;
   return `${hours} h ${String(minutes).padStart(2, '0')}`;
 }
+
+/** "12 oct.", with the year when it isn't the current one. */
+export function formatShortDay(date: Date, now = new Date()): string {
+  const year = date.getFullYear() === now.getFullYear() ? '' : ` ${date.getFullYear()}`;
+  return `${date.getDate()} ${SHORT_MONTHS[date.getMonth()]}${year}`;
+}
+
+/** "oct." */
+export function formatShortMonth(date: Date): string {
+  return SHORT_MONTHS[date.getMonth()];
+}

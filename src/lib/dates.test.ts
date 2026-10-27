@@ -1,4 +1,11 @@
-import { formatDay, formatDurationLong, formatMonth, formatTime, monthKey } from './dates';
+import {
+  formatDay,
+  formatDurationLong,
+  formatMonth,
+  formatShortDay,
+  formatTime,
+  monthKey,
+} from './dates';
 
 describe('formatDay', () => {
   const now = new Date(2026, 9, 20);
@@ -36,5 +43,14 @@ describe('formatDurationLong', () => {
     expect(formatDurationLong(52 * 60_000)).toBe('52 min');
     expect(formatDurationLong(75 * 60_000)).toBe('1 h 15');
     expect(formatDurationLong(122 * 60_000)).toBe('2 h 02');
+  });
+});
+
+describe('formatShortDay', () => {
+  const now = new Date(2026, 9, 20);
+
+  it('drops the weekday, and the year when current', () => {
+    expect(formatShortDay(new Date(2026, 9, 12), now)).toBe('12 oct.');
+    expect(formatShortDay(new Date(2025, 11, 31), now)).toBe('31 déc. 2025');
   });
 });

@@ -34,6 +34,11 @@ export default function TabsLayout() {
         <NativeTabs.Trigger.Label>Historique</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="clock" md="history" />
       </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="stats">
+        <NativeTabs.Trigger.Label>Stats</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf="chart.bar.xaxis" md="bar_chart" />
+      </NativeTabs.Trigger>
     </NativeTabs>
   );
 }

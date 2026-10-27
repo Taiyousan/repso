@@ -25,6 +25,7 @@ import {
 } from '@/features/exercises/labels';
 import { useExercise } from '@/features/exercises/queries';
 import { useExerciseRecords } from '@/features/sessions/queries';
+import { ExerciseProgress } from '@/features/stats/components/exercise-progress';
 import { formatDay } from '@/lib/dates';
 import { useThemeColors } from '@/lib/theme';
 
@@ -87,6 +88,8 @@ export default function ExerciseDetailScreen() {
       </View>
 
       <Records trackingType={exercise.trackingType} records={records} />
+
+      <ExerciseProgress exerciseId={exercise.id} trackingType={exercise.trackingType} />
 
       <View className="gap-3">
         <Text className="text-lg font-semibold text-foreground">Muscles travaillés</Text>
