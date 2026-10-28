@@ -37,6 +37,17 @@ export default function RootLayout() {
             <Stack.Screen name="programs/new" options={{ title: 'Nouveau programme' }} />
             <Stack.Screen name="programs/[id]" options={{ title: '' }} />
             <Stack.Screen name="programs/edit/[id]" options={{ title: 'Modifier le programme' }} />
+            <Stack.Screen name="programs/import" options={{ title: 'Importer un programme' }} />
+            <Stack.Screen
+              name="programs/export"
+              options={{ title: 'Exporter un programme', presentation: 'modal' }}
+              dangerouslySingular
+            />
+            <Stack.Screen
+              name="programs/import-exercise"
+              options={{ title: 'Exercice importé' }}
+              dangerouslySingular
+            />
             <Stack.Screen name="workouts/[id]" options={{ title: '' }} />
             <Stack.Screen name="workouts/new/[id]" options={{ title: 'Nouvelle séance' }} />
             <Stack.Screen

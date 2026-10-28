@@ -54,6 +54,21 @@ Les migrations sont appliquées automatiquement au démarrage de l'app.
 Principe clé : une **séance** est une copie d'une **séance type** de programme. Elle peut être modifiée
 librement pendant l'entraînement, puis les changements peuvent être reportés (ou non) dans le programme.
 
+## Import/export de programmes
+
+L'onglet Programmes permet d'importer un fichier de programme `.json`, d'exporter un programme (aussi
+depuis sa fiche) et d'exporter le format. Les exports ouvrent le menu de partage Android avec le fichier
+(Drive, mail, appli d'IA…). Le format est décrit par un JSON Schema versionné :
+[schemas/program.v1.json](schemas/program.v1.json).
+
+L'export du format produit un fichier Markdown (consignes, exemple, schéma, liste des exercices
+essentiels avec leur slug) à donner à une IA pour convertir ou créer un programme.
+
+À l'import, chaque exercice est reconnu par son `slug`, sinon par son nom français ou anglais, sinon par
+le nom le plus proche (à confirmer). Les exercices introuvables deviennent des exercices perso, créés à
+partir des champs `primaryMuscles`, `equipment` et `trackingType` s'ils sont fournis. Un aperçu permet
+de corriger chaque correspondance avant de créer le programme.
+
 ## CI
 
 GitHub Actions : lint, typecheck, tests et formatage sur chaque push/PR, puis build d'un APK installable

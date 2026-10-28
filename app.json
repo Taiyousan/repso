@@ -46,7 +46,8 @@
           "color": "#E8472B",
           "enableRemoteNotifications": false
         }
-      ]
+      ],
+      "expo-sharing"
     ],
     "experiments": {
       "typedRoutes": true,

@@ -13,12 +13,19 @@ export type CustomExerciseInput = {
   instructions: string[];
 };
 
+/**
+ * The timestamp suffix keeps slugs unique when two custom exercises share a name; `index`
+ * separates exercises created in the same millisecond (program import).
+ */
+export function customExerciseSlug(name: string, index = 0): string {
+  const suffix = Date.now().toString(36) + (index > 0 ? `-${index}` : '');
+  return `custom-${slugify(name) || 'exercise'}-${suffix}`;
+}
+
 export function createCustomExercise(input: CustomExerciseInput): number {
-  // The timestamp suffix keeps slugs unique when two custom exercises share a name.
-  const slug = `custom-${slugify(input.name) || 'exercise'}-${Date.now().toString(36)}`;
   const created = db
     .insert(exercises)
-    .values({ ...input, slug, images: [], isCustom: true })
+    .values({ ...input, slug: customExerciseSlug(input.name), images: [], isCustom: true })
     .returning({ id: exercises.id })
     .get();
   return created.id;

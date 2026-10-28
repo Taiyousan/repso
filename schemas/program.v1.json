@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/Taiyousan/workout-planner/main/schemas/program.v1.json",
+  "title": "Workout Planner program",
+  "description": "A training program (workouts and their ordered exercises) imported into or exported from Workout Planner. The app also accepts the bare program object, without the envelope.",
+  "type": "object",
+  "required": ["program"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "format": { "const": "workout-planner.program" },
+    "version": {
+      "const": 1,
+      "description": "Format version. Files from a newer version are rejected by older apps."
+    },
+    "exportedAt": { "type": "string", "format": "date-time" },
+    "program": { "$ref": "#/$defs/program" }
+  },
+  "$defs": {
+    "program": {
+      "type": "object",
+      "required": ["name", "workouts"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "description": { "type": "string" },
+        "workouts": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/workout" }
+        }
+      }
+    },
+    "workout": {
+      "type": "object",
+      "required": ["name", "exercises"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "exercises": {
+          "type": "array",
+          "description": "In the order they are done.",
+          "items": { "$ref": "#/$defs/exercise" }
+        }
+      }
+    },
+    "exercise": {
+      "type": "object",
+      "description": "Matched by slug, then by French or English name. When nothing matches, a custom exercise is created from the name and the optional muscle, equipment and tracking fields.",
+      "anyOf": [{ "required": ["slug"] }, { "required": ["name"] }],
+      "properties": {
+        "slug": {
+          "type": "string",
+          "description": "Library slug, e.g. \"barbell-bench-press-medium-grip\" (free-exercise-db id in kebab case)."
+        },
+        "name": { "type": "string", "minLength": 1 },
+        "restSeconds": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3600,
+          "description": "Rest between sets. Omitted: the app's default rest time."
+        },
+        "target": {
+          "type": "string",
+          "description": "Free text shown during the session, e.g. \"4 × 8-10\"."
+        },
+        "primaryMuscles": { "type": "array", "items": { "$ref": "#/$defs/muscle" } },
+        "secondaryMuscles": { "type": "array", "items": { "$ref": "#/$defs/muscle" } },
+        "equipment": {
+          "enum": [
+            "barbell",
+            "dumbbell",
+            "machine",
+            "cable",
+            "body only",
+            "kettlebells",
+            "bands",
+            "e-z curl bar",
+            "medicine ball",
+            "exercise ball",
+            "foam roll",
+            "other"
+          ]
+        },
+        "trackingType": {
+          "enum": ["weight_reps", "bodyweight_reps", "duration", "distance"],
+          "default": "weight_reps"
+        }
+      }
+    },
+    "muscle": {
+      "enum": [
+        "chest",
+        "shoulders",
+        "triceps",
+        "biceps",
+        "forearms",
+        "lats",
+        "middle back",
+        "traps",
+        "lower back",
+        "abdominals",
+        "quadriceps",
+        "hamstrings",
+        "glutes",
+        "calves",
+        "adductors",
+        "abductors",
+        "neck"
+      ]
+    }
+  }
+}

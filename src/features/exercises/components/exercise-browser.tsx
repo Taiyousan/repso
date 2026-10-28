@@ -26,18 +26,26 @@ type ExerciseBrowserProps = {
   onSelect?: (exercise: Exercise) => void;
   /** Space kept free under the list (floating button, bottom bar…). */
   bottomInset?: number;
+  /** Opens the search field already filled in. */
+  initialQuery?: string;
 };
 
 /** Library search: essentials/all scope, text search, muscle and equipment filters, list. */
-export function ExerciseBrowser({ selectedIds, onSelect, bottomInset = 96 }: ExerciseBrowserProps) {
+export function ExerciseBrowser({
+  selectedIds,
+  onSelect,
+  bottomInset = 96,
+  initialQuery = '',
+}: ExerciseBrowserProps) {
   const { data: exercises } = useExerciseList();
   const recentIds = useRecentExerciseIds();
-  const [scope, setScope] = useState<Scope>('essentials');
-  const [query, setQuery] = useState('');
+  // A prefilled search looks for one given exercise, wherever it is in the library.
+  const [scope, setScope] = useState<Scope>(initialQuery ? 'all' : 'essentials');
+  const [query, setQuery] = useState(initialQuery);
   const [muscle, setMuscle] = useState<string | null>(null);
   const [equipment, setEquipment] = useState<string | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(initialQuery !== '');
   const deferredQuery = useDeferredValue(query);
   const activeFilters = (muscle ? 1 : 0) + (equipment ? 1 : 0);
 
@@ -90,7 +98,8 @@ export function ExerciseBrowser({ selectedIds, onSelect, bottomInset = 96 }: Exe
               value={query}
               onChangeText={setQuery}
               placeholder="Rechercher (français ou anglais)"
-              autoFocus
+              // A prefilled search shows its results first; reopened by the user, it wants typing.
+              autoFocus={query !== initialQuery || !initialQuery}
               autoCorrect={false}
               returnKeyType="search"
               clearButtonMode="while-editing"

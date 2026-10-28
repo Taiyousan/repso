@@ -10,6 +10,7 @@ import { DragHandle, SortableList } from '@/components/ui/sortable-list';
 import { muscleLabel } from '@/features/exercises/labels';
 import { createDraftWorkoutTemplate, reorderWorkoutTemplates } from '@/features/programs/mutations';
 import { useProgram } from '@/features/programs/queries';
+import { exportProgramToFile } from '@/features/programs/transfer/actions';
 import { useThemeColors } from '@/lib/theme';
 
 export default function ProgramScreen() {
@@ -90,7 +91,16 @@ export default function ProgramScreen() {
         )}
       </Section>
 
-      <Button label="Ajouter une séance" onPress={addWorkout} />
+      <View className="gap-3">
+        <Button label="Ajouter une séance" onPress={addWorkout} />
+        {program.workouts.length > 0 ? (
+          <Button
+            label="Exporter le programme"
+            variant="secondary"
+            onPress={() => exportProgramToFile(programId)}
+          />
+        ) : null}
+      </View>
     </Animated.ScrollView>
   );
 }
