@@ -17,12 +17,25 @@ export type ExerciseMatch =
   | { kind: 'suggested'; exerciseId: number }
   | { kind: 'none' };
 
-/** Words ignored when comparing names. */
+/** Words ignored when comparing names. "Medium grip" is the default grip. */
 // prettier-ignore
 const STOP_WORDS = new Set([
   'a', 'au', 'aux', 'avec', 'd', 'de', 'des', 'du', 'en', 'et', 'l', 'la', 'le', 'les', 'sur',
-  'the', 'with', 'on', 'and', 'of', 'to',
+  'the', 'with', 'on', 'and', 'of', 'to', 'medium', 'grip',
 ]);
+
+/**
+ * Equipment words, compared apart: "Dumbbell Lateral Raise" should find "Side Lateral Raise"
+ * rather than "Dumbbell Raise", but not "Lateral Raise - With Bands".
+ */
+// prettier-ignore
+const EQUIPMENT_WORDS = new Set([
+  'barbell', 'dumbbell', 'cable', 'rope', 'machine', 'band', 'kettlebell', 'ez', 'bar', 'smith',
+  'sled', 'barre', 'haltere', 'poulie', 'corde', 'elastique', 'traineau',
+]);
+
+/** Words that change the exercise: both names must have them or not ("incline" vs flat press). */
+const VARIANT_WORDS = ['incline', 'decline', 'lying', 'allonge', 'reverse', 'inverse'];
 
 const MIN_SUGGESTION_SCORE = 0.5;
 
@@ -40,10 +53,35 @@ function sameWord(a: string, b: string): boolean {
 }
 
 /** Dice coefficient over words: 1 when both names have the same words, 0 when none shared. */
-function similarity(a: string[], b: string[]): number {
+function dice(a: string[], b: string[]): number {
   if (a.length === 0 || b.length === 0) return 0;
   const shared = a.filter((word) => b.some((other) => sameWord(word, other))).length;
   return (2 * shared) / (a.length + b.length);
+}
+
+const hasWord = (name: string[], word: string) => name.some((other) => sameWord(word, other));
+
+const EQUIPMENT_MISMATCH_PENALTY = 0.4;
+
+const isEquipment = (word: string) => EQUIPMENT_WORDS.has(word.replace(/s$/, ''));
+
+/**
+ * Compares the words saying what the exercise is, then penalizes a different equipment. 0 when
+ * a variant word ("incline", "lying"…) is on one side only.
+ */
+function similarity(a: string[], b: string[]): number {
+  if (VARIANT_WORDS.some((word) => hasWord(a, word) !== hasWord(b, word))) return 0;
+  const core = (name: string[]) => {
+    const kept = name.filter((word) => !isEquipment(word));
+    return kept.length > 0 ? kept : name;
+  };
+  const equipmentA = a.filter(isEquipment);
+  const equipmentB = b.filter(isEquipment);
+  const mismatch =
+    equipmentA.length > 0 &&
+    equipmentB.length > 0 &&
+    !equipmentA.some((word) => hasWord(equipmentB, word));
+  return dice(core(a), core(b)) + dice(a, b) / 100 - (mismatch ? EQUIPMENT_MISMATCH_PENALTY : 0);
 }
 
 /**

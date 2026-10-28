@@ -31,6 +31,41 @@ const catalog: CatalogExercise[] = [
     isEssential: false,
   },
   { id: 5, slug: 'custom-y-raise-abc', name: 'Y raise', nameEn: null, isEssential: false },
+  {
+    id: 6,
+    slug: 'decline-barbell-bench-press',
+    name: 'Développé décliné à la barre',
+    nameEn: 'Decline Barbell Bench Press',
+    isEssential: true,
+  },
+  {
+    id: 7,
+    slug: 'incline-dumbbell-press',
+    name: 'Développé incliné aux haltères',
+    nameEn: 'Incline Dumbbell Press',
+    isEssential: true,
+  },
+  {
+    id: 8,
+    slug: 'side-lateral-raise',
+    name: 'Élévations latérales',
+    nameEn: 'Side Lateral Raise',
+    isEssential: true,
+  },
+  {
+    id: 9,
+    slug: 'dumbbell-raise',
+    name: 'Élévation à l’haltère',
+    nameEn: 'Dumbbell Raise',
+    isEssential: false,
+  },
+  {
+    id: 10,
+    slug: 'lateral-raise-with-bands',
+    name: 'Élévation latérale avec élastique',
+    nameEn: 'Lateral Raise - With Bands',
+    isEssential: false,
+  },
 ];
 
 const match = createExerciseMatcher(catalog);
@@ -59,6 +94,17 @@ describe('createExerciseMatcher', () => {
   it('suggests the closest name, tolerating plurals', () => {
     expect(match({ name: 'Barbell Bench Press' })).toEqual({ kind: 'suggested', exerciseId: 1 });
     expect(match({ name: 'Barbell Curls' })).toEqual({ kind: 'suggested', exerciseId: 3 });
+  });
+
+  it('keeps incline and decline variants apart', () => {
+    expect(match({ name: 'Incline Dumbbell Bench Press' })).toEqual({
+      kind: 'suggested',
+      exerciseId: 7,
+    });
+  });
+
+  it('weighs the movement over the equipment, but avoids another equipment', () => {
+    expect(match({ name: 'Dumbbell Lateral Raise' })).toEqual({ kind: 'suggested', exerciseId: 8 });
   });
 
   it('gives up when no name is close enough', () => {
