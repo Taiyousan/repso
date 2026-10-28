@@ -1,5 +1,5 @@
-import schema from '../../../../schemas/program.v1.json';
 import { PROGRAM_FILE_FORMAT, PROGRAM_FILE_VERSION, type ProgramFile } from './format';
+import schema from '../../../../schemas/program.v1.json';
 
 export const GUIDE_FILE_NAME = `workout-planner-format-v${PROGRAM_FILE_VERSION}.md`;
 

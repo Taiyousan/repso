@@ -16,7 +16,6 @@ import {
 } from 'drizzle-orm';
 
 import { db } from '@/db/client';
-import { computeRecords, type ExerciseRecords } from '@/domain/records';
 import { useLiveData } from '@/db/live';
 import {
   exercises,
@@ -29,6 +28,7 @@ import {
   workoutSessions,
   workoutTemplates,
 } from '@/db/schema';
+import { computeRecords, type ExerciseRecords } from '@/domain/records';
 import { mainMuscles } from '@/features/programs/sets';
 
 import type { SetPerformance } from './logic';

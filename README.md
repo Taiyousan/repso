@@ -3,14 +3,15 @@
 Application Android de suivi d'entraînement en salle : programmes, séances live avec timer de repos,
 records personnels, statistiques et import/export de programmes au format JSON.
 
-Projet personnel et vitrine portfolio. Les données restent sur l'appareil (local-first).
+Projet personnel et vitrine portfolio. Les données restent sur l'appareil (local-first) : voir la
+[politique de confidentialité](PRIVACY.md).
 
 ## Stack
 
 - [Expo](https://expo.dev) SDK 58, React Native, TypeScript strict
 - [Expo Router](https://docs.expo.dev/router/introduction/) (onglets natifs)
 - [expo-sqlite](https://docs.expo.dev/versions/latest/sdk/sqlite/) + [Drizzle ORM](https://orm.drizzle.team) (migrations, requêtes live)
-- [Uniwind](https://uniwind.dev) (Tailwind CSS 4 pour React Native), thème clair/sombre
+- [Uniwind](https://uniwind.dev) (Tailwind CSS 4 pour React Native), thème clair « néo-brutal »
 - Zustand pour l'état de la séance en cours
 - Jest (`jest-expo`) pour la logique métier
 
@@ -18,27 +19,33 @@ Projet personnel et vitrine portfolio. Les données restent sur l'appareil (loca
 
 ```bash
 npm install
-npm start          # serveur de dev (Expo Go ou development build)
-npm run android:build  # development build natif (nécessite Android Studio / SDK Android)
+npm run build:dev  # development build (APK) sur EAS, à installer sur le téléphone
+npm start          # serveur de dev pour ce development build
 ```
 
 ## Scripts
 
-| Script                | Rôle                                                  |
-| --------------------- | ----------------------------------------------------- |
-| `npm run check`       | Lint + typecheck + tests                              |
-| `npm run format`      | Formatage Prettier                                    |
-| `npm run db:generate` | Génère une migration SQL après modification du schéma |
+| Script                  | Rôle                                                              |
+| ----------------------- | ----------------------------------------------------------------- |
+| `npm run check`         | Lint + typecheck + tests                                          |
+| `npm run format`        | Formatage Prettier                                                |
+| `npm run db:generate`   | Génère une migration SQL après modification du schéma             |
+| `npm run build:dev`     | APK de développement sur EAS (`com.taiyousan.workoutplanner.dev`) |
+| `npm run build:preview` | APK de l'app réelle sur EAS (`com.taiyousan.workoutplanner`)      |
 
 ## Structure
 
 ```
 src/
   app/          Routes Expo Router (un fichier = un écran)
-  components/   Composants partagés (ui/)
-  db/           Schéma Drizzle, client SQLite, migrations générées
-  domain/       Logique métier pure et testée (volume, 1RM, records…)
-  global.css    Design tokens (thèmes clair et sombre)
+  components/   Composants d'interface partagés (ui/)
+  data/         Bibliothèque d'exercices (free-exercise-db, noms français)
+  db/           Schéma Drizzle, client SQLite, requêtes live, migrations générées
+  domain/       Logique métier pure et testée (volume, 1RM, records, stats…)
+  features/     Écrans par domaine : composants, requêtes, mutations, logique
+  lib/          Utilitaires (dates, texte, graphiques, thème)
+  global.css    Design tokens (thème clair)
+modules/        Modules natifs locaux (notification de minuteur, enregistrement de fichier)
 ```
 
 ## Base de données
@@ -51,8 +58,8 @@ npm run db:generate
 
 Les migrations sont appliquées automatiquement au démarrage de l'app.
 
-Principe clé : une **séance** est une copie d'une **séance type** de programme. Elle peut être modifiée
-librement pendant l'entraînement, puis les changements peuvent être reportés (ou non) dans le programme.
+Principe clé : un **entraînement** est une copie d'une **séance** de programme. Il peut être modifié
+librement en cours de route, puis les changements peuvent être reportés (ou non) dans la séance.
 
 ## Import/export de programmes
 
@@ -73,5 +80,15 @@ de corriger chaque correspondance avant de créer le programme.
 
 ## CI
 
-GitHub Actions : lint, typecheck, tests et formatage sur chaque push/PR, puis build d'un APK installable
-(signé avec la clé de debug) téléchargeable dans les artefacts du workflow.
+GitHub Actions : lint, typecheck, tests et formatage sur chaque push/PR. Les APK sont construits sur
+EAS (voir `eas.json`).
+
+## Crédits et licences
+
+- Code : licence [MIT](LICENSE).
+- Exercices et illustrations : [free-exercise-db](https://github.com/yuhonas/free-exercise-db)
+  (domaine public, Unlicense).
+- Carte des muscles : [react-native-body-highlighter](https://github.com/HichamELBSI/react-native-body-highlighter)
+  (MIT).
+- Polices [Figtree](https://fonts.google.com/specimen/Figtree) et
+  [Unbounded](https://fonts.google.com/specimen/Unbounded) : SIL Open Font License 1.1.

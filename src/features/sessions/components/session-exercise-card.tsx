@@ -3,13 +3,13 @@ import { memo, useState } from 'react';
 import { Alert, Pressable, View } from 'react-native';
 
 import { Card } from '@/components/ui/card';
-import { recordSetIds } from '@/domain/records';
 import { Icon } from '@/components/ui/icon';
 import { IconButton } from '@/components/ui/icon-button';
 import { raised } from '@/components/ui/raised';
 import { SmallButton } from '@/components/ui/small-button';
 import { DragHandle } from '@/components/ui/sortable-list';
 import { Text } from '@/components/ui/text';
+import { recordSetIds } from '@/domain/records';
 import { ExerciseThumbnail } from '@/features/exercises/components/exercise-thumbnail';
 import { RestPresets } from '@/features/programs/components/rest-presets';
 import { DEFAULT_REST_SECONDS, formatDuration, setBadges } from '@/features/programs/sets';

@@ -1,7 +1,6 @@
 import { TRACKING_TYPES } from '@/db/schema';
 import { EQUIPMENT, MUSCLES } from '@/features/exercises/labels';
 
-import schema from '../../../../schemas/program.v1.json';
 import {
   PROGRAM_FILE_VERSION,
   PROGRAM_SCHEMA_URL,
@@ -9,6 +8,7 @@ import {
   serializeProgramFile,
   type ProgramFileProgram,
 } from './format';
+import schema from '../../../../schemas/program.v1.json';
 
 const program: ProgramFileProgram = {
   name: 'PPL',
