@@ -12,6 +12,7 @@ const TOKENS = [
   '--color-primary-soft',
   '--color-danger',
   '--color-success',
+  '--color-success-soft',
 ] as const;
 
 /** Theme colors as plain values, for props that don't accept class names. */
@@ -28,6 +29,7 @@ export function useThemeColors() {
     primarySoft,
     danger,
     success,
+    successSoft,
   ] = useCSSVariable([...TOKENS]) as string[];
   return {
     background,
@@ -41,6 +43,7 @@ export function useThemeColors() {
     primarySoft,
     danger,
     success,
+    successSoft,
   };
 }
 

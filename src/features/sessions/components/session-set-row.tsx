@@ -4,6 +4,7 @@ import { type ComponentRef, useRef, useState } from 'react';
 import { Pressable, TextInput, type TextInputProps, View } from 'react-native';
 
 import { Icon } from '@/components/ui/icon';
+import { raised } from '@/components/ui/raised';
 import { Text } from '@/components/ui/text';
 import type { SessionSet, SetType, TrackingType } from '@/db/schema';
 import {
@@ -26,9 +27,9 @@ import { useTimer } from '../timer';
 import { useTimerTicker } from '../use-timer-ticker';
 
 const BADGE_STYLES: Record<SetType, { container: string; label: string }> = {
-  normal: { container: 'bg-surface-muted', label: 'text-foreground' },
-  warmup: { container: 'border border-border bg-surface', label: 'text-muted' },
-  dropset: { container: 'bg-primary-soft', label: 'text-foreground' },
+  normal: { container: 'bg-surface', label: 'text-foreground' },
+  warmup: { container: 'bg-surface-muted', label: 'text-foreground' },
+  dropset: { container: 'bg-primary', label: 'text-foreground' },
   failure: { container: 'bg-danger', label: 'text-white' },
 };
 
@@ -107,13 +108,13 @@ export function SessionSetRow({
   };
 
   return (
-    <View
-      className={`flex-row items-center gap-2 rounded-lg px-1 py-1 ${done ? 'bg-surface-muted' : ''}`}>
+    <View className="flex-row items-center gap-2 py-1">
       <Pressable
         onPress={() => updateSessionSet(set.id, { type: nextSetType(set.type) })}
         accessibilityRole="button"
         accessibilityLabel={`${SET_TYPE_LABELS[set.type]}. Toucher pour changer le type`}
-        className={`size-9 items-center justify-center rounded-lg ${style.container}`}>
+        style={({ pressed }) => [{ borderWidth: 2 }, raised(pressed, colors.ink, 2)]}
+        className={`size-9 items-center justify-center rounded-lg border-ink ${style.container}`}>
         <Text className={`text-sm font-bold ${style.label}`}>{badge}</Text>
       </Pressable>
 
@@ -144,6 +145,7 @@ export function SessionSetRow({
             placeholder={toText(previous?.durationSeconds ?? null) || 's'}
             accessibilityLabel="Durée en secondes"
             editable={!done && !isCounting}
+            done={done}
           />
           {!done ? (
             isCounting ? (
@@ -154,8 +156,11 @@ export function SessionSetRow({
                 accessibilityRole="button"
                 accessibilityLabel="Lancer le minuteur de la série"
                 hitSlop={4}
-                style={{ width: 40, height: 40 }}
-                className="items-center justify-center rounded-lg bg-primary">
+                style={({ pressed }) => [
+                  { width: 40, height: 40, borderWidth: 2 },
+                  raised(pressed, colors.ink, 2),
+                ]}
+                className="items-center justify-center rounded-lg border-ink bg-primary">
                 <Icon
                   name={{ ios: 'play.fill', android: 'play_arrow' }}
                   size={22}
@@ -176,6 +181,7 @@ export function SessionSetRow({
               keyboardType="decimal-pad"
               accessibilityLabel="Poids en kilos"
               editable={!done}
+              done={done}
             />
           ) : null}
           <NumberInput
@@ -185,6 +191,7 @@ export function SessionSetRow({
             placeholder={toText(previous?.reps ?? null) || 'reps'}
             accessibilityLabel="Répétitions"
             editable={!done}
+            done={done}
           />
         </>
       )}
@@ -195,12 +202,16 @@ export function SessionSetRow({
         accessibilityState={{ checked: done }}
         accessibilityLabel="Valider la série"
         hitSlop={4}
-        style={{ width: 40, height: 40 }}
-        className={`items-center justify-center rounded-lg ${done ? 'bg-success' : 'border border-border bg-surface'}`}>
+        // Validated, the button stays pushed in: what is done shows at a glance.
+        style={({ pressed }) => [
+          { width: 40, height: 40, borderWidth: 2 },
+          raised(pressed || done, colors.ink, 2),
+        ]}
+        className={`items-center justify-center rounded-lg border-ink ${done ? 'bg-foreground' : 'bg-surface'}`}>
         <Icon
           name={{ ios: 'checkmark', android: 'check' }}
           size={22}
-          color={done ? '#ffffff' : colors.muted}
+          color={done ? colors.successSoft : colors.foreground}
         />
       </Pressable>
     </View>
@@ -209,14 +220,18 @@ export function SessionSetRow({
 
 /** Time left of the timed set being counted down; opens the timer screen. */
 function SetCountdown() {
+  const colors = useThemeColors();
   const remainingMs = useTimerTicker();
   return (
     <Pressable
       onPress={() => router.push('/timer')}
       accessibilityRole="button"
       accessibilityLabel="Ouvrir le minuteur"
-      style={{ width: 40, height: 40 }}
-      className="items-center justify-center rounded-lg bg-primary-soft">
+      style={({ pressed }) => [
+        { width: 40, height: 40, borderWidth: 2 },
+        raised(pressed, colors.ink, 2),
+      ]}
+      className="items-center justify-center rounded-lg border-ink bg-primary-soft">
       <Text className="text-xs font-bold text-foreground" style={{ fontVariant: ['tabular-nums'] }}>
         {formatDuration(Math.ceil(remainingMs / 1000))}
       </Text>
@@ -231,8 +246,9 @@ function SetCountdown() {
  */
 function NumberInput({
   onFocus,
+  done,
   ...props
-}: Omit<TextInputProps, 'className' | 'placeholderTextColor'>) {
+}: Omit<TextInputProps, 'className' | 'placeholderTextColor'> & { done: boolean }) {
   const colors = useThemeColors();
   const ref = useRef<ComponentRef<typeof TextInput>>(null);
 
@@ -248,7 +264,9 @@ function NumberInput({
         onFocus?.(event);
       }}
       style={{ fontFamily: FONTS.display, borderWidth: 1.5 }}
-      className="flex-1 rounded-lg border-ink bg-surface px-2 py-2 text-center text-base font-bold text-foreground"
+      className={`flex-1 rounded-lg px-2 py-2 text-center text-base font-bold text-foreground ${
+        done ? 'border-success-soft bg-success-faint' : 'border-ink bg-surface'
+      }`}
     />
   );
 }

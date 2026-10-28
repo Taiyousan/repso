@@ -1,20 +1,21 @@
 import { useKeepAwake } from 'expo-keep-awake';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Pressable, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, View } from 'react-native';
 import Animated, { useAnimatedRef } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { ActionBar } from '@/components/ui/action-bar';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
-import { Icon } from '@/components/ui/icon';
+import { HeaderMenu } from '@/components/ui/header-menu';
+import { IconButton } from '@/components/ui/icon-button';
 import { ProgressRing } from '@/components/ui/progress-ring';
 import { SortableList } from '@/components/ui/sortable-list';
 import { Text } from '@/components/ui/text';
 import { DEFAULT_REST_SECONDS } from '@/features/programs/sets';
-import { TimerBar } from '@/features/sessions/components/timer-bar';
 import { SessionExerciseCard } from '@/features/sessions/components/session-exercise-card';
 import { SessionRecap } from '@/features/sessions/components/session-recap';
+import { TimerBar } from '@/features/sessions/components/timer-bar';
 import { formatElapsed, isExerciseComplete } from '@/features/sessions/logic';
 import {
   discardSession,
@@ -40,7 +41,7 @@ export default function SessionScreen() {
     return (
       <View className="flex-1 bg-background p-4">
         <Stack.Screen options={{ title: '' }} />
-        <EmptyState title="Séance introuvable" />
+        <EmptyState title="Entraînement introuvable" />
       </View>
     );
   }
@@ -56,7 +57,9 @@ function SessionClock({ startedAt }: { startedAt: Date }) {
   const elapsedSeconds = Math.max(0, Math.floor((now - startedAt.getTime()) / 1000));
 
   return (
-    <Text className="text-2xl font-bold text-foreground" style={{ fontVariant: ['tabular-nums'] }}>
+    <Text
+      className="font-display text-2xl font-extrabold text-foreground"
+      style={{ fontVariant: ['tabular-nums'] }}>
       {formatElapsed(elapsedSeconds)}
     </Text>
   );
@@ -65,7 +68,6 @@ function SessionClock({ startedAt }: { startedAt: Date }) {
 function LiveSession({ session }: { session: SessionDetail }) {
   useKeepAwake();
   const colors = useThemeColors();
-  const insets = useSafeAreaInsets();
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
 
   const allSets = session.exercises.flatMap((item) => item.sets);
@@ -90,6 +92,9 @@ function LiveSession({ session }: { session: SessionDetail }) {
     useTimer.getState().startRest(item.restSeconds ?? DEFAULT_REST_SECONDS, next.exercise.name);
   };
 
+  const addExercises = () =>
+    router.push({ pathname: '/session/add-exercises/[id]', params: { id: session.id } });
+
   const leave = (action: () => void) => {
     useTimer.getState().stop();
     router.back();
@@ -98,7 +103,7 @@ function LiveSession({ session }: { session: SessionDetail }) {
   };
 
   const confirmDiscard = () => {
-    Alert.alert('Abandonner la séance ?', 'Rien ne sera enregistré.', [
+    Alert.alert('Abandonner l’entraînement ?', 'Rien ne sera enregistré.', [
       { text: 'Continuer', style: 'cancel' },
       {
         text: 'Abandonner',
@@ -110,18 +115,22 @@ function LiveSession({ session }: { session: SessionDetail }) {
 
   const confirmFinish = () => {
     if (doneCount === 0) {
-      Alert.alert('Aucune série validée', 'Valide au moins une série, ou abandonne la séance.', [
-        { text: 'Continuer', style: 'cancel' },
-        {
-          text: 'Abandonner',
-          style: 'destructive',
-          onPress: () => leave(() => discardSession(session.id)),
-        },
-      ]);
+      Alert.alert(
+        'Aucune série validée',
+        'Valide au moins une série, ou abandonne l’entraînement.',
+        [
+          { text: 'Continuer', style: 'cancel' },
+          {
+            text: 'Abandonner',
+            style: 'destructive',
+            onPress: () => leave(() => discardSession(session.id)),
+          },
+        ],
+      );
       return;
     }
     Alert.alert(
-      'Terminer la séance ?',
+      'Terminer l’entraînement ?',
       pendingCount > 0
         ? `${pendingCount} série${pendingCount > 1 ? 's' : ''} non validée${pendingCount > 1 ? 's' : ''} ${pendingCount > 1 ? 'seront retirées' : 'sera retirée'}.`
         : 'Toutes les séries sont validées. Bien joué !',
@@ -145,36 +154,57 @@ function LiveSession({ session }: { session: SessionDetail }) {
       <Stack.Screen
         options={{
           title: session.name,
+          // Leaving keeps the workout running: the tabs show it until it is finished.
+          headerLeft: () => (
+            <View className="mr-3">
+              <IconButton
+                icon={{ ios: 'chevron.down', android: 'keyboard_arrow_down' }}
+                label="Réduire, l’entraînement continue"
+                onPress={() => router.back()}
+              />
+            </View>
+          ),
           headerRight: () => (
-            <View className="flex-row items-center gap-4">
-              <Pressable
+            <View className="flex-row items-center gap-3">
+              <IconButton
+                icon={{ ios: 'timer', android: 'timer' }}
+                label="Minuteur"
                 onPress={() => router.push('/timer')}
-                accessibilityRole="button"
-                accessibilityLabel="Minuteur"
-                hitSlop={8}>
-                <Icon name={{ ios: 'timer', android: 'timer' }} color={colors.foreground} />
-              </Pressable>
-              <Pressable onPress={confirmFinish} hitSlop={8}>
-                <Text className="text-base font-bold text-foreground underline">Terminer</Text>
-              </Pressable>
+              />
+              <HeaderMenu
+                items={[
+                  { label: 'Ajouter des exercices', onPress: addExercises },
+                  {
+                    label: 'Abandonner l’entraînement',
+                    onPress: confirmDiscard,
+                    destructive: true,
+                  },
+                ]}
+              />
             </View>
           ),
         }}
       />
 
-      <View className="flex-row items-center justify-between border-b border-border px-4 pb-3">
+      <View
+        style={{ borderBottomWidth: 2 }}
+        className="flex-row items-center justify-between border-ink px-4 pb-3">
         <SessionClock startedAt={session.startedAt} />
         <View className="flex-row items-center gap-3">
           <View className="items-end">
-            <Text className="text-sm font-medium text-foreground">Exercices</Text>
+            <Text className="text-sm font-bold text-foreground">
+              {exerciseCount === 0
+                ? 'Aucun exercice'
+                : `${completedExercises} / ${exerciseCount} exercice${exerciseCount > 1 ? 's' : ''}`}
+            </Text>
             <Text className="text-xs text-muted">
               {doneCount} / {allSets.length} série{allSets.length > 1 ? 's' : ''}
             </Text>
           </View>
           <ProgressRing
             progress={exerciseCount === 0 ? 0 : completedExercises / exerciseCount}
-            size={52}>
-            <Text className="text-sm font-bold text-foreground">
+            size={48}>
+            <Text className="text-xs font-bold text-foreground">
               {completedExercises}/{exerciseCount}
             </Text>
           </ProgressRing>
@@ -184,11 +214,11 @@ function LiveSession({ session }: { session: SessionDetail }) {
       <Animated.ScrollView
         ref={scrollRef}
         style={{ flex: 1 }}
-        contentContainerStyle={{ gap: 16, padding: 16, paddingBottom: insets.bottom + 16 }}
+        contentContainerStyle={{ gap: 16, padding: 16 }}
         keyboardShouldPersistTaps="handled">
         {session.exercises.length === 0 ? (
           <EmptyState
-            title="Séance vide"
+            title="Entraînement vide"
             description="Ajoute des exercices pour commencer à enregistrer tes séries."
           />
         ) : (
@@ -201,17 +231,13 @@ function LiveSession({ session }: { session: SessionDetail }) {
           />
         )}
 
-        <Button
-          label="Ajouter des exercices"
-          variant="secondary"
-          onPress={() =>
-            router.push({ pathname: '/session/add-exercises/[id]', params: { id: session.id } })
-          }
-        />
-        <Button label="Abandonner la séance" variant="danger" onPress={confirmDiscard} />
+        <Button label="+ Ajouter des exercices" variant="secondary" onPress={addExercises} />
       </Animated.ScrollView>
 
-      <TimerBar />
+      <ActionBar>
+        <TimerBar />
+        <Button label="Terminer l’entraînement" onPress={confirmFinish} />
+      </ActionBar>
     </KeyboardAvoidingView>
   );
 }

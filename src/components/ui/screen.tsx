@@ -8,12 +8,14 @@ type ScreenProps = PropsWithChildren<{
   title: string;
   /** Rendered next to the title (e.g. a settings button). */
   action?: ReactNode;
+  /** Pinned above the title, outside the scroll (e.g. the running workout). */
+  banner?: ReactNode;
   /** Set to false when the content brings its own list (e.g. FlashList). */
   scrollable?: boolean;
 }>;
 
 /** Base layout of a top-level screen: safe area, large title, content. */
-export function Screen({ title, action, scrollable = true, children }: ScreenProps) {
+export function Screen({ title, action, banner, scrollable = true, children }: ScreenProps) {
   const insets = useSafeAreaInsets();
   const heading = (
     <View className="flex-row items-center justify-between pt-4">
@@ -24,6 +26,7 @@ export function Screen({ title, action, scrollable = true, children }: ScreenPro
 
   return (
     <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
+      {banner}
       {scrollable ? (
         <ScrollView contentContainerClassName="gap-4 px-4 pb-8">
           {heading}

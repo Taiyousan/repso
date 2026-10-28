@@ -21,6 +21,8 @@
   --color-primary-foreground: #111111;
   --color-success: #17834a;
   --color-success-soft: #8be3b0;
+  /* Fields of a validated set. */
+  --color-success-faint: #e3f8eb;
   --color-danger: #d92d20;
 
   --font-sans: Figtree;

@@ -9,6 +9,7 @@ import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Text } from '@/components/ui/text';
 import { SECONDARY_MUSCLE_SHARE, weeklyTotals, weekStreak } from '@/domain/stats';
 import { formatVolume } from '@/domain/volume';
+import { ActiveWorkoutBanner } from '@/features/sessions/components/active-workout-banner';
 import { type SessionSummary, useSessionHistory } from '@/features/sessions/queries';
 import { MuscleBreakdown } from '@/features/stats/components/muscle-breakdown';
 import { TrainingCalendar } from '@/features/stats/components/training-calendar';
@@ -37,7 +38,7 @@ export default function StatsScreen() {
   const sessions = useSessionHistory();
 
   return (
-    <Screen title="Stats">
+    <Screen title="Stats" banner={<ActiveWorkoutBanner />}>
       {sessions.length === 0 ? (
         <EmptyState
           title="Pas encore de stats"

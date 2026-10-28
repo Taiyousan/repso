@@ -5,13 +5,14 @@ import { raised } from '@/components/ui/raised';
 import { Screen } from '@/components/ui/screen';
 import { Text } from '@/components/ui/text';
 import { ExerciseBrowser } from '@/features/exercises/components/exercise-browser';
+import { ActiveWorkoutBanner } from '@/features/sessions/components/active-workout-banner';
 import { useThemeColors } from '@/lib/theme';
 
 export default function ExercisesScreen() {
   const colors = useThemeColors();
 
   return (
-    <Screen title="Exercices" scrollable={false}>
+    <Screen title="Exercices" banner={<ActiveWorkoutBanner />} scrollable={false}>
       <ExerciseBrowser />
 
       <Link href="/exercises/new" asChild>

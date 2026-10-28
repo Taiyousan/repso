@@ -15,13 +15,14 @@ import {
   formatGuideFile,
   importProgramFile,
 } from '@/features/programs/transfer/actions';
+import { ActiveWorkoutBanner } from '@/features/sessions/components/active-workout-banner';
 
 export default function ProgramsScreen() {
   const programs = usePrograms();
   const [exportFile, setExportFile] = useState<ExportFile | null>(null);
 
   return (
-    <Screen title="Programmes">
+    <Screen title="Programmes" banner={<ActiveWorkoutBanner />}>
       {programs.length === 0 ? (
         <EmptyState
           title="Aucun programme"

@@ -14,8 +14,8 @@ export function startAndOpenSession(templateId: number | null) {
   const active = readActiveSession();
   if (active) {
     Alert.alert(
-      'Séance déjà en cours',
-      `Termine « ${active.name} » avant d'en démarrer une autre.`,
+      'Entraînement déjà en cours',
+      `Termine « ${active.name} » avant d'en démarrer un autre.`,
       [
         { text: 'Annuler', style: 'cancel' },
         { text: 'Reprendre', onPress: () => openSession(active.id) },

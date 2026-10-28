@@ -8,6 +8,7 @@ import { PressableCard } from '@/components/ui/pressable-card';
 import { Screen } from '@/components/ui/screen';
 import { Text } from '@/components/ui/text';
 import { formatVolume } from '@/domain/volume';
+import { ActiveWorkoutBanner } from '@/features/sessions/components/active-workout-banner';
 import { type SessionSummary, useSessionHistory } from '@/features/sessions/queries';
 import { formatDay, formatDurationLong, formatMonth, formatTime, monthKey } from '@/lib/dates';
 
@@ -33,7 +34,7 @@ export default function HistoryScreen() {
   }, [sessions]);
 
   return (
-    <Screen title="Historique" scrollable={false}>
+    <Screen title="Historique" banner={<ActiveWorkoutBanner />} scrollable={false}>
       <FlashList
         data={rows}
         keyExtractor={(row) => (row.type === 'month' ? `month-${row.key}` : String(row.session.id))}

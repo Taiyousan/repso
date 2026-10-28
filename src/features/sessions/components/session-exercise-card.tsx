@@ -6,6 +6,8 @@ import { Card } from '@/components/ui/card';
 import { recordSetIds } from '@/domain/records';
 import { Icon } from '@/components/ui/icon';
 import { IconButton } from '@/components/ui/icon-button';
+import { raised } from '@/components/ui/raised';
+import { SmallButton } from '@/components/ui/small-button';
 import { DragHandle } from '@/components/ui/sortable-list';
 import { Text } from '@/components/ui/text';
 import { ExerciseThumbnail } from '@/features/exercises/components/exercise-thumbnail';
@@ -75,21 +77,22 @@ export function SessionExerciseCard({ item, onSetCompleted }: SessionExerciseCar
         onPress={() => setExpanded(true)}
         accessibilityRole="button"
         accessibilityLabel={`${exercise.name}, terminé. Toucher pour afficher les séries`}
-        className="flex-row items-center gap-2 rounded-2xl border border-success bg-success-soft p-3 active:opacity-80">
+        style={({ pressed }) => [{ borderWidth: 2 }, raised(pressed, colors.ink)]}
+        className="flex-row items-center gap-2 rounded-2xl border-ink bg-success-soft p-3">
         <DragHandle label={`Déplacer ${exercise.name}`} />
         <Icon
           name={{ ios: 'checkmark.circle.fill', android: 'check_circle' }}
-          color={colors.success}
+          color={colors.foreground}
         />
         <View className="flex-1">
-          <Text className="text-base font-semibold text-foreground" numberOfLines={1}>
+          <Text className="text-base font-bold text-foreground" numberOfLines={1}>
             {exercise.name}
           </Text>
-          <Text className="text-sm text-muted" numberOfLines={1}>
+          <Text className="text-sm text-foreground" numberOfLines={1}>
             {sets.length} série{sets.length > 1 ? 's' : ''}
           </Text>
         </View>
-        <Icon name={{ ios: 'chevron.down', android: 'expand_more' }} color={colors.muted} />
+        <Icon name={{ ios: 'chevron.down', android: 'expand_more' }} color={colors.foreground} />
       </Pressable>
     );
   }
@@ -122,18 +125,11 @@ export function SessionExerciseCard({ item, onSetCompleted }: SessionExerciseCar
       </View>
 
       <View className="flex-row items-center justify-between gap-3">
-        <Pressable
+        <SmallButton
+          label={`Repos ${formatDuration(item.restSeconds ?? DEFAULT_REST_SECONDS)}`}
           onPress={() => setRestOpen((open) => !open)}
-          accessibilityRole="button"
           accessibilityState={{ expanded: restOpen }}
-          hitSlop={6}>
-          <Text className="text-sm text-muted">
-            Repos{' '}
-            <Text className="font-semibold text-foreground">
-              {formatDuration(item.restSeconds ?? DEFAULT_REST_SECONDS)}
-            </Text>
-          </Text>
-        </Pressable>
+        />
         {item.target ? (
           <Text className="shrink text-sm text-muted" numberOfLines={1}>
             Objectif <Text className="font-semibold text-foreground">{item.target}</Text>
@@ -180,22 +176,14 @@ export function SessionExerciseCard({ item, onSetCompleted }: SessionExerciseCar
         ))}
       </View>
 
-      <View className="flex-row gap-2">
-        <Pressable
-          onPress={() => addSessionSet(item.id)}
-          accessibilityRole="button"
-          className="flex-1 items-center rounded-lg bg-surface-muted py-2 active:opacity-80">
-          <Text className="text-sm font-semibold text-foreground">+ Série</Text>
-        </Pressable>
-        <Pressable
+      <View className="flex-row gap-3">
+        <SmallButton label="+ Série" onPress={() => addSessionSet(item.id)} grow />
+        <SmallButton
+          label="− Série"
           onPress={() => removeLastPendingSet(item.id)}
           disabled={!hasPendingSet}
-          accessibilityRole="button"
-          className={`flex-1 items-center rounded-lg bg-surface-muted py-2 active:opacity-80 ${
-            hasPendingSet ? '' : 'opacity-40'
-          }`}>
-          <Text className="text-sm font-semibold text-foreground">− Série</Text>
-        </Pressable>
+          grow
+        />
       </View>
     </Card>
   );
