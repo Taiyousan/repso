@@ -57,12 +57,14 @@ librement pendant l'entraînement, puis les changements peuvent être reportés 
 ## Import/export de programmes
 
 L'onglet Programmes permet d'importer un fichier de programme `.json`, d'exporter un programme (aussi
-depuis sa fiche) et d'exporter le format. Les exports ouvrent le menu de partage Android avec le fichier
-(Drive, mail, appli d'IA…). Le format est décrit par un JSON Schema versionné :
+depuis sa fiche) et d'exporter le format. Chaque export ouvre une fenêtre qui propose de télécharger le fichier
+(fenêtre Android « Enregistrer sous », module natif local `modules/file-saver`) ou de le partager à une
+appli (Drive, mail, appli d'IA…). Le format est décrit par un JSON Schema versionné :
 [schemas/program.v1.json](schemas/program.v1.json).
 
-L'export du format produit un fichier Markdown (consignes, exemple, schéma, liste des exercices
-essentiels avec leur slug) à donner à une IA pour convertir ou créer un programme.
+L'export du format produit sa documentation en Markdown (structure, exemple, schéma, renvoi vers
+free-exercise-db, noms des exercices courants et exercices perso), pour écrire un programme importable soi-même ou le faire écrire
+par une IA.
 
 À l'import, chaque exercice est reconnu par son `slug`, sinon par son nom français ou anglais, sinon par
 le nom le plus proche (à confirmer). Les exercices introuvables deviennent des exercices perso, créés à

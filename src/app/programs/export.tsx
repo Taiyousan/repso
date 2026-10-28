@@ -1,19 +1,18 @@
 import { router } from 'expo-router';
+import { useState } from 'react';
 import { Pressable, ScrollView, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { EmptyState } from '@/components/ui/empty-state';
+import { ExportDialog } from '@/features/programs/components/export-dialog';
 import { usePrograms } from '@/features/programs/queries';
-import { exportProgramToFile } from '@/features/programs/transfer/actions';
+import { type ExportFile, programExportFile } from '@/features/programs/transfer/actions';
 
 /** Picks the program to export from the Programs tab. */
 export default function ExportProgramScreen() {
   const insets = useSafeAreaInsets();
   const programs = usePrograms();
-
-  const exportProgram = async (id: number) => {
-    if (await exportProgramToFile(id)) router.back();
-  };
+  const [exportFile, setExportFile] = useState<ExportFile | null>(null);
 
   return (
     <ScrollView
@@ -26,7 +25,7 @@ export default function ExportProgramScreen() {
         programs.map((program) => (
           <Pressable
             key={program.id}
-            onPress={() => exportProgram(program.id)}
+            onPress={() => setExportFile(programExportFile(program.id))}
             // An empty program would make an invalid file.
             disabled={program.workoutCount === 0}
             accessibilityRole="button"
@@ -40,6 +39,11 @@ export default function ExportProgramScreen() {
           </Pressable>
         ))
       )}
+      <ExportDialog
+        file={exportFile}
+        onClose={() => setExportFile(null)}
+        onDone={() => router.back()}
+      />
     </ScrollView>
   );
 }

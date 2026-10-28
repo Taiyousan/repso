@@ -3,6 +3,8 @@ import { PROGRAM_FILE_FORMAT, PROGRAM_FILE_VERSION, type ProgramFile } from './f
 
 export const GUIDE_FILE_NAME = `workout-planner-format-v${PROGRAM_FILE_VERSION}.md`;
 
+const LIBRARY_URL = 'https://github.com/yuhonas/free-exercise-db';
+
 const EXAMPLE: Omit<ProgramFile, '$schema'> = {
   format: PROGRAM_FILE_FORMAT,
   version: PROGRAM_FILE_VERSION,
@@ -14,8 +16,8 @@ const EXAMPLE: Omit<ProgramFile, '$schema'> = {
         name: 'Push',
         exercises: [
           {
-            slug: 'barbell-bench-press-medium-grip',
-            name: 'Développé couché à la barre',
+            slug: 'Barbell_Bench_Press_-_Medium_Grip',
+            name: 'Barbell Bench Press - Medium Grip',
             restSeconds: 150,
             target: '4 × 6-8',
           },
@@ -36,29 +38,45 @@ const EXAMPLE: Omit<ProgramFile, '$schema'> = {
 const json = (value: unknown) => '```json\n' + JSON.stringify(value, null, 2) + '\n```';
 
 /**
- * Markdown description of the program file, meant to be handed to an AI (or anyone) to convert
- * or write a program. Lists the exercises the user is likely to know (essentials and their own)
- * with their slugs, so most of them match exactly on import.
+ * Markdown documentation of the program file, for whoever writes one: a person or an AI.
+ * Lists the English names of the common exercises, which the import matches exactly (writers
+ * don't know free-exercise-db names by heart), and the user's custom exercises.
  */
 export function buildFormatGuide(
-  exercises: { slug: string; name: string; nameEn: string | null }[],
+  commonNames: string[],
+  customExercises: { slug: string; name: string }[],
 ): string {
-  const list = exercises
-    .map(({ slug, name, nameEn }) => `- ${slug} — ${name}${nameEn ? ` (${nameEn})` : ''}`)
-    .join('\n');
+  const customList =
+    customExercises.length > 0
+      ? `
+
+## Exercices perso
+
+Exercices créés dans l'app, utilisables par leur \`slug\` :
+
+${customExercises.map(({ slug, name }) => `- \`${slug}\` : ${name}`).join('\n')}`
+      : '';
 
   return `# Format de programme Workout Planner (v${PROGRAM_FILE_VERSION})
 
-Ce document décrit le fichier JSON qu'importe l'application Workout Planner : un programme d'entraînement, ses séances et leurs exercices dans l'ordre. Donne-le à une IA avec un programme existant (texte, tableau, capture…) ou une demande, et demande-lui un fichier à ce format.
+Fichier JSON décrivant un programme d'entraînement, à importer dans Workout Planner (onglet Programmes, « Importer un programme »).
 
-## Consignes
+## Structure
 
-- Produis un seul objet JSON valide selon le schéma ci-dessous, sans commentaire, à enregistrer dans un fichier \`.json\`.
-- Un programme contient des séances ("workouts") ; chaque séance liste ses exercices dans l'ordre où ils sont faits.
-- Pour chaque exercice, utilise de préférence un exercice de la liste en fin de document : recopie son "slug" et son nom dans "name".
-- Sinon, n'invente pas de slug : donne le nom anglais usuel de l'exercice dans "name" et ses "primaryMuscles" (plus éventuellement "secondaryMuscles", "equipment" et "trackingType"). L'application le créera.
-- "restSeconds" : repos entre les séries, en secondes. "target" : consigne courte comme "4 × 8-10", "3 × 45 s" ou "5 × 5 @ RPE 8". Pas de charges en kg.
-- Pour convertir un programme existant, garde ses noms de séances et son ordre d'exercices. Pour en créer un, nomme-le en français et, s'il manque des informations importantes (objectif, fréquence, durée, matériel), pose d'abord tes questions.
+- \`format\` : \`"${PROGRAM_FILE_FORMAT}"\`, et \`version\` : \`${PROGRAM_FILE_VERSION}\`.
+- \`program\` : \`name\`, \`description\` (facultative) et \`workouts\`, les séances dans l'ordre.
+- Chaque séance : \`name\` et \`exercises\`, dans l'ordre d'exécution.
+
+## Exercices
+
+Les exercices viennent de [free-exercise-db](${LIBRARY_URL}). Un exercice est désigné par :
+
+- \`name\` : son nom anglais dans cette bibliothèque, de préférence l'un des exercices courants listés plus bas ;
+- ou \`slug\` : son \`id\` dans cette bibliothèque, par exemple \`Barbell_Squat\`.
+
+Un autre nom est rapproché de l'exercice le plus proche, à vérifier à l'import. Un exercice absent de la bibliothèque est créé à l'import : indiquer alors ses \`primaryMuscles\`, et éventuellement \`secondaryMuscles\`, \`equipment\` et \`trackingType\`.
+
+Facultatifs : \`restSeconds\`, le repos entre les séries en secondes, et \`target\`, une consigne libre comme \`"4 × 8-10"\`.
 
 ## Exemple
 
@@ -68,8 +86,8 @@ ${json(EXAMPLE)}
 
 ${json(schema)}
 
-## Exercices de la bibliothèque (slug — nom)
+## Exercices courants
 
-${list}
+${commonNames.map((name) => `- ${name}`).join('\n')}${customList}
 `;
 }

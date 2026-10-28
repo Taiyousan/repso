@@ -1,15 +1,22 @@
 import { Link, router } from 'expo-router';
+import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
 import { Section } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Screen } from '@/components/ui/screen';
+import { ExportDialog } from '@/features/programs/components/export-dialog';
 import { usePrograms } from '@/features/programs/queries';
-import { exportFormatGuide, importProgramFile } from '@/features/programs/transfer/actions';
+import {
+  type ExportFile,
+  formatGuideFile,
+  importProgramFile,
+} from '@/features/programs/transfer/actions';
 
 export default function ProgramsScreen() {
   const programs = usePrograms();
+  const [exportFile, setExportFile] = useState<ExportFile | null>(null);
 
   return (
     <Screen title="Programmes">
@@ -49,12 +56,13 @@ export default function ProgramsScreen() {
           onPress={() => router.push('/programs/export')}
           disabled={programs.length === 0}
         />
-        <Button label="Exporter le format" variant="secondary" onPress={exportFormatGuide} />
-        <Text className="text-sm text-muted">
-          Le format décrit les fichiers de programme et liste les exercices de l’app : donne-le à
-          une IA pour convertir ou créer un programme, puis importe le fichier qu’elle produit.
-        </Text>
+        <Button
+          label="Exporter le format"
+          variant="secondary"
+          onPress={() => setExportFile(formatGuideFile())}
+        />
       </Section>
+      <ExportDialog file={exportFile} onClose={() => setExportFile(null)} />
     </Screen>
   );
 }

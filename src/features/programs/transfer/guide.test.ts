@@ -2,14 +2,21 @@ import { parseProgramFile } from './format';
 import { buildFormatGuide } from './guide';
 
 describe('buildFormatGuide', () => {
-  const guide = buildFormatGuide([
-    { slug: 'barbell-curl', name: 'Curl à la barre', nameEn: 'Barbell Curl' },
-    { slug: 'custom-y-raise-abc', name: 'Y raise', nameEn: null },
-  ]);
+  const guide = buildFormatGuide(
+    ['Barbell Curl'],
+    [{ slug: 'custom-y-raise-abc', name: 'Y raise' }],
+  );
 
-  it('lists the exercises with their slugs', () => {
-    expect(guide).toContain('- barbell-curl — Curl à la barre (Barbell Curl)\n');
-    expect(guide).toContain('- custom-y-raise-abc — Y raise\n');
+  it('lists the common exercises', () => {
+    expect(guide).toContain('- Barbell Curl\n');
+  });
+
+  it('lists the custom exercises with their slugs', () => {
+    expect(guide).toContain('- `custom-y-raise-abc` : Y raise');
+  });
+
+  it('omits the custom exercises section when there are none', () => {
+    expect(buildFormatGuide([], [])).not.toContain('## Exercices perso');
   });
 
   it('embeds the schema and an example the app accepts', () => {

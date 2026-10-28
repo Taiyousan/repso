@@ -1,4 +1,5 @@
 import { Link, router, Stack, useLocalSearchParams } from 'expo-router';
+import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import Animated, { useAnimatedRef } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -9,8 +10,9 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { DragHandle, SortableList } from '@/components/ui/sortable-list';
 import { muscleLabel } from '@/features/exercises/labels';
 import { createDraftWorkoutTemplate, reorderWorkoutTemplates } from '@/features/programs/mutations';
+import { ExportDialog } from '@/features/programs/components/export-dialog';
 import { useProgram } from '@/features/programs/queries';
-import { exportProgramToFile } from '@/features/programs/transfer/actions';
+import { type ExportFile, programExportFile } from '@/features/programs/transfer/actions';
 import { useThemeColors } from '@/lib/theme';
 
 export default function ProgramScreen() {
@@ -20,6 +22,7 @@ export default function ProgramScreen() {
   const insets = useSafeAreaInsets();
   const colors = useThemeColors();
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
+  const [exportFile, setExportFile] = useState<ExportFile | null>(null);
 
   if (!program) {
     return (
@@ -97,10 +100,11 @@ export default function ProgramScreen() {
           <Button
             label="Exporter le programme"
             variant="secondary"
-            onPress={() => exportProgramToFile(programId)}
+            onPress={() => setExportFile(programExportFile(programId))}
           />
         ) : null}
       </View>
+      <ExportDialog file={exportFile} onClose={() => setExportFile(null)} />
     </Animated.ScrollView>
   );
 }
