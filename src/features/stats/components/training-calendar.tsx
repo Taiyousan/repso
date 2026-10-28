@@ -76,7 +76,9 @@ export function TrainingCalendar({ sessions }: TrainingCalendarProps) {
                     })
                   }
                   accessibilityRole={trained ? 'button' : undefined}
-                  accessibilityLabel={trained ? `Séance du ${formatDay(day.date)}` : undefined}
+                  accessibilityLabel={
+                    trained ? `Entraînement du ${formatDay(day.date)}` : undefined
+                  }
                   className={`rounded ${
                     trained ? 'bg-primary' : day.future ? '' : 'bg-surface-muted'
                   } ${isToday ? 'border-2 border-foreground' : ''}`}

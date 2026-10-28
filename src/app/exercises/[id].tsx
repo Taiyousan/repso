@@ -1,9 +1,10 @@
-import { Link, Stack, useLocalSearchParams } from 'expo-router';
-import { Pressable, ScrollView, View } from 'react-native';
+import { router, Stack, useLocalSearchParams } from 'expo-router';
+import { ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Chip } from '@/components/ui/chip';
 import { EmptyState } from '@/components/ui/empty-state';
+import { HeaderButton } from '@/components/ui/header-button';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import type { TrackingType } from '@/db/schema';
@@ -63,13 +64,12 @@ export default function ExerciseDetailScreen() {
           title: exercise.name,
           headerRight: exercise.isCustom
             ? () => (
-                <Link
-                  href={{ pathname: '/exercises/edit/[id]', params: { id: exercise.id } }}
-                  asChild>
-                  <Pressable hitSlop={8}>
-                    <Text className="text-base font-bold text-foreground underline">Modifier</Text>
-                  </Pressable>
-                </Link>
+                <HeaderButton
+                  label="Modifier"
+                  onPress={() =>
+                    router.push({ pathname: '/exercises/edit/[id]', params: { id: exercise.id } })
+                  }
+                />
               )
             : undefined,
         }}

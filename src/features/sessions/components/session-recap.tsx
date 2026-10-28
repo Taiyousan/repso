@@ -3,8 +3,10 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { ActionBar } from '@/components/ui/action-bar';
 import { Button } from '@/components/ui/button';
 import { Card, Section } from '@/components/ui/card';
+import { HeaderMenu } from '@/components/ui/header-menu';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { TextField } from '@/components/ui/text-field';
@@ -52,7 +54,7 @@ export function SessionRecap({ session, justFinished }: SessionRecapProps) {
   const newRecords = sessionNewRecords(session.exercises);
 
   const confirmDelete = () => {
-    Alert.alert('Supprimer cette séance ?', 'Elle disparaîtra de ton historique.', [
+    Alert.alert('Supprimer cet entraînement ?', 'Il disparaîtra de ton historique.', [
       { text: 'Annuler', style: 'cancel' },
       {
         text: 'Supprimer',
@@ -73,21 +75,27 @@ export function SessionRecap({ session, justFinished }: SessionRecapProps) {
       <Stack.Screen
         options={{
           title: session.name,
-          headerRight: justFinished
-            ? () => (
-                <Pressable onPress={() => router.back()} hitSlop={8}>
-                  <Text className="text-base font-bold text-foreground underline">OK</Text>
-                </Pressable>
-              )
-            : undefined,
+          headerRight: () => (
+            <HeaderMenu
+              items={[
+                { label: 'Supprimer l’entraînement', onPress: confirmDelete, destructive: true },
+              ]}
+            />
+          ),
         }}
       />
       <ScrollView
-        contentContainerStyle={{ gap: 24, padding: 16, paddingBottom: insets.bottom + 16 }}
+        contentContainerStyle={{
+          gap: 24,
+          padding: 16,
+          paddingBottom: justFinished ? 16 : insets.bottom + 16,
+        }}
         keyboardShouldPersistTaps="handled">
         <View className="gap-1">
           {justFinished ? (
-            <Text className="text-2xl font-bold text-foreground">Séance terminée, bien joué !</Text>
+            <Text className="font-display text-2xl font-extrabold text-foreground">
+              Entraînement terminé, bien joué !
+            </Text>
           ) : null}
           <Text className="text-base text-muted">
             {formatDay(session.startedAt)} · {formatTime(session.startedAt)} – {formatTime(endedAt)}
@@ -134,7 +142,9 @@ export function SessionRecap({ session, justFinished }: SessionRecapProps) {
 
         {newRecords.length > 0 ? (
           <Section title={newRecords.length > 1 ? 'Records battus' : 'Record battu'}>
-            <Card tone="success">
+            <View
+              style={{ borderWidth: 2 }}
+              className="gap-3 rounded-2xl border-ink bg-primary p-4">
               {newRecords.map((record) => (
                 <View
                   key={`${record.exerciseId}-${record.kind}`}
@@ -142,20 +152,20 @@ export function SessionRecap({ session, justFinished }: SessionRecapProps) {
                   <Icon
                     name={{ ios: 'trophy.fill', android: 'trophy' }}
                     size={20}
-                    color={colors.success}
+                    color={colors.foreground}
                   />
                   <View className="flex-1">
                     <Text className="text-base font-semibold text-foreground" numberOfLines={1}>
                       {record.exerciseName}
                     </Text>
-                    <Text className="text-sm text-muted">{RECORD_LABELS[record.kind]}</Text>
+                    <Text className="text-sm text-foreground">{RECORD_LABELS[record.kind]}</Text>
                   </View>
-                  <Text className="text-base font-semibold text-foreground">
+                  <Text className="font-display text-base font-bold text-foreground">
                     {formatRecord(record.kind, record.value)}
                   </Text>
                 </View>
               ))}
-            </Card>
+            </View>
           </Section>
         ) : null}
 
@@ -191,13 +201,12 @@ export function SessionRecap({ session, justFinished }: SessionRecapProps) {
         <Section title="Notes">
           <NotesField sessionId={session.id} initialValue={session.notes ?? ''} />
         </Section>
-
-        <View className="gap-2">
-          {/* Same as the header button, reached once the recap has been read. */}
-          {justFinished ? <Button label="OK" onPress={() => router.back()} /> : null}
-          <Button label="Supprimer la séance" variant="danger" onPress={confirmDelete} />
-        </View>
       </ScrollView>
+      {justFinished ? (
+        <ActionBar>
+          <Button label="OK" onPress={() => router.back()} />
+        </ActionBar>
+      ) : null}
     </KeyboardAvoidingView>
   );
 }

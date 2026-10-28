@@ -54,8 +54,8 @@ export default function HistoryScreen() {
         ListEmptyComponent={
           <View className="px-4">
             <EmptyState
-              title="Aucune séance"
-              description="Tes séances terminées apparaîtront ici."
+              title="Aucun entraînement"
+              description="Tes entraînements terminés apparaîtront ici."
             />
           </View>
         }

@@ -23,7 +23,7 @@ const WEEK_LABEL_EVERY = 4;
 
 const WEEK_METRICS = [
   { value: 'volume', label: 'Volume' },
-  { value: 'sessions', label: 'Séances' },
+  { value: 'sessions', label: 'Entraînements' },
 ] as const;
 type WeekMetric = (typeof WEEK_METRICS)[number]['value'];
 
@@ -42,7 +42,7 @@ export default function StatsScreen() {
       {sessions.length === 0 ? (
         <EmptyState
           title="Pas encore de stats"
-          description="Termine une séance pour suivre ta régularité et ta progression."
+          description="Termine un entraînement pour suivre ta régularité et ta progression."
         />
       ) : (
         <>
@@ -73,8 +73,8 @@ function Overview({ sessions }: { sessions: SessionSummary[] }) {
   return (
     <View className="flex-row gap-3">
       <Tile value={String(streak)} label={streak > 1 ? 'semaines de suite' : 'semaine de suite'} />
-      <Tile value={String(thisMonth)} label="séances ce mois" />
-      <Tile value={String(sessions.length)} label="séances en tout" />
+      <Tile value={String(thisMonth)} label="entraînements ce mois" />
+      <Tile value={String(sessions.length)} label="entraînements en tout" />
     </View>
   );
 }
@@ -108,7 +108,7 @@ function WeeklyChart({ sessions }: { sessions: SessionSummary[] }) {
           <Text className="text-2xl font-bold text-foreground">
             {metric === 'volume'
               ? formatVolume(week.volume)
-              : `${week.sessions} séance${week.sessions > 1 ? 's' : ''}`}
+              : `${week.sessions} entraînement${week.sessions > 1 ? 's' : ''}`}
           </Text>
           <Text className="text-sm text-muted">
             {selected === WEEK_COUNT - 1
@@ -129,7 +129,7 @@ function WeeklyChart({ sessions }: { sessions: SessionSummary[] }) {
           onSelect={setSelected}
           formatTick={formatCompact}
           minStep={metric === 'sessions' ? 1 : 0}
-          accessibilityLabel={`${metric === 'volume' ? 'Volume' : 'Séances'} des ${WEEK_COUNT} dernières semaines`}
+          accessibilityLabel={`${metric === 'volume' ? 'Volume' : 'Entraînements'} des ${WEEK_COUNT} dernières semaines`}
         />
       </Card>
     </Section>

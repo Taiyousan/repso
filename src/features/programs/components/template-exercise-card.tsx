@@ -4,6 +4,7 @@ import { Pressable, View } from 'react-native';
 
 import { Card } from '@/components/ui/card';
 import { IconButton } from '@/components/ui/icon-button';
+import { SmallButton } from '@/components/ui/small-button';
 import { DragHandle } from '@/components/ui/sortable-list';
 import { Text } from '@/components/ui/text';
 import { TextField } from '@/components/ui/text-field';
@@ -55,34 +56,19 @@ export function TemplateExerciseCard({ item }: { item: TemplateExerciseDetail })
       </View>
 
       {/* Settings stay folded into one line; tapping a part opens it below. */}
-      <View className="flex-row items-center justify-between gap-3">
-        <Pressable
+      <View className="flex-row flex-wrap items-center gap-3">
+        <SmallButton
+          label={`Repos ${formatDuration(item.restSeconds ?? DEFAULT_REST_SECONDS)}${
+            item.restSeconds == null ? ' (défaut)' : ''
+          }`}
           onPress={() => toggle('rest')}
-          accessibilityRole="button"
           accessibilityState={{ expanded: panel === 'rest' }}
-          hitSlop={6}>
-          <Text className="text-sm text-muted">
-            Repos{' '}
-            <Text className="font-semibold text-foreground">
-              {formatDuration(item.restSeconds ?? DEFAULT_REST_SECONDS)}
-            </Text>
-            {item.restSeconds == null ? ' (défaut)' : ''}
-          </Text>
-        </Pressable>
-        <Pressable
+        />
+        <SmallButton
+          label={item.target ? `Objectif ${item.target}` : '+ Objectif'}
           onPress={() => toggle('target')}
-          accessibilityRole="button"
           accessibilityState={{ expanded: panel === 'target' }}
-          hitSlop={6}
-          className="shrink">
-          {item.target ? (
-            <Text className="text-sm text-muted" numberOfLines={1}>
-              Objectif <Text className="font-semibold text-foreground">{item.target}</Text>
-            </Text>
-          ) : (
-            <Text className="text-sm font-bold text-foreground underline">+ Objectif</Text>
-          )}
-        </Pressable>
+        />
       </View>
 
       {panel === 'rest' ? (

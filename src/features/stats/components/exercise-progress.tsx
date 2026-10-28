@@ -78,7 +78,7 @@ export function ExerciseProgress({ exerciseId, trackingType }: ExerciseProgressP
           selected={index}
           onSelect={setSelected}
           formatTick={kind === 'duration' ? format : formatCompact}
-          accessibilityLabel={`${RECORD_LABELS[kind]} : ${points.length} séances, dernière à ${format(last.value)}`}
+          accessibilityLabel={`${RECORD_LABELS[kind]} : ${points.length} entraînements, dernier à ${format(last.value)}`}
         />
       </View>
     </View>

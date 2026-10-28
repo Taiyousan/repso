@@ -72,7 +72,7 @@ export function startSession(templateId: number | null): number {
       : undefined;
     const session = tx
       .insert(workoutSessions)
-      .values({ templateId, name: template?.name ?? 'Séance libre', startedAt: new Date() })
+      .values({ templateId, name: template?.name ?? 'Entraînement libre', startedAt: new Date() })
       .returning({ id: workoutSessions.id })
       .get();
     insertSessionExercises(

@@ -1,13 +1,13 @@
-import { Link, router } from 'expo-router';
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
-import { Section } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
-import { PressableCard } from '@/components/ui/pressable-card';
+import { HeaderMenu } from '@/components/ui/header-menu';
+import { IconButton } from '@/components/ui/icon-button';
+import { ListRow } from '@/components/ui/list-row';
 import { Screen } from '@/components/ui/screen';
-import { Text } from '@/components/ui/text';
 import { ExportDialog } from '@/features/programs/components/export-dialog';
 import { usePrograms } from '@/features/programs/queries';
 import {
@@ -17,54 +17,61 @@ import {
 } from '@/features/programs/transfer/actions';
 import { ActiveWorkoutBanner } from '@/features/sessions/components/active-workout-banner';
 
+const createProgram = () => router.push('/programs/new');
+
 export default function ProgramsScreen() {
   const programs = usePrograms();
   const [exportFile, setExportFile] = useState<ExportFile | null>(null);
 
   return (
-    <Screen title="Programmes" banner={<ActiveWorkoutBanner />}>
+    <Screen
+      title="Programmes"
+      banner={<ActiveWorkoutBanner />}
+      action={
+        <View className="flex-row items-center gap-3">
+          <IconButton
+            icon={{ ios: 'plus', android: 'add' }}
+            label="Nouveau programme"
+            onPress={createProgram}
+          />
+          <HeaderMenu
+            items={[
+              { label: 'Importer un programme', onPress: importProgramFile },
+              ...(programs.length > 0
+                ? [
+                    {
+                      label: 'Exporter un programme',
+                      onPress: () => router.push('/programs/export'),
+                    },
+                  ]
+                : []),
+              { label: 'Exporter le format', onPress: () => setExportFile(formatGuideFile()) },
+            ]}
+          />
+        </View>
+      }>
       {programs.length === 0 ? (
-        <EmptyState
-          title="Aucun programme"
-          description="Crée ton premier programme, par exemple « PPL » avec ses séances Push, Pull et Legs, ou importe-le."
-        />
+        <View className="gap-3">
+          <EmptyState
+            title="Aucun programme"
+            description="Crée ton premier programme, par exemple « PPL » avec ses séances Push, Pull et Legs, ou importe-le."
+          />
+          <Button label="Créer un programme" variant="secondary" onPress={createProgram} />
+          <Button label="Importer un programme" variant="secondary" onPress={importProgramFile} />
+        </View>
       ) : (
         programs.map((program) => (
-          <Link
+          <ListRow
             key={program.id}
-            href={{ pathname: '/programs/[id]', params: { id: program.id } }}
-            asChild>
-            <PressableCard className="gap-1 p-4">
-              <Text className="text-lg font-semibold text-foreground">{program.name}</Text>
-              {program.description ? (
-                <Text className="text-muted" numberOfLines={2}>
-                  {program.description}
-                </Text>
-              ) : null}
-              <Text className="text-sm text-muted">
-                {program.workoutCount} séance{program.workoutCount > 1 ? 's' : ''}
-              </Text>
-            </PressableCard>
-          </Link>
+            title={program.name}
+            details={[
+              program.description,
+              `${program.workoutCount} séance${program.workoutCount > 1 ? 's' : ''}`,
+            ]}
+            onPress={() => router.push({ pathname: '/programs/[id]', params: { id: program.id } })}
+          />
         ))
       )}
-      <View className="pt-2">
-        <Button label="Nouveau programme" onPress={() => router.push('/programs/new')} />
-      </View>
-      <Section title="Import / export">
-        <Button label="Importer un programme" variant="secondary" onPress={importProgramFile} />
-        <Button
-          label="Exporter un programme"
-          variant="secondary"
-          onPress={() => router.push('/programs/export')}
-          disabled={programs.length === 0}
-        />
-        <Button
-          label="Exporter le format"
-          variant="secondary"
-          onPress={() => setExportFile(formatGuideFile())}
-        />
-      </Section>
       <ExportDialog file={exportFile} onClose={() => setExportFile(null)} />
     </Screen>
   );

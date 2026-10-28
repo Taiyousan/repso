@@ -42,7 +42,7 @@ export function EffortPicker({ value, onChange }: EffortPickerProps) {
       </View>
       <Text className="text-sm text-muted">
         {value == null ? (
-          'Comment as-tu trouvé cette séance ?'
+          'Comment as-tu trouvé cet entraînement ?'
         ) : (
           <>
             <Text className="font-semibold text-foreground">{value}/10</Text> · {effortLabel(value)}

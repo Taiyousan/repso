@@ -69,7 +69,7 @@ export function TagSelector({ sessionId }: { sessionId: number }) {
   };
 
   const confirmDelete = (tag: { id: number; name: string }) => {
-    Alert.alert(`Supprimer le tag « ${tag.name} » ?`, 'Il sera retiré de toutes tes séances.', [
+    Alert.alert(`Supprimer le tag « ${tag.name} » ?`, 'Il sera retiré de tous tes entraînements.', [
       { text: 'Annuler', style: 'cancel' },
       { text: 'Supprimer', style: 'destructive', onPress: () => deleteTag(tag.id) },
     ]);

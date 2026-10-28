@@ -31,7 +31,7 @@ export default function EditExerciseScreen() {
     if (usages > 0) {
       Alert.alert(
         'Exercice utilisé',
-        'Cet exercice apparaît dans un programme ou une séance. Retire-le avant de le supprimer.',
+        'Cet exercice apparaît dans un programme ou un entraînement. Retire-le avant de le supprimer.',
       );
       return;
     }

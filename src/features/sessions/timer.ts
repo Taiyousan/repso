@@ -61,7 +61,7 @@ function texts(kind: TimerKind, label: string) {
     case 'rest':
       return {
         countdownTitle: 'Repos',
-        countdownBody: label ? `Ensuite : ${label}` : 'Séance en cours',
+        countdownBody: label ? `Ensuite : ${label}` : 'Entraînement en cours',
         endTitle: 'Repos terminé',
         endBody: label ? `C'est reparti : ${label}` : "C'est reparti !",
       };

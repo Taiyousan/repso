@@ -1,6 +1,7 @@
 import { Modal, Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { ActionBar } from '@/components/ui/action-bar';
 import { Button } from '@/components/ui/button';
 import { Section } from '@/components/ui/card';
 import { Chip } from '@/components/ui/chip';
@@ -90,9 +91,7 @@ export function ExerciseFilters({
           </Section>
         </ScrollView>
 
-        <View
-          className="border-t border-border bg-surface px-4 pt-3"
-          style={{ paddingBottom: insets.bottom + 12 }}>
+        <ActionBar>
           <Button
             label={
               resultCount === 0
@@ -101,7 +100,7 @@ export function ExerciseFilters({
             }
             onPress={onClose}
           />
-        </View>
+        </ActionBar>
       </View>
     </Modal>
   );

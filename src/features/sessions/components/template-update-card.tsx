@@ -95,7 +95,9 @@ export function TemplateUpdateCard({ session }: { session: SessionDetail }) {
         <Text className="text-base font-semibold text-foreground">
           Mettre à jour « {template.name} » ?
         </Text>
-        <Text className="text-sm text-muted">Ta séance s&apos;est écartée du modèle.</Text>
+        <Text className="text-sm text-muted">
+          Ton entraînement s&apos;est écarté de la séance prévue.
+        </Text>
       </View>
 
       <View className="gap-1">
@@ -127,7 +129,12 @@ export function TemplateUpdateCard({ session }: { session: SessionDetail }) {
       </View>
 
       <View className="gap-2">
-        <Button label="Mettre à jour le modèle" onPress={apply} disabled={accepted.size === 0} />
+        <Button
+          label="Mettre à jour la séance"
+          variant="secondary"
+          onPress={apply}
+          disabled={accepted.size === 0}
+        />
         <Button
           label="Ne rien changer"
           variant="secondary"
