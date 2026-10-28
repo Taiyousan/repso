@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
+
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/ui/button';
 import { Chip } from '@/components/ui/chip';
+import { Text } from '@/components/ui/text';
 import { TextField } from '@/components/ui/text-field';
 import { TRACKING_TYPES } from '@/db/schema';
 

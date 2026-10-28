@@ -1,11 +1,13 @@
 import { Link } from 'expo-router';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
 import { Card, Section } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Icon } from '@/components/ui/icon';
+import { PressableCard } from '@/components/ui/pressable-card';
 import { Screen } from '@/components/ui/screen';
+import { Text } from '@/components/ui/text';
 import { formatElapsed } from '@/features/sessions/logic';
 import { useActiveSession, useStartableWorkouts } from '@/features/sessions/queries';
 import { openSession, startAndOpenSession } from '@/features/sessions/start';
@@ -42,22 +44,21 @@ export default function WorkoutScreen() {
             programs.map((program) => (
               <Section key={program.id} title={program.name}>
                 {program.workouts.map((workout) => (
-                  <Pressable
+                  <PressableCard
                     key={workout.id}
                     onPress={() => startAndOpenSession(workout.id)}
-                    accessibilityRole="button"
                     accessibilityLabel={`Démarrer ${workout.name}`}
-                    className="flex-row items-center justify-between rounded-2xl border border-border bg-surface p-4 active:opacity-80">
+                    className="flex-row items-center justify-between p-4">
                     <Text className="text-base font-semibold text-foreground">{workout.name}</Text>
                     <View className="flex-row items-center gap-1">
-                      <Text className="text-sm font-semibold text-primary">Démarrer</Text>
+                      <Text className="text-sm font-bold text-foreground">Démarrer</Text>
                       <Icon
                         name={{ ios: 'play.fill', android: 'play_arrow' }}
                         size={20}
-                        color={colors.primary}
+                        color={colors.foreground}
                       />
                     </View>
-                  </Pressable>
+                  </PressableCard>
                 ))}
               </Section>
             ))
@@ -74,9 +75,7 @@ function ActiveSessionCard({ id, name, startedAt }: { id: number; name: string; 
 
   return (
     <Card>
-      <Text className="text-sm font-medium tracking-wide text-primary uppercase">
-        Séance en cours
-      </Text>
+      <Text className="font-display text-sm font-bold text-foreground">Séance en cours</Text>
       <View className="flex-row items-baseline justify-between">
         <Text className="text-xl font-bold text-foreground">{name}</Text>
         <Text className="text-base text-muted" style={{ fontVariant: ['tabular-nums'] }}>

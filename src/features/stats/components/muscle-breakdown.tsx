@@ -1,21 +1,26 @@
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
+
 import Body from 'react-native-body-highlighter';
 
+import { Text } from '@/components/ui/text';
 import type { MuscleSets } from '@/domain/stats';
 import { muscleLabel } from '@/features/exercises/labels';
 import { toBodyHeat } from '@/features/exercises/muscle-map';
 import { formatNumber, mixColors } from '@/lib/chart';
 import { useThemeColors } from '@/lib/theme';
 
-/** Steps of the body heat map, from the softest to the accent color. */
+/** Steps of the body heat map, from pale yellow to ink. */
 const HEAT_LEVELS = 4;
 
 /** Sets per muscle on the body (darker = more sets), then listed with bars, most trained first. */
 export function MuscleBreakdown({ muscles }: { muscles: MuscleSets[] }) {
   const colors = useThemeColors();
-  const heat = Array.from({ length: HEAT_LEVELS }, (_, index) =>
-    mixColors(colors.primarySoft, colors.primary, index / (HEAT_LEVELS - 1)),
-  );
+  const heat = [
+    colors.primarySoft,
+    colors.primary,
+    mixColors(colors.primary, colors.foreground, 0.5),
+    colors.foreground,
+  ];
   const bodyProps = {
     data: toBodyHeat(
       muscles.map(({ muscle, sets }) => ({ muscle, value: sets })),
@@ -44,7 +49,7 @@ export function MuscleBreakdown({ muscles }: { muscles: MuscleSets[] }) {
             </Text>
             <View className="h-2 flex-1 rounded-full bg-surface-muted">
               <View
-                className="h-2 rounded-full bg-primary"
+                className="h-2 rounded-full bg-foreground"
                 style={{ width: `${(sets / max) * 100}%` }}
               />
             </View>

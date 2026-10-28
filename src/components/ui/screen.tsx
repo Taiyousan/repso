@@ -1,6 +1,9 @@
 import type { PropsWithChildren, ReactNode } from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
+
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { Text } from '@/components/ui/text';
 
 type ScreenProps = PropsWithChildren<{
   title: string;
@@ -15,7 +18,7 @@ export function Screen({ title, action, scrollable = true, children }: ScreenPro
   const insets = useSafeAreaInsets();
   const heading = (
     <View className="flex-row items-center justify-between pt-4">
-      <Text className="text-3xl font-bold text-foreground">{title}</Text>
+      <Text className="font-display text-3xl font-extrabold text-foreground">{title}</Text>
       {action}
     </View>
   );

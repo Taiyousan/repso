@@ -1,7 +1,9 @@
 import { router } from 'expo-router';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, View } from 'react-native';
+
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { Text } from '@/components/ui/text';
 import { formatDuration } from '@/features/programs/sets';
 
 import { timerCaption, useTimer } from '../timer';

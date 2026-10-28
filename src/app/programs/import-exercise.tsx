@@ -1,10 +1,12 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo } from 'react';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
+
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
+import { Text } from '@/components/ui/text';
 import { ExerciseBrowser } from '@/features/exercises/components/exercise-browser';
 import type { Resolution } from '@/features/programs/transfer/plan';
 import { useImportStore } from '@/features/programs/transfer/store';

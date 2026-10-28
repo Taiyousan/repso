@@ -1,9 +1,11 @@
 import Constants from 'expo-constants';
-import { Alert, ScrollView, Share, Text } from 'react-native';
+import { Alert, ScrollView, Share } from 'react-native';
+
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/ui/button';
 import { Card, Section } from '@/components/ui/card';
+import { Text } from '@/components/ui/text';
 import { LIBRARY_VERSION } from '@/features/exercises/library';
 import {
   buildTranslationRequestsExport,

@@ -2,30 +2,71 @@ import '@/global.css';
 // Registers the notification handler and clears timer notifications left by a previous run.
 import '@/features/sessions/timer';
 
-import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import {
+  Figtree_400Regular,
+  Figtree_500Medium,
+  Figtree_600SemiBold,
+  Figtree_700Bold,
+  Figtree_800ExtraBold,
+} from '@expo-google-fonts/figtree';
+import {
+  Unbounded_500Medium,
+  Unbounded_700Bold,
+  Unbounded_800ExtraBold,
+} from '@expo-google-fonts/unbounded';
+import { useFonts } from 'expo-font';
+import { DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useColorScheme } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Uniwind } from 'uniwind';
 
 import { DatabaseGate } from '@/db/database-gate';
-import { useThemeColors } from '@/lib/theme';
+import { FONTS, useThemeColors } from '@/lib/theme';
 
 SplashScreen.preventAutoHideAsync();
+// The design is light only, whatever the system setting.
+Uniwind.setTheme('light');
+
+/** Each family declares its weights, so the `font-*` weight classes pick the right face. */
+const FONT_FAMILIES = [
+  {
+    fontFamily: FONTS.sans,
+    fontDefinitions: [
+      { path: Figtree_400Regular, weight: 400 },
+      { path: Figtree_500Medium, weight: 500 },
+      { path: Figtree_600SemiBold, weight: 600 },
+      { path: Figtree_700Bold, weight: 700 },
+      { path: Figtree_800ExtraBold, weight: 800 },
+    ],
+  },
+  {
+    fontFamily: FONTS.display,
+    fontDefinitions: [
+      { path: Unbounded_500Medium, weight: 500 },
+      { path: Unbounded_700Bold, weight: 700 },
+      { path: Unbounded_800ExtraBold, weight: 800 },
+    ],
+  },
+];
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
   const colors = useThemeColors();
+  const [fontsLoaded, fontError] = useFonts(FONT_FAMILIES);
+
+  // The splash screen stays up until the fonts and then the database are ready.
+  if (!fontsLoaded && !fontError) return null;
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <StatusBar style="auto" />
+      <ThemeProvider value={DefaultTheme}>
+        <StatusBar style="dark" />
         <DatabaseGate>
           <Stack
             screenOptions={{
               headerStyle: { backgroundColor: colors.background },
               headerTintColor: colors.foreground,
+              headerTitleStyle: { fontFamily: FONTS.display, fontWeight: '700', fontSize: 17 },
               headerShadowVisible: false,
               contentStyle: { backgroundColor: colors.background },
             }}>

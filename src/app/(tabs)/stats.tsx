@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 
 import { BarChart } from '@/components/ui/bar-chart';
 import { Card, Section } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Screen } from '@/components/ui/screen';
 import { SegmentedControl } from '@/components/ui/segmented-control';
+import { Text } from '@/components/ui/text';
 import { SECONDARY_MUSCLE_SHARE, weeklyTotals, weekStreak } from '@/domain/stats';
 import { formatVolume } from '@/domain/volume';
 import { type SessionSummary, useSessionHistory } from '@/features/sessions/queries';
@@ -79,7 +80,9 @@ function Overview({ sessions }: { sessions: SessionSummary[] }) {
 
 function Tile({ value, label }: { value: string; label: string }) {
   return (
-    <View className="flex-1 gap-0.5 rounded-2xl border border-border bg-surface p-3">
+    <View
+      style={{ borderWidth: 2 }}
+      className="flex-1 gap-0.5 rounded-2xl border-ink bg-surface p-3">
       <Text className="text-2xl font-bold text-foreground">{value}</Text>
       <Text className="text-xs text-muted" numberOfLines={2}>
         {label}

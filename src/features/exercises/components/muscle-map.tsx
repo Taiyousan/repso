@@ -1,6 +1,8 @@
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
+
 import Body from 'react-native-body-highlighter';
 
+import { Text } from '@/components/ui/text';
 import { useThemeColors } from '@/lib/theme';
 
 import { toBodyParts } from '../muscle-map';
@@ -11,7 +13,7 @@ type MuscleMapProps = {
   gender?: 'male' | 'female';
 };
 
-/** Front and back views with primary muscles in the accent color, secondary in a softer tone. */
+/** Front and back views with primary muscles in ink, secondary ones in yellow. */
 export function MuscleMap({ primaryMuscles, secondaryMuscles, gender = 'male' }: MuscleMapProps) {
   const colors = useThemeColors();
   const data = toBodyParts(primaryMuscles, secondaryMuscles);
@@ -19,20 +21,20 @@ export function MuscleMap({ primaryMuscles, secondaryMuscles, gender = 'male' }:
     data,
     gender,
     scale: 0.85,
-    colors: [colors.primary, colors.primarySoft],
+    colors: [colors.foreground, colors.primary],
     defaultFill: colors.surfaceMuted,
     border: colors.border,
   };
 
   return (
-    <View className="gap-3 rounded-2xl border border-border bg-surface p-4">
+    <View style={{ borderWidth: 2 }} className="gap-3 rounded-2xl border-ink bg-surface p-4">
       <View className="flex-row justify-center">
         <Body {...bodyProps} side="front" />
         <Body {...bodyProps} side="back" />
       </View>
       <View className="flex-row justify-center gap-5">
-        <Legend colorClassName="bg-primary" label="Principal" />
-        <Legend colorClassName="bg-primary-soft" label="Secondaire" />
+        <Legend colorClassName="bg-foreground" label="Principal" />
+        <Legend colorClassName="bg-primary" label="Secondaire" />
       </View>
     </View>
   );

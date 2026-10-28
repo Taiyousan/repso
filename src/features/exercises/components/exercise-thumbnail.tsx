@@ -1,5 +1,7 @@
 import { Image } from 'expo-image';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
+
+import { Text } from '@/components/ui/text';
 
 import { exerciseImageUrl } from '../library';
 

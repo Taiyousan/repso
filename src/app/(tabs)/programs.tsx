@@ -1,11 +1,13 @@
 import { Link, router } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
 import { Section } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
+import { PressableCard } from '@/components/ui/pressable-card';
 import { Screen } from '@/components/ui/screen';
+import { Text } from '@/components/ui/text';
 import { ExportDialog } from '@/features/programs/components/export-dialog';
 import { usePrograms } from '@/features/programs/queries';
 import {
@@ -31,7 +33,7 @@ export default function ProgramsScreen() {
             key={program.id}
             href={{ pathname: '/programs/[id]', params: { id: program.id } }}
             asChild>
-            <Pressable className="gap-1 rounded-2xl border border-border bg-surface p-4 active:opacity-80">
+            <PressableCard className="gap-1 p-4">
               <Text className="text-lg font-semibold text-foreground">{program.name}</Text>
               {program.description ? (
                 <Text className="text-muted" numberOfLines={2}>
@@ -41,7 +43,7 @@ export default function ProgramsScreen() {
               <Text className="text-sm text-muted">
                 {program.workoutCount} séance{program.workoutCount > 1 ? 's' : ''}
               </Text>
-            </Pressable>
+            </PressableCard>
           </Link>
         ))
       )}

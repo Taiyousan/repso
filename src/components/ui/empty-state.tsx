@@ -1,4 +1,6 @@
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
+
+import { Text } from '@/components/ui/text';
 
 type EmptyStateProps = {
   title: string;
@@ -7,8 +9,10 @@ type EmptyStateProps = {
 
 export function EmptyState({ title, description }: EmptyStateProps) {
   return (
-    <View className="items-center gap-1 rounded-2xl border border-border bg-surface px-6 py-10">
-      <Text className="text-base font-semibold text-foreground">{title}</Text>
+    <View
+      style={{ borderWidth: 2, borderStyle: 'dashed' }}
+      className="items-center gap-1 rounded-2xl border-ink px-6 py-10">
+      <Text className="font-display text-base font-bold text-foreground">{title}</Text>
       {description ? <Text className="text-center text-muted">{description}</Text> : null}
     </View>
   );

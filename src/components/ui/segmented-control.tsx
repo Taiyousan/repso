@@ -1,4 +1,6 @@
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, View } from 'react-native';
+
+import { Text } from '@/components/ui/text';
 
 type SegmentedControlProps<T extends string> = {
   options: readonly { value: T; label: string }[];
@@ -12,7 +14,9 @@ export function SegmentedControl<T extends string>({
   onChange,
 }: SegmentedControlProps<T>) {
   return (
-    <View className="flex-row rounded-xl bg-surface-muted p-1">
+    <View
+      style={{ borderWidth: 2 }}
+      className="flex-row gap-1 rounded-xl border-ink bg-surface p-1">
       {options.map((option) => {
         const selected = option.value === value;
         return (
@@ -21,9 +25,12 @@ export function SegmentedControl<T extends string>({
             onPress={() => onChange(option.value)}
             accessibilityRole="tab"
             accessibilityState={{ selected }}
-            className={`flex-1 items-center rounded-lg py-2 ${selected ? 'bg-surface' : ''}`}>
+            style={selected ? { borderWidth: 2 } : null}
+            className={`flex-1 items-center rounded-lg py-1.5 ${
+              selected ? 'border-ink bg-primary' : ''
+            }`}>
             <Text
-              className={`text-sm ${selected ? 'font-semibold text-foreground' : 'text-muted'}`}
+              className={`text-sm ${selected ? 'font-bold text-foreground' : 'font-medium text-muted'}`}
               numberOfLines={1}>
               {option.label}
             </Text>

@@ -73,7 +73,7 @@ export function ProgressRing({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke={highlightComplete && clamped >= 1 ? colors.success : colors.primary}
+          stroke={highlightComplete && clamped >= 1 ? colors.success : colors.foreground}
           strokeWidth={strokeWidth}
           strokeLinecap="round"
           strokeDasharray={`${circumference} ${circumference}`}

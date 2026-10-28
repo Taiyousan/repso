@@ -1,8 +1,10 @@
 import { Link, router } from 'expo-router';
 import { memo } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import { Icon } from '@/components/ui/icon';
+import { PressableCard } from '@/components/ui/pressable-card';
+import { Text } from '@/components/ui/text';
 import type { Exercise } from '@/db/schema';
 import { useThemeColors } from '@/lib/theme';
 
@@ -41,8 +43,9 @@ export const ExerciseCard = memo(function ExerciseCard({
             accessibilityRole="button"
             accessibilityLabel={`Voir la fiche : ${exercise.name}`}
             hitSlop={8}
-            className="absolute top-2 left-2 size-7 items-center justify-center rounded-full border border-border bg-surface">
-            <Icon name={{ ios: 'info', android: 'info' }} size={16} color={colors.muted} />
+            style={{ borderWidth: 1.5 }}
+            className="absolute top-2 left-2 size-7 items-center justify-center rounded-full border-ink bg-surface">
+            <Icon name={{ ios: 'info', android: 'info' }} size={16} color={colors.foreground} />
           </Pressable>
           <View className="absolute top-2 right-2 rounded-full bg-surface">
             <Icon
@@ -52,7 +55,7 @@ export const ExerciseCard = memo(function ExerciseCard({
                   : { ios: 'circle', android: 'radio_button_unchecked' }
               }
               size={24}
-              color={selected ? colors.primary : colors.border}
+              color={selected ? colors.foreground : colors.muted}
             />
           </View>
         </>
@@ -70,26 +73,23 @@ export const ExerciseCard = memo(function ExerciseCard({
     </>
   );
 
-  const className = `overflow-hidden rounded-2xl border bg-surface active:opacity-80 ${
-    selected ? 'border-primary' : 'border-border'
-  }`;
-
   if (onSelect) {
     return (
-      <Pressable
+      <PressableCard
         onPress={() => onSelect(exercise)}
         accessibilityRole="checkbox"
         accessibilityState={{ checked: selected }}
         accessibilityLabel={exercise.name}
-        className={className}>
+        selected={selected}
+        className="overflow-hidden">
         {content}
-      </Pressable>
+      </PressableCard>
     );
   }
 
   return (
     <Link href={{ pathname: '/exercises/[id]', params: { id: exercise.id } }} asChild>
-      <Pressable className={className}>{content}</Pressable>
+      <PressableCard className="overflow-hidden">{content}</PressableCard>
     </Link>
   );
 });

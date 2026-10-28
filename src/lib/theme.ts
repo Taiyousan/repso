@@ -5,6 +5,7 @@ const TOKENS = [
   '--color-surface',
   '--color-surface-muted',
   '--color-border',
+  '--color-ink',
   '--color-foreground',
   '--color-muted',
   '--color-primary',
@@ -20,6 +21,7 @@ export function useThemeColors() {
     surface,
     surfaceMuted,
     border,
+    ink,
     foreground,
     muted,
     primary,
@@ -32,6 +34,7 @@ export function useThemeColors() {
     surface,
     surfaceMuted,
     border,
+    ink,
     foreground,
     muted,
     primary,
@@ -40,3 +43,6 @@ export function useThemeColors() {
     success,
   };
 }
+
+/** Font families, loaded in the root layout: Figtree for text, Unbounded for titles and figures. */
+export const FONTS = { sans: 'Figtree', display: 'Unbounded' } as const;

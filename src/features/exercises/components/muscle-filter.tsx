@@ -1,10 +1,12 @@
 import { memo, useMemo } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import type { BodyPart } from 'react-native-body-highlighter';
 import { bodyBack } from 'react-native-body-highlighter/dist/assets/bodyBack';
 import { bodyFront } from 'react-native-body-highlighter/dist/assets/bodyFront';
 import Svg, { Path } from 'react-native-svg';
 
+import { raised } from '@/components/ui/raised';
+import { Text } from '@/components/ui/text';
 import { useThemeColors } from '@/lib/theme';
 
 import { type Muscle, MUSCLES, muscleLabel } from '../labels';
@@ -89,24 +91,28 @@ export const MuscleTile = memo(function MuscleTile({
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityState={{ selected }}
-      style={showLabel ? undefined : { width: 52, height: 64 }}
-      className={`items-center justify-center rounded-2xl border bg-surface ${
+      style={({ pressed }) => [
+        { borderWidth: 2 },
+        showLabel ? null : { width: 52, height: 64 },
+        raised(pressed, colors.ink, 2),
+      ]}
+      className={`items-center justify-center rounded-2xl border-ink ${
         showLabel ? 'w-24 gap-1 py-1.5' : ''
-      } ${selected ? 'border-primary' : 'border-border'}`}>
+      } ${selected ? 'bg-primary' : 'bg-surface'}`}>
       {/* The silhouettes keep the 1:2 ratio of their viewBox. */}
       <Svg viewBox={silhouette.viewBox} width={showLabel ? 34 : 26} height={showLabel ? 68 : 52}>
         {silhouette.parts.map((part, index) => (
           <Path
             key={index}
             d={part.d}
-            fill={highlighted.has(part.slug) ? colors.primary : colors.border}
+            fill={highlighted.has(part.slug) ? colors.foreground : colors.border}
           />
         ))}
       </Svg>
       {showLabel ? (
         <Text
           numberOfLines={1}
-          className={`px-1 text-xs ${selected ? 'font-semibold text-primary' : 'text-muted'}`}>
+          className={`px-1 text-xs ${selected ? 'font-bold text-foreground' : 'text-muted'}`}>
           {label}
         </Text>
       ) : null}

@@ -1,8 +1,9 @@
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
 import * as SplashScreen from 'expo-splash-screen';
 import { type PropsWithChildren, useEffect, useState } from 'react';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 
+import { Text } from '@/components/ui/text';
 import { seedExerciseLibrary } from '@/features/exercises/library';
 import { discardDraftWorkoutTemplates } from '@/features/programs/mutations';
 

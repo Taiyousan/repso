@@ -1,10 +1,12 @@
 import { FlashList } from '@shopify/flash-list';
 import { useDeferredValue, useMemo, useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Icon } from '@/components/ui/icon';
+import { raised } from '@/components/ui/raised';
+import { Text } from '@/components/ui/text';
 import { TextField } from '@/components/ui/text-field';
 import type { Exercise } from '@/db/schema';
 import { useRecentExerciseIds } from '@/features/sessions/queries';
@@ -246,16 +248,19 @@ function ActionTile({ icon, label, active, badge = 0, onPress }: ActionTileProps
       accessibilityRole="button"
       accessibilityLabel={badge > 0 ? `${label}, ${badge} actif${badge > 1 ? 's' : ''}` : label}
       accessibilityState={{ selected: active }}
-      style={{ width: 52, height: 64 }}
-      className={`items-center justify-center rounded-2xl border bg-surface active:opacity-70 ${
-        active ? 'border-primary' : 'border-border'
+      style={({ pressed }) => [
+        { width: 52, height: 64, borderWidth: 2 },
+        raised(pressed, colors.ink, 2),
+      ]}
+      className={`items-center justify-center rounded-2xl border-ink ${
+        active ? 'bg-primary' : 'bg-surface'
       }`}>
-      <Icon name={icon} color={active ? colors.primary : colors.muted} />
+      <Icon name={icon} color={colors.foreground} />
       {badge > 0 ? (
         <View
           style={{ width: 16, height: 16, top: 6, right: 6 }}
-          className="absolute items-center justify-center rounded-full bg-primary">
-          <Text style={{ fontSize: 10 }} className="font-bold text-primary-foreground">
+          className="absolute items-center justify-center rounded-full bg-foreground">
+          <Text style={{ fontSize: 10 }} className="font-bold text-primary">
             {badge}
           </Text>
         </View>

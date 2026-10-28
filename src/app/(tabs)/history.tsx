@@ -1,10 +1,12 @@
 import { FlashList } from '@shopify/flash-list';
 import { router } from 'expo-router';
 import { useMemo } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { View } from 'react-native';
 
 import { EmptyState } from '@/components/ui/empty-state';
+import { PressableCard } from '@/components/ui/pressable-card';
 import { Screen } from '@/components/ui/screen';
+import { Text } from '@/components/ui/text';
 import { formatVolume } from '@/domain/volume';
 import { type SessionSummary, useSessionHistory } from '@/features/sessions/queries';
 import { formatDay, formatDurationLong, formatMonth, formatTime, monthKey } from '@/lib/dates';
@@ -69,10 +71,9 @@ function HistoryItem({ session }: { session: SessionSummary }) {
   ].filter(Boolean);
 
   return (
-    <Pressable
+    <PressableCard
       onPress={() => router.push({ pathname: '/session/[id]', params: { id: session.id } })}
-      accessibilityRole="button"
-      className="gap-1 rounded-2xl border border-border bg-surface p-4 active:opacity-80">
+      className="gap-1 p-4">
       <View className="flex-row items-baseline justify-between gap-3">
         <Text className="shrink text-base font-semibold text-foreground" numberOfLines={1}>
           {session.name}
@@ -92,12 +93,12 @@ function HistoryItem({ session }: { session: SessionSummary }) {
             </Text>
           ) : null}
           {session.tags.map((tag) => (
-            <Text key={tag} className="text-sm text-primary">
+            <Text key={tag} className="text-sm font-semibold text-foreground">
               #{tag}
             </Text>
           ))}
         </View>
       ) : null}
-    </Pressable>
+    </PressableCard>
   );
 }

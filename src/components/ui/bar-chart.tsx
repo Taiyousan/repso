@@ -90,7 +90,7 @@ export function BarChart({
                 <Path
                   key={bar.key}
                   d={roundedTopBar(center - barWidth / 2, top, barWidth, plotBottom - top)}
-                  fill={index === selected ? colors.primary : colors.primarySoft}
+                  fill={index === selected ? colors.foreground : colors.primary}
                 />
               ) : null;
             })}

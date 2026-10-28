@@ -72,7 +72,7 @@ export function LineChart({
       cy={y(points[index].y)}
       r={radius}
       fill={colors.primary}
-      stroke={colors.surface}
+      stroke={colors.ink}
       strokeWidth={2}
     />
   );
@@ -121,12 +121,12 @@ export function LineChart({
             />
             {points.length > 1 ? (
               <>
-                <Path d={area} fill={colors.primary} fillOpacity={0.1} />
+                <Path d={area} fill={colors.primary} fillOpacity={0.35} />
                 <Path
                   d={line.join(' ')}
                   fill="none"
-                  stroke={colors.primary}
-                  strokeWidth={2}
+                  stroke={colors.foreground}
+                  strokeWidth={2.5}
                   strokeLinejoin="round"
                   strokeLinecap="round"
                 />

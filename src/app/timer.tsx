@@ -1,9 +1,11 @@
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
+
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Chip } from '@/components/ui/chip';
 import { Icon } from '@/components/ui/icon';
 import { ProgressRing } from '@/components/ui/progress-ring';
+import { Text } from '@/components/ui/text';
 import { formatDuration } from '@/features/programs/sets';
 import { TIMER_PRESETS, timerCaption, useTimer } from '@/features/sessions/timer';
 import { useTimerTicker } from '@/features/sessions/use-timer-ticker';
@@ -137,11 +139,13 @@ function RoundButton({
         width: size,
         height: size,
         borderRadius: size / 2,
-        backgroundColor: primary ? colors.primary : colors.surfaceMuted,
+        backgroundColor: primary ? colors.primary : colors.surface,
+        borderWidth: 2.5,
+        borderColor: colors.ink,
       }}
       className="items-center justify-center active:opacity-80">
       {icon ? (
-        <Icon name={icon} size={size * 0.45} color={primary ? '#ffffff' : colors.foreground} />
+        <Icon name={icon} size={size * 0.45} color={colors.foreground} />
       ) : (
         <Text className="text-base font-semibold text-foreground">{label}</Text>
       )}

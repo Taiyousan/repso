@@ -1,10 +1,11 @@
 import { Link } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import { Card } from '@/components/ui/card';
 import { IconButton } from '@/components/ui/icon-button';
 import { DragHandle } from '@/components/ui/sortable-list';
+import { Text } from '@/components/ui/text';
 import { TextField } from '@/components/ui/text-field';
 import { ExerciseThumbnail } from '@/features/exercises/components/exercise-thumbnail';
 
@@ -79,7 +80,7 @@ export function TemplateExerciseCard({ item }: { item: TemplateExerciseDetail })
               Objectif <Text className="font-semibold text-foreground">{item.target}</Text>
             </Text>
           ) : (
-            <Text className="text-sm text-primary">+ Objectif</Text>
+            <Text className="text-sm font-bold text-foreground underline">+ Objectif</Text>
           )}
         </Pressable>
       </View>

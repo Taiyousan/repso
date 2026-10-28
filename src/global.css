@@ -2,39 +2,27 @@
 @import 'uniwind';
 
 /*
- * Design tokens. Every variable must exist in both themes.
- * `--color-foo` is used as `bg-foo`, `text-foo`, `border-foo`…
+ * Design tokens. The app is light only (forced in the root layout), so they are declared once for
+ * every theme. `--color-foo` is used as `bg-foo`, `text-foo`, `border-foo`…
+ * Yellow `primary` is a fill (main action, selection), never a text color: accents in text are ink.
  */
-@layer theme {
-  :root {
-    @variant light {
-      --color-background: #f6f6f7;
-      --color-surface: #ffffff;
-      --color-surface-muted: #ececef;
-      --color-border: #dcdce0;
-      --color-foreground: #111113;
-      --color-muted: #63636b;
-      --color-primary: #e8472b;
-      --color-primary-soft: #f6b4a6;
-      --color-primary-foreground: #ffffff;
-      --color-success: #1f9d55;
-      --color-success-soft: #e4f5ea;
-      --color-danger: #d92d20;
-    }
+@theme {
+  --color-background: #f5f3ee;
+  --color-surface: #ffffff;
+  --color-surface-muted: #ebe7dd;
+  /* Thin separators. */
+  --color-border: #dcd8ce;
+  /* Thick outlines and the offset shadow of what can be tapped. */
+  --color-ink: #111111;
+  --color-foreground: #111111;
+  --color-muted: #5c5c5c;
+  --color-primary: #ffd23f;
+  --color-primary-soft: #fff0b0;
+  --color-primary-foreground: #111111;
+  --color-success: #17834a;
+  --color-success-soft: #8be3b0;
+  --color-danger: #d92d20;
 
-    @variant dark {
-      --color-background: #0d0d0f;
-      --color-surface: #18181b;
-      --color-surface-muted: #232327;
-      --color-border: #2e2e33;
-      --color-foreground: #f4f4f5;
-      --color-muted: #a0a0a9;
-      --color-primary: #ff5a3c;
-      --color-primary-soft: #8c3626;
-      --color-primary-foreground: #ffffff;
-      --color-success: #34c77b;
-      --color-success-soft: #13301f;
-      --color-danger: #f04438;
-    }
-  }
+  --font-sans: Figtree;
+  --font-display: Unbounded;
 }

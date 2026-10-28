@@ -1,9 +1,11 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, ScrollView, Text } from 'react-native';
+import { ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { EmptyState } from '@/components/ui/empty-state';
+import { PressableCard } from '@/components/ui/pressable-card';
+import { Text } from '@/components/ui/text';
 import { ExportDialog } from '@/features/programs/components/export-dialog';
 import { usePrograms } from '@/features/programs/queries';
 import { type ExportFile, programExportFile } from '@/features/programs/transfer/actions';
@@ -23,20 +25,17 @@ export default function ExportProgramScreen() {
         <EmptyState title="Aucun programme" />
       ) : (
         programs.map((program) => (
-          <Pressable
+          <PressableCard
             key={program.id}
             onPress={() => setExportFile(programExportFile(program.id))}
             // An empty program would make an invalid file.
             disabled={program.workoutCount === 0}
-            accessibilityRole="button"
-            className={`gap-1 rounded-2xl border border-border bg-surface p-4 active:opacity-80 ${
-              program.workoutCount === 0 ? 'opacity-50' : ''
-            }`}>
+            className={`gap-1 p-4 ${program.workoutCount === 0 ? 'opacity-50' : ''}`}>
             <Text className="text-lg font-semibold text-foreground">{program.name}</Text>
             <Text className="text-sm text-muted">
               {program.workoutCount} séance{program.workoutCount > 1 ? 's' : ''}
             </Text>
-          </Pressable>
+          </PressableCard>
         ))
       )}
       <ExportDialog

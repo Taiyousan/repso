@@ -1,8 +1,9 @@
 import { Image } from 'expo-image';
 import { useEffect, useState } from 'react';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 
 import { SegmentedControl } from '@/components/ui/segmented-control';
+import { Text } from '@/components/ui/text';
 
 import { exerciseImageUrl } from '../library';
 

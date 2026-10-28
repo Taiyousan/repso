@@ -1,12 +1,14 @@
 import { router, usePreventRemove } from 'expo-router';
 import { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Text, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, View } from 'react-native';
+
 import Animated, { useAnimatedRef } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { SortableList } from '@/components/ui/sortable-list';
+import { Text } from '@/components/ui/text';
 import { TextField } from '@/components/ui/text-field';
 import { startAndOpenSession } from '@/features/sessions/start';
 import { useThemeColors } from '@/lib/theme';

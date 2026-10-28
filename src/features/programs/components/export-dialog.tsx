@@ -1,6 +1,7 @@
-import { Modal, Pressable, Text, View } from 'react-native';
+import { Modal, Pressable, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
+import { Text } from '@/components/ui/text';
 import { canSaveFiles } from '@/modules/file-saver';
 
 import { deliverFile, type ExportFile } from '../transfer/actions';

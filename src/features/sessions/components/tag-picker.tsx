@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { type ReactNode, useState } from 'react';
-import { Alert, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { Alert, Pressable, ScrollView, TextInput, View } from 'react-native';
+
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/ui/button';
@@ -8,8 +9,9 @@ import { Section } from '@/components/ui/card';
 import { Chip } from '@/components/ui/chip';
 import { Icon } from '@/components/ui/icon';
 import { IconButton } from '@/components/ui/icon-button';
+import { Text } from '@/components/ui/text';
 import { normalizeText } from '@/lib/text';
-import { useThemeColors } from '@/lib/theme';
+import { FONTS, useThemeColors } from '@/lib/theme';
 
 import { addSessionTagByName, deleteTag, setSessionTag } from '../mutations';
 import { useSessionTagIds, useTags } from '../queries';
@@ -90,7 +92,8 @@ export function TagSelector({ sessionId }: { sessionId: number }) {
         returnKeyType="done"
         placeholder="Rechercher ou créer un tag"
         placeholderTextColor={colors.muted}
-        className="rounded-xl border border-border bg-surface px-4 py-3 text-base text-foreground"
+        style={{ fontFamily: FONTS.sans, borderWidth: 1.5 }}
+        className="rounded-xl border-ink bg-surface px-4 py-3 text-base text-foreground"
       />
 
       {canCreate ? (
@@ -163,7 +166,10 @@ function TagRow({
         accessibilityRole={icon === 'add' ? 'button' : 'checkbox'}
         accessibilityState={icon === 'add' ? undefined : { checked: icon === 'checked' }}
         className="flex-1 flex-row items-center gap-3 py-3 active:opacity-70">
-        <Icon name={ROW_ICONS[icon]} color={icon === 'unchecked' ? colors.muted : colors.primary} />
+        <Icon
+          name={ROW_ICONS[icon]}
+          color={icon === 'unchecked' ? colors.muted : colors.foreground}
+        />
         <Text className="flex-1 text-base text-foreground">{label}</Text>
       </Pressable>
       {trailing}

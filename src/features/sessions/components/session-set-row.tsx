@@ -1,9 +1,10 @@
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { type ComponentRef, useRef, useState } from 'react';
-import { Pressable, Text, TextInput, type TextInputProps, View } from 'react-native';
+import { Pressable, TextInput, type TextInputProps, View } from 'react-native';
 
 import { Icon } from '@/components/ui/icon';
+import { Text } from '@/components/ui/text';
 import type { SessionSet, SetType, TrackingType } from '@/db/schema';
 import {
   formatDecimal,
@@ -11,7 +12,7 @@ import {
   nextSetType,
   SET_TYPE_LABELS,
 } from '@/features/programs/sets';
-import { useThemeColors } from '@/lib/theme';
+import { FONTS, useThemeColors } from '@/lib/theme';
 
 import {
   canComplete,
@@ -28,7 +29,7 @@ const BADGE_STYLES: Record<SetType, { container: string; label: string }> = {
   normal: { container: 'bg-surface-muted', label: 'text-foreground' },
   warmup: { container: 'border border-border bg-surface', label: 'text-muted' },
   dropset: { container: 'bg-primary-soft', label: 'text-foreground' },
-  failure: { container: 'bg-danger', label: 'text-primary-foreground' },
+  failure: { container: 'bg-danger', label: 'text-white' },
 };
 
 const DEFAULT_TIMED_SET_SECONDS = 30;
@@ -121,8 +122,12 @@ export function SessionSetRow({
           accessible
           accessibilityLabel="Record battu"
           className="w-16 flex-row items-center justify-center gap-1">
-          <Icon name={{ ios: 'trophy.fill', android: 'trophy' }} size={14} color={colors.primary} />
-          <Text className="text-xs font-bold text-primary">Record</Text>
+          <Icon
+            name={{ ios: 'trophy.fill', android: 'trophy' }}
+            size={14}
+            color={colors.foreground}
+          />
+          <Text className="text-xs font-bold text-foreground">Record</Text>
         </View>
       ) : (
         <Text className="w-16 text-center text-xs text-muted" numberOfLines={1}>
@@ -154,7 +159,7 @@ export function SessionSetRow({
                 <Icon
                   name={{ ios: 'play.fill', android: 'play_arrow' }}
                   size={22}
-                  color="#ffffff"
+                  color={colors.foreground}
                 />
               </Pressable>
             )
@@ -242,7 +247,8 @@ function NumberInput({
         if (length > 0) ref.current?.setSelection(0, length);
         onFocus?.(event);
       }}
-      className="flex-1 rounded-lg border border-border bg-background px-2 py-2 text-center text-base text-foreground"
+      style={{ fontFamily: FONTS.display, borderWidth: 1.5 }}
+      className="flex-1 rounded-lg border-ink bg-surface px-2 py-2 text-center text-base font-bold text-foreground"
     />
   );
 }

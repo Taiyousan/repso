@@ -1,6 +1,9 @@
-import { Pressable, Text } from 'react-native';
+import { Pressable } from 'react-native';
 
+import { Text } from '@/components/ui/text';
 import { useThemeColors } from '@/lib/theme';
+
+import { raised } from './raised';
 
 type ButtonProps = {
   label: string;
@@ -10,36 +13,32 @@ type ButtonProps = {
 };
 
 const CONTAINER = {
-  primary: 'bg-primary',
-  secondary: 'border border-border bg-surface',
-  danger: 'border border-danger bg-surface',
+  primary: 'border-ink bg-primary',
+  secondary: 'border-ink bg-surface',
+  danger: 'border-danger bg-surface',
 };
 
 const LABEL = {
-  primary: 'text-primary-foreground',
-  secondary: 'text-foreground',
-  danger: 'text-danger',
+  primary: 'font-display text-[15px] font-bold text-primary-foreground',
+  secondary: 'text-base font-bold text-foreground',
+  danger: 'text-base font-bold text-danger',
 };
 
 export function Button({ label, onPress, variant = 'primary', disabled = false }: ButtonProps) {
   const colors = useThemeColors();
-  // Drawn natively on touch, so it shows even when the press starts heavy JS work.
-  const ripple = {
-    primary: '#ffffff4d',
-    secondary: `${colors.foreground}26`,
-    danger: `${colors.danger}26`,
-  }[variant];
+  const shadow = variant === 'danger' ? colors.danger : colors.ink;
 
   return (
     <Pressable
       onPress={onPress}
       disabled={disabled}
       accessibilityRole="button"
-      android_ripple={{ color: ripple, foreground: true }}
-      className={`items-center overflow-hidden rounded-xl px-4 py-3 active:scale-97 active:opacity-70 ${
-        CONTAINER[variant]
-      } ${disabled ? 'opacity-50' : ''}`}>
-      <Text className={`text-base font-semibold ${LABEL[variant]}`}>{label}</Text>
+      // Disabled, it can't be tapped: no shadow.
+      style={({ pressed }) => [{ borderWidth: 2.5 }, disabled ? null : raised(pressed, shadow)]}
+      className={`items-center rounded-xl px-4 py-3 ${CONTAINER[variant]} ${
+        disabled ? 'opacity-40' : ''
+      }`}>
+      <Text className={LABEL[variant]}>{label}</Text>
     </Pressable>
   );
 }

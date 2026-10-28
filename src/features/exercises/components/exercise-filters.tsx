@@ -1,4 +1,5 @@
-import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import { Modal, Pressable, ScrollView, View } from 'react-native';
+
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/ui/button';
@@ -6,6 +7,7 @@ import { Section } from '@/components/ui/card';
 import { Chip } from '@/components/ui/chip';
 import { IconButton } from '@/components/ui/icon-button';
 import { SegmentedControl } from '@/components/ui/segmented-control';
+import { Text } from '@/components/ui/text';
 
 import { EQUIPMENT, equipmentLabel } from '../labels';
 import { MuscleFilter } from './muscle-filter';
@@ -54,7 +56,8 @@ export function ExerciseFilters({
           <IconButton icon={{ ios: 'xmark', android: 'close' }} label="Fermer" onPress={onClose} />
           <Text className="text-base font-semibold text-foreground">Filtres</Text>
           <Pressable onPress={onReset} disabled={!hasFilters} hitSlop={8}>
-            <Text className={`text-base font-medium ${hasFilters ? 'text-primary' : 'text-muted'}`}>
+            <Text
+              className={`text-base font-medium ${hasFilters ? 'font-bold text-foreground' : 'text-muted'}`}>
               Réinitialiser
             </Text>
           </Pressable>

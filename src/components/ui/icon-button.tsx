@@ -4,6 +4,7 @@ import { Pressable } from 'react-native';
 import { useThemeColors } from '@/lib/theme';
 
 import { Icon } from './icon';
+import { raised } from './raised';
 
 type IconButtonProps = {
   icon: ComponentProps<typeof Icon>['name'];
@@ -20,7 +21,7 @@ export function IconButton({
   onPress,
   disabled = false,
   tone = 'muted',
-  size = 22,
+  size = 20,
 }: IconButtonProps) {
   const colors = useThemeColors();
 
@@ -30,9 +31,15 @@ export function IconButton({
       disabled={disabled}
       accessibilityRole="button"
       accessibilityLabel={label}
-      hitSlop={6}
-      className={`rounded-lg p-1.5 active:bg-surface-muted ${disabled ? 'opacity-30' : ''}`}>
-      <Icon name={icon} size={size} color={tone === 'danger' ? colors.danger : colors.muted} />
+      hitSlop={4}
+      style={({ pressed }) => [
+        { width: 36, height: 36, borderWidth: 2 },
+        disabled ? null : raised(pressed, colors.ink, 2),
+      ]}
+      className={`items-center justify-center rounded-[10px] border-ink bg-surface ${
+        disabled ? 'opacity-30' : ''
+      }`}>
+      <Icon name={icon} size={size} color={tone === 'danger' ? colors.danger : colors.foreground} />
     </Pressable>
   );
 }

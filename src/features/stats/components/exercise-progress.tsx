@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 
 import { LineChart } from '@/components/ui/line-chart';
 import { SegmentedControl } from '@/components/ui/segmented-control';
+import { Text } from '@/components/ui/text';
 import type { TrackingType } from '@/db/schema';
 import { formatRecord, RECORD_LABELS, recordKindsFor } from '@/domain/records';
 import { progressSeries } from '@/domain/stats';
@@ -40,7 +41,7 @@ export function ExerciseProgress({ exerciseId, trackingType }: ExerciseProgressP
   return (
     <View className="gap-3">
       <Text className="text-lg font-semibold text-foreground">Progression</Text>
-      <View className="gap-3 rounded-2xl border border-border bg-surface p-4">
+      <View style={{ borderWidth: 2 }} className="gap-3 rounded-2xl border-ink bg-surface p-4">
         {kinds.length > 1 ? (
           <SegmentedControl
             options={kinds.map((value) => ({ value, label: RECORD_LABELS[value] }))}

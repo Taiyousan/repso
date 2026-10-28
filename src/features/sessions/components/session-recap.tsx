@@ -1,11 +1,13 @@
 import { Link, router, Stack } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, KeyboardAvoidingView, Pressable, ScrollView, Text, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Pressable, ScrollView, View } from 'react-native';
+
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/ui/button';
 import { Card, Section } from '@/components/ui/card';
 import { Icon } from '@/components/ui/icon';
+import { Text } from '@/components/ui/text';
 import { TextField } from '@/components/ui/text-field';
 import { formatRecord, RECORD_LABELS, sessionNewRecords } from '@/domain/records';
 import { formatVolume, isWorkingSet } from '@/domain/volume';
@@ -75,7 +77,7 @@ export function SessionRecap({ session, justFinished }: SessionRecapProps) {
           headerRight: justFinished
             ? () => (
                 <Pressable onPress={() => router.back()} hitSlop={8}>
-                  <Text className="text-base font-semibold text-primary">OK</Text>
+                  <Text className="text-base font-bold text-foreground underline">OK</Text>
                 </Pressable>
               )
             : undefined,
@@ -214,7 +216,9 @@ function StatTile({
   better?: boolean;
 }) {
   return (
-    <View className="flex-1 gap-0.5 rounded-2xl border border-border bg-surface p-3">
+    <View
+      style={{ borderWidth: 2 }}
+      className="flex-1 gap-0.5 rounded-2xl border-ink bg-surface p-3">
       <Text className="text-xs text-muted">{label}</Text>
       <Text
         className="text-lg font-bold text-foreground"

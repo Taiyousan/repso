@@ -1,9 +1,11 @@
 import { router } from 'expo-router';
 import { useMemo } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
 import { Card, Section } from '@/components/ui/card';
+import { PressableCard } from '@/components/ui/pressable-card';
+import { Text } from '@/components/ui/text';
 import { useExerciseList } from '@/features/exercises/queries';
 
 import { type ImportRef, refKey, type Resolution } from '../transfer/plan';
@@ -114,14 +116,11 @@ function RefRow({ label, resolution, resolvedName, onPress }: RefRowProps) {
       : resolution?.kind === 'create'
         ? { text: 'Nouvel exercice perso', className: 'text-muted' }
         : isToCheck(resolution)
-          ? { text: `À vérifier : ${resolvedName}`, className: 'font-semibold text-primary' }
+          ? { text: `À vérifier : ${resolvedName}`, className: 'font-bold text-foreground' }
           : { text: `✓ ${resolvedName}`, className: 'text-success' };
 
   return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="button"
-      className="gap-0.5 rounded-2xl border border-border bg-surface px-4 py-3 active:opacity-80">
+    <PressableCard onPress={onPress} className="gap-0.5 px-4 py-3">
       <Text
         className={`text-base text-foreground ${resolution?.kind === 'skip' ? 'line-through' : ''}`}>
         {label}
@@ -129,6 +128,6 @@ function RefRow({ label, resolution, resolvedName, onPress }: RefRowProps) {
       <Text className={`text-sm ${status.className}`} numberOfLines={1}>
         {status.text}
       </Text>
-    </Pressable>
+    </PressableCard>
   );
 }

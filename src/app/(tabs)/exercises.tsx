@@ -1,10 +1,15 @@
 import { Link } from 'expo-router';
-import { Pressable, Text } from 'react-native';
+import { Pressable } from 'react-native';
 
+import { raised } from '@/components/ui/raised';
 import { Screen } from '@/components/ui/screen';
+import { Text } from '@/components/ui/text';
 import { ExerciseBrowser } from '@/features/exercises/components/exercise-browser';
+import { useThemeColors } from '@/lib/theme';
 
 export default function ExercisesScreen() {
+  const colors = useThemeColors();
+
   return (
     <Screen title="Exercices" scrollable={false}>
       <ExerciseBrowser />
@@ -12,8 +17,9 @@ export default function ExercisesScreen() {
       <Link href="/exercises/new" asChild>
         <Pressable
           accessibilityLabel="Créer un exercice"
-          className="absolute right-4 bottom-4 size-14 items-center justify-center rounded-full bg-primary shadow-lg active:opacity-80">
-          <Text className="text-3xl leading-8 text-primary-foreground">+</Text>
+          style={({ pressed }) => [{ borderWidth: 2.5 }, raised(pressed, colors.ink)]}
+          className="absolute right-4 bottom-4 size-14 items-center justify-center rounded-full border-ink bg-primary">
+          <Text className="text-3xl leading-8 font-bold text-primary-foreground">+</Text>
         </Pressable>
       </Link>
     </Screen>

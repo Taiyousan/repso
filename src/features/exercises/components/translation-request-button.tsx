@@ -1,4 +1,6 @@
-import { Pressable, Text } from 'react-native';
+import { Pressable } from 'react-native';
+
+import { Text } from '@/components/ui/text';
 
 import { setTranslationRequested, useTranslationRequested } from '../translation-requests';
 
@@ -14,10 +16,11 @@ export function TranslationRequestButton({ exerciseId }: { exerciseId: number })
       <Text className="text-sm text-muted">
         {requested ? (
           <>
-            ✓ Traduction demandée · <Text className="text-primary">Annuler</Text>
+            ✓ Traduction demandée ·{' '}
+            <Text className="font-bold text-foreground underline">Annuler</Text>
           </>
         ) : (
-          <Text className="text-primary">Demander la traduction</Text>
+          <Text className="font-bold text-foreground underline">Demander la traduction</Text>
         )}
       </Text>
     </Pressable>

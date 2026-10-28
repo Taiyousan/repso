@@ -1,7 +1,8 @@
 import { useKeepAwake } from 'expo-keep-awake';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Pressable, Text, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Pressable, View } from 'react-native';
+
 import Animated, { useAnimatedRef } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -10,6 +11,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { Icon } from '@/components/ui/icon';
 import { ProgressRing } from '@/components/ui/progress-ring';
 import { SortableList } from '@/components/ui/sortable-list';
+import { Text } from '@/components/ui/text';
 import { DEFAULT_REST_SECONDS } from '@/features/programs/sets';
 import { TimerBar } from '@/features/sessions/components/timer-bar';
 import { SessionExerciseCard } from '@/features/sessions/components/session-exercise-card';
@@ -154,7 +156,7 @@ function LiveSession({ session }: { session: SessionDetail }) {
                 <Icon name={{ ios: 'timer', android: 'timer' }} color={colors.foreground} />
               </Pressable>
               <Pressable onPress={confirmFinish} hitSlop={8}>
-                <Text className="text-base font-semibold text-primary">Terminer</Text>
+                <Text className="text-base font-bold text-foreground underline">Terminer</Text>
               </Pressable>
             </View>
           ),

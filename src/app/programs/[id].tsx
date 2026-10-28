@@ -1,6 +1,7 @@
 import { Link, router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, View } from 'react-native';
+
 import Animated, { useAnimatedRef } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -8,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Section } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { DragHandle, SortableList } from '@/components/ui/sortable-list';
+import { Text } from '@/components/ui/text';
 import { muscleLabel } from '@/features/exercises/labels';
 import { createDraftWorkoutTemplate, reorderWorkoutTemplates } from '@/features/programs/mutations';
 import { ExportDialog } from '@/features/programs/components/export-dialog';
@@ -49,7 +51,7 @@ export default function ProgramScreen() {
           headerRight: () => (
             <Link href={{ pathname: '/programs/edit/[id]', params: { id: programId } }} asChild>
               <Pressable hitSlop={8}>
-                <Text className="text-base font-semibold text-primary">Modifier</Text>
+                <Text className="text-base font-bold text-foreground underline">Modifier</Text>
               </Pressable>
             </Link>
           ),
@@ -73,7 +75,9 @@ export default function ProgramScreen() {
             onReorder={(keys) => reorderWorkoutTemplates(keys.map(Number))}
             scrollableRef={scrollRef}
             renderItem={(workout) => (
-              <View className="flex-row items-center rounded-2xl border border-border bg-surface pl-2">
+              <View
+                style={{ borderWidth: 2 }}
+                className="flex-row items-center rounded-2xl border-ink bg-surface pl-2">
                 <DragHandle label={`Déplacer ${workout.name}`} />
                 <Link href={{ pathname: '/workouts/[id]', params: { id: workout.id } }} asChild>
                   <Pressable className="flex-1 gap-1 p-4 pl-2 active:opacity-80">

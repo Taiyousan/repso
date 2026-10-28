@@ -1,10 +1,12 @@
 import { Link, Stack, useLocalSearchParams } from 'expo-router';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
+
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Chip } from '@/components/ui/chip';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Icon } from '@/components/ui/icon';
+import { Text } from '@/components/ui/text';
 import type { TrackingType } from '@/db/schema';
 import {
   type ExerciseRecords,
@@ -66,7 +68,7 @@ export default function ExerciseDetailScreen() {
                   href={{ pathname: '/exercises/edit/[id]', params: { id: exercise.id } }}
                   asChild>
                   <Pressable hitSlop={8}>
-                    <Text className="text-base font-semibold text-primary">Modifier</Text>
+                    <Text className="text-base font-bold text-foreground underline">Modifier</Text>
                   </Pressable>
                 </Link>
               )
@@ -111,7 +113,9 @@ export default function ExerciseDetailScreen() {
           </View>
           {exercise.instructions.map((step, index) => (
             <View key={index} className="flex-row gap-3">
-              <Text className="w-5 text-base font-semibold text-primary">{index + 1}</Text>
+              <Text className="w-5 font-display text-base font-bold text-foreground">
+                {index + 1}
+              </Text>
               <Text className="flex-1 text-base leading-6 text-foreground">{step}</Text>
             </View>
           ))}
@@ -140,9 +144,13 @@ function Records({
   if (kinds.length === 0) return null;
 
   return (
-    <View className="gap-3 rounded-2xl border border-primary bg-primary-soft p-4">
+    <View style={{ borderWidth: 2 }} className="gap-3 rounded-2xl border-ink bg-primary-soft p-4">
       <View className="flex-row items-center gap-2">
-        <Icon name={{ ios: 'trophy.fill', android: 'trophy' }} size={18} color={colors.primary} />
+        <Icon
+          name={{ ios: 'trophy.fill', android: 'trophy' }}
+          size={18}
+          color={colors.foreground}
+        />
         <Text className="text-sm font-semibold tracking-wide text-foreground uppercase">
           Tes records
         </Text>

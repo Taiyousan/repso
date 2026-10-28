@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Icon } from '@/components/ui/icon';
+import { Text } from '@/components/ui/text';
 import { DEFAULT_REST_SECONDS, formatDuration } from '@/features/programs/sets';
 import { useThemeColors } from '@/lib/theme';
 
@@ -114,7 +115,7 @@ export function TemplateUpdateCard({ session }: { session: SessionDetail }) {
                     ? { ios: 'checkmark.square.fill', android: 'check_box' }
                     : { ios: 'square', android: 'check_box_outline_blank' }
                 }
-                color={checked ? colors.primary : colors.muted}
+                color={checked ? colors.foreground : colors.muted}
               />
               <View className="flex-1">
                 <Text className="text-base text-foreground">{title}</Text>
