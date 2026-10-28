@@ -113,6 +113,7 @@ export function SessionSetRow({
         onPress={() => updateSessionSet(set.id, { type: nextSetType(set.type) })}
         accessibilityRole="button"
         accessibilityLabel={`${SET_TYPE_LABELS[set.type]}. Toucher pour changer le type`}
+        hitSlop={6}
         style={({ pressed }) => [{ borderWidth: 2 }, raised(pressed, colors.ink, 2)]}
         className={`size-9 items-center justify-center rounded-lg border-ink ${style.container}`}>
         <Text className={`text-sm font-bold ${style.label}`}>{badge}</Text>

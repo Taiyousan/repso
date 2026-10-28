@@ -1,5 +1,5 @@
 import { Link } from 'expo-router';
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { Alert, Pressable, View } from 'react-native';
 
 import { Card } from '@/components/ui/card';
@@ -37,8 +37,14 @@ type SessionExerciseCardProps = {
   onSetCompleted: (item: SessionExerciseDetail) => void;
 };
 
-/** Rendered inside a SortableList: the handle on the left reorders the card. */
-export function SessionExerciseCard({ item, onSetCompleted }: SessionExerciseCardProps) {
+/**
+ * Rendered inside a SortableList: the handle on the left reorders the card. Memoized: a validated
+ * set only renders its own card again, the live read keeping the other items as they were.
+ */
+export const SessionExerciseCard = memo(function SessionExerciseCard({
+  item,
+  onSetCompleted,
+}: SessionExerciseCardProps) {
   const { exercise, sets, previous } = item;
   const colors = useThemeColors();
   const [restOpen, setRestOpen] = useState(false);
@@ -187,4 +193,4 @@ export function SessionExerciseCard({ item, onSetCompleted }: SessionExerciseCar
       </View>
     </Card>
   );
-}
+});

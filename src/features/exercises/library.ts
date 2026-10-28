@@ -2,7 +2,6 @@ import { eq, sql } from 'drizzle-orm';
 
 import { db } from '@/db/client';
 import { appMeta, type ContentLanguage, exercises, type TrackingType } from '@/db/schema';
-import libraryData from '@/data/exercise-library.json';
 
 /** Bump when src/data/exercise-library.json changes, so installed apps re-import it. */
 export const LIBRARY_VERSION = 2;
@@ -17,8 +16,6 @@ type LibraryExercise = Omit<typeof exercises.$inferInsert, 'id' | 'isCustom' | '
   instructionsLanguage: ContentLanguage;
 };
 
-const library = libraryData as LibraryExercise[];
-
 export function exerciseImageUrl(path: string): string {
   return IMAGE_BASE_URL + path;
 }
@@ -30,6 +27,10 @@ export function exerciseImageUrl(path: string): string {
 export function seedExerciseLibrary(): void {
   const installed = db.select().from(appMeta).where(eq(appMeta.key, LIBRARY_VERSION_KEY)).get();
   if (installed?.value === String(LIBRARY_VERSION)) return;
+
+  // Required here rather than imported: ~1 MB of JSON that would otherwise be evaluated at every
+  // launch, while it only serves on the first one and after an update of the library.
+  const library = require('@/data/exercise-library.json') as LibraryExercise[];
 
   db.transaction((tx) => {
     const CHUNK_SIZE = 100;

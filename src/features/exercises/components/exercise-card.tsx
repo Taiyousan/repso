@@ -42,7 +42,7 @@ export const ExerciseCard = memo(function ExerciseCard({
             }
             accessibilityRole="button"
             accessibilityLabel={`Voir la fiche : ${exercise.name}`}
-            hitSlop={8}
+            hitSlop={10}
             style={{ borderWidth: 1.5 }}
             className="absolute top-2 left-2 size-7 items-center justify-center rounded-full border-ink bg-surface">
             <Icon name={{ ios: 'info', android: 'info' }} size={16} color={colors.foreground} />

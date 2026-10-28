@@ -31,7 +31,8 @@ export function IconButton({
       disabled={disabled}
       accessibilityRole="button"
       accessibilityLabel={label}
-      hitSlop={4}
+      // 36 + 2 × 6 = the 48 dp touch target Android asks for.
+      hitSlop={6}
       style={({ pressed }) => [
         { width: 36, height: 36, borderWidth: 2 },
         disabled ? null : raised(pressed, colors.ink, 2),

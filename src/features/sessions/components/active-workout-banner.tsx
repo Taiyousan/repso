@@ -1,3 +1,4 @@
+import { useIsFocused } from 'expo-router';
 import { View } from 'react-native';
 
 import { PressableCard } from '@/components/ui/pressable-card';
@@ -17,7 +18,8 @@ export function ActiveWorkoutBanner() {
 
 /** On its own so the ticking clock only re-renders the banner. */
 function Banner({ id, name, startedAt }: { id: number; name: string; startedAt: Date }) {
-  const now = useNow(1000);
+  // Tabs stay mounted: the clock only ticks on the one shown.
+  const now = useNow(1000, useIsFocused());
   const elapsed = Math.max(0, Math.floor((now - startedAt.getTime()) / 1000));
 
   return (

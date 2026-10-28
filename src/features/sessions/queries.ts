@@ -1,4 +1,19 @@
-import { and, asc, desc, eq, inArray, isNotNull, isNull, lt, ne, type SQL, sql } from 'drizzle-orm';
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  gte,
+  inArray,
+  isNotNull,
+  isNull,
+  lt,
+  max,
+  ne,
+  type SQL,
+  sql,
+} from 'drizzle-orm';
 
 import { db } from '@/db/client';
 import { computeRecords, type ExerciseRecords } from '@/domain/records';
@@ -163,75 +178,116 @@ export function useActiveSession() {
   return useLiveData(readActiveSession, ['workout_sessions'], 'active');
 }
 
+/**
+ * Reads a session with its exercises and sets, and for each exercise the previous performance and
+ * the records before it. Those two scan the exercise's whole history but don't move during a
+ * workout: they are kept until the exercises or the finished sessions change.
+ */
+function createSessionReader(id: number) {
+  let context: {
+    key: string;
+    previous: Map<number, SetPerformance[]>;
+    records: Map<number, ExerciseRecords>;
+  } | null = null;
+
+  return () => {
+    const session = db.select().from(workoutSessions).where(eq(workoutSessions.id, id)).get();
+    if (!session) return undefined;
+
+    const rows = db
+      .select({
+        item: sessionExercises,
+        exercise: exercises,
+        target: templateExercises.target,
+      })
+      .from(sessionExercises)
+      .innerJoin(exercises, eq(exercises.id, sessionExercises.exerciseId))
+      .leftJoin(
+        templateExercises,
+        eq(templateExercises.id, sessionExercises.sourceTemplateExerciseId),
+      )
+      .where(eq(sessionExercises.sessionId, id))
+      .orderBy(asc(sessionExercises.position))
+      .all();
+    const itemIds = rows.map((row) => row.item.id);
+
+    const sets =
+      itemIds.length === 0
+        ? []
+        : db
+            .select()
+            .from(sessionSets)
+            .where(inArray(sessionSets.sessionExerciseId, itemIds))
+            .orderBy(asc(sessionSets.position))
+            .all();
+
+    const exerciseIds = rows.map((row) => row.exercise.id);
+    // Finishing or deleting a session changes this: then the history may have changed.
+    const finished = db
+      .select({ count: count(), lastId: max(workoutSessions.id) })
+      .from(workoutSessions)
+      .where(isNotNull(workoutSessions.endedAt))
+      .get();
+    const key = `${exerciseIds.join(',')}|${finished?.count}|${finished?.lastId}`;
+    if (context?.key !== key) {
+      context = {
+        key,
+        // Before this session, so a past one is compared with what preceded it.
+        previous: readPreviousPerformance(exerciseIds, id, session.startedAt),
+        records: readExerciseRecords(exerciseIds, id, session.startedAt),
+      };
+    }
+    const { previous, records } = context;
+
+    const sessionTagList = db
+      .select({ id: tags.id, name: tags.name })
+      .from(sessionTags)
+      .innerJoin(tags, eq(tags.id, sessionTags.tagId))
+      .where(eq(sessionTags.sessionId, id))
+      .orderBy(asc(tags.name))
+      .all();
+
+    return {
+      ...session,
+      tags: sessionTagList,
+      exercises: rows.map(({ item, exercise, target }) => ({
+        ...item,
+        exercise,
+        target,
+        sets: sets.filter((set) => set.sessionExerciseId === item.id),
+        previous: previous.get(exercise.id) ?? [],
+        records: records.get(exercise.id) ?? {},
+      })),
+    };
+  };
+}
+
 export function useSession(id: number) {
   return useLiveData(
-    () => {
-      const session = db.select().from(workoutSessions).where(eq(workoutSessions.id, id)).get();
-      if (!session) return undefined;
-
-      const rows = db
-        .select({
-          item: sessionExercises,
-          exercise: exercises,
-          target: templateExercises.target,
-        })
-        .from(sessionExercises)
-        .innerJoin(exercises, eq(exercises.id, sessionExercises.exerciseId))
-        .leftJoin(
-          templateExercises,
-          eq(templateExercises.id, sessionExercises.sourceTemplateExerciseId),
-        )
-        .where(eq(sessionExercises.sessionId, id))
-        .orderBy(asc(sessionExercises.position))
-        .all();
-      const itemIds = rows.map((row) => row.item.id);
-
-      const sets =
-        itemIds.length === 0
-          ? []
-          : db
-              .select()
-              .from(sessionSets)
-              .where(inArray(sessionSets.sessionExerciseId, itemIds))
-              .orderBy(asc(sessionSets.position))
-              .all();
-
-      // Before this session, so a past one is compared with what preceded it.
-      const previous = readPreviousPerformance(
-        rows.map((row) => row.exercise.id),
-        id,
-        session.startedAt,
-      );
-      const records = readExerciseRecords(
-        rows.map((row) => row.exercise.id),
-        id,
-        session.startedAt,
-      );
-
-      const sessionTagList = db
-        .select({ id: tags.id, name: tags.name })
-        .from(sessionTags)
-        .innerJoin(tags, eq(tags.id, sessionTags.tagId))
-        .where(eq(sessionTags.sessionId, id))
-        .orderBy(asc(tags.name))
-        .all();
-
-      return {
-        ...session,
-        tags: sessionTagList,
-        exercises: rows.map(({ item, exercise, target }) => ({
-          ...item,
-          exercise,
-          target,
-          sets: sets.filter((set) => set.sessionExerciseId === item.id),
-          previous: previous.get(exercise.id) ?? [],
-          records: records.get(exercise.id) ?? {},
-        })),
-      };
-    },
+    // Only the first reader is used: the store keeps it, with its cache, as long as `id`.
+    createSessionReader(id),
     ['workout_sessions', 'session_exercises', 'session_sets', 'session_tags', 'tags'],
     id,
   );
+}
+
+/** Next exercise of a session, from `position` on, that still has a set to do. */
+export function readNextPendingExercise(sessionId: number, fromPosition: number) {
+  return db
+    .select({ name: exercises.name })
+    .from(sessionExercises)
+    .innerJoin(exercises, eq(exercises.id, sessionExercises.exerciseId))
+    .innerJoin(sessionSets, eq(sessionSets.sessionExerciseId, sessionExercises.id))
+    .where(
+      and(
+        eq(sessionExercises.sessionId, sessionId),
+        gte(sessionExercises.position, fromPosition),
+        isNull(sessionSets.completedAt),
+      ),
+    )
+    .orderBy(asc(sessionExercises.position))
+    .limit(1)
+    .get();
 }
 
 export type SessionDetail = NonNullable<ReturnType<typeof useSession>>;

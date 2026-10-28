@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, useIsFocused } from 'expo-router';
 import { View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
@@ -133,7 +133,8 @@ function NextWorkoutCard({
 }
 
 function ActiveSessionCard({ id, name, startedAt }: { id: number; name: string; startedAt: Date }) {
-  const now = useNow(1000);
+  // Tabs stay mounted: the clock only ticks on the one shown.
+  const now = useNow(1000, useIsFocused());
   const elapsed = Math.max(0, Math.floor((now - startedAt.getTime()) / 1000));
 
   return (

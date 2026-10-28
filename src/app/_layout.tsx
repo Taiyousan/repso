@@ -15,13 +15,18 @@ import {
   Unbounded_800ExtraBold,
 } from '@expo-google-fonts/unbounded';
 import { useFonts } from 'expo-font';
-import { DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import { DefaultTheme, type ErrorBoundaryProps, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
+import { View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Uniwind } from 'uniwind';
 
+import { Button } from '@/components/ui/button';
+import { Text } from '@/components/ui/text';
 import { DatabaseGate } from '@/db/database-gate';
+import { useTimerCompletion } from '@/features/sessions/use-timer-ticker';
 import { FONTS, useThemeColors } from '@/lib/theme';
 
 SplashScreen.preventAutoHideAsync();
@@ -61,6 +66,7 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider value={DefaultTheme}>
         <StatusBar style="dark" />
+        <TimerCompletion />
         <DatabaseGate>
           <Stack
             screenOptions={{
@@ -115,5 +121,35 @@ export default function RootLayout() {
         </DatabaseGate>
       </ThemeProvider>
     </GestureHandlerRootView>
+  );
+}
+
+/** On its own so the timer starting or stopping doesn't render the whole navigator again. */
+function TimerCompletion() {
+  useTimerCompletion();
+  return null;
+}
+
+/** Shown by Expo Router instead of the app when a screen fails, rather than closing the app. */
+export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
+  // The failure may come before the splash screen was hidden.
+  useEffect(() => {
+    SplashScreen.hideAsync();
+  }, []);
+
+  return (
+    <View className="flex-1 justify-center gap-4 bg-background p-6">
+      <Text className="font-display text-xl font-bold text-foreground">
+        Une erreur est survenue
+      </Text>
+      <Text className="text-muted">
+        Tes entraînements enregistrés ne sont pas touchés. Réessaie ; si le problème revient, ferme
+        et relance l’app.
+      </Text>
+      <Text className="text-xs text-muted" selectable>
+        {error.message}
+      </Text>
+      <Button label="Réessayer" onPress={retry} />
+    </View>
   );
 }

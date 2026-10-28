@@ -1,5 +1,5 @@
 import { useKeepAwake } from 'expo-keep-awake';
-import { router, Stack, useLocalSearchParams } from 'expo-router';
+import { router, Stack, useIsFocused, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Alert, KeyboardAvoidingView, View } from 'react-native';
 import Animated, { useAnimatedRef } from 'react-native-reanimated';
@@ -23,6 +23,7 @@ import {
   reorderSessionExercises,
 } from '@/features/sessions/mutations';
 import {
+  readNextPendingExercise,
   type SessionDetail,
   type SessionExerciseDetail,
   useSession,
@@ -53,7 +54,8 @@ export default function SessionScreen() {
 
 /** On its own so the ticking clock doesn't re-render the exercise cards every second. */
 function SessionClock({ startedAt }: { startedAt: Date }) {
-  const now = useNow(1000);
+  // Paused under a pushed screen (exercise sheet, timer).
+  const now = useNow(1000, useIsFocused());
   const elapsedSeconds = Math.max(0, Math.floor((now - startedAt.getTime()) / 1000));
 
   return (
@@ -78,18 +80,13 @@ function LiveSession({ session }: { session: SessionDetail }) {
     isExerciseComplete(item.sets),
   ).length;
 
+  // Read from the database (the set is already saved), so this handler stays the same from one
+  // render to the next and the memoized cards that didn't change aren't rendered again.
+  const sessionId = session.id;
   const startRest = (item: SessionExerciseDetail) => {
-    // The set just validated is still pending in this render.
-    const pendingHere = item.sets.filter((set) => set.completedAt == null).length - 1;
-    const next =
-      pendingHere > 0
-        ? item
-        : session.exercises.find(
-            (other) =>
-              other.position > item.position && other.sets.some((set) => set.completedAt == null),
-          );
+    const next = readNextPendingExercise(sessionId, item.position);
     if (!next) return; // nothing left to do: no rest needed
-    useTimer.getState().startRest(item.restSeconds ?? DEFAULT_REST_SECONDS, next.exercise.name);
+    useTimer.getState().startRest(item.restSeconds ?? DEFAULT_REST_SECONDS, next.name);
   };
 
   const addExercises = () =>

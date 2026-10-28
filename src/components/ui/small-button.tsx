@@ -28,7 +28,8 @@ export function SmallButton({
       onPress={onPress}
       disabled={disabled}
       accessibilityRole="button"
-      hitSlop={4}
+      // Brings the touch target to 48 dp.
+      hitSlop={6}
       {...props}
       style={({ pressed }) => [
         { borderWidth: 2 },
