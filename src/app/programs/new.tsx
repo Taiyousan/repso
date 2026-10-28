@@ -9,7 +9,8 @@ export default function NewProgramScreen() {
       submitLabel="Créer le programme"
       onSubmit={(value) => {
         const id = createProgram(value);
-        router.replace({ pathname: '/programs/[id]', params: { id } });
+        // Straight to edit mode, to add its workouts.
+        router.replace({ pathname: '/programs/edit/[id]', params: { id } });
       }}
     />
   );

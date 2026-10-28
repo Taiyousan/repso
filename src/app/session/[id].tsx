@@ -2,7 +2,6 @@ import { useKeepAwake } from 'expo-keep-awake';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Alert, KeyboardAvoidingView, Pressable, View } from 'react-native';
-
 import Animated, { useAnimatedRef } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 

@@ -14,6 +14,7 @@ import {
   workoutSessions,
   workoutTemplates,
 } from '@/db/schema';
+import { mainMuscles } from '@/features/programs/sets';
 
 import type { SetPerformance } from './logic';
 
@@ -236,8 +237,13 @@ export function useSession(id: number) {
 export type SessionDetail = NonNullable<ReturnType<typeof useSession>>;
 export type SessionExerciseDetail = SessionDetail['exercises'][number];
 
-/** Workouts that can be started, grouped by program. */
-export function useStartableWorkouts() {
+type StartableWorkout = { id: number; name: string; exerciseCount: number; muscles: string[] };
+
+/**
+ * Workouts that can be started, grouped by program, and the last finished session that came from
+ * a workout (to suggest the next one).
+ */
+export function useHomeWorkouts() {
   return useLiveData(
     () => {
       const rows = db
@@ -252,20 +258,71 @@ export function useStartableWorkouts() {
         .where(eq(workoutTemplates.isDraft, false))
         .orderBy(asc(programs.createdAt), asc(workoutTemplates.position))
         .all();
+      const items = db
+        .select({
+          templateId: templateExercises.templateId,
+          primaryMuscles: exercises.primaryMuscles,
+        })
+        .from(templateExercises)
+        .innerJoin(exercises, eq(exercises.id, templateExercises.exerciseId))
+        .all();
 
-      const groups: { id: number; name: string; workouts: { id: number; name: string }[] }[] = [];
+      const groups: { id: number; name: string; workouts: StartableWorkout[] }[] = [];
       for (const row of rows) {
         let group = groups.at(-1);
         if (group?.id !== row.programId) {
           group = { id: row.programId, name: row.programName, workouts: [] };
           groups.push(group);
         }
-        group.workouts.push({ id: row.workoutId, name: row.workoutName });
+        const workoutItems = items.filter((item) => item.templateId === row.workoutId);
+        group.workouts.push({
+          id: row.workoutId,
+          name: row.workoutName,
+          exerciseCount: workoutItems.length,
+          muscles: mainMuscles(workoutItems),
+        });
       }
-      return groups;
+
+      const last = db
+        .select({
+          templateId: workoutSessions.templateId,
+          name: workoutSessions.name,
+          startedAt: workoutSessions.startedAt,
+        })
+        .from(workoutSessions)
+        .where(and(isNotNull(workoutSessions.endedAt), isNotNull(workoutSessions.templateId)))
+        .orderBy(desc(workoutSessions.startedAt))
+        .limit(1)
+        .get();
+
+      return { programs: groups, last: last ?? null };
     },
-    ['programs', 'workout_templates'],
-    'startable',
+    ['programs', 'workout_templates', 'template_exercises', 'workout_sessions'],
+    'home',
+  );
+}
+
+/**
+ * What a workout's preview shows from the history: when it was last done, and the last
+ * performance of each of its exercises (whatever the session).
+ */
+export function useWorkoutHistory(templateId: number, exerciseIds: number[]) {
+  return useLiveData(
+    () => ({
+      lastDoneAt:
+        db
+          .select({ startedAt: workoutSessions.startedAt })
+          .from(workoutSessions)
+          .where(
+            and(eq(workoutSessions.templateId, templateId), isNotNull(workoutSessions.endedAt)),
+          )
+          .orderBy(desc(workoutSessions.startedAt))
+          .limit(1)
+          .get()?.startedAt ?? null,
+      previous: readPreviousPerformance(exerciseIds),
+    }),
+    ['workout_sessions', 'session_exercises', 'session_sets'],
+    `${templateId}:${exerciseIds.join(',')}`,
   );
 }
 

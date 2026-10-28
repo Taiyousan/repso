@@ -1,5 +1,4 @@
 import { View } from 'react-native';
-
 import Body from 'react-native-body-highlighter';
 
 import { Text } from '@/components/ui/text';

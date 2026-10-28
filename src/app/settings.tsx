@@ -1,6 +1,5 @@
 import Constants from 'expo-constants';
 import { Alert, ScrollView, Share } from 'react-native';
-
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/ui/button';

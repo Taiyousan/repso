@@ -91,6 +91,7 @@ export default function RootLayout() {
             />
             <Stack.Screen name="workouts/[id]" options={{ title: '' }} />
             <Stack.Screen name="workouts/new/[id]" options={{ title: 'Nouvelle séance' }} />
+            <Stack.Screen name="workouts/edit/[id]" options={{ title: 'Modifier la séance' }} />
             <Stack.Screen
               name="workouts/add-exercises/[id]"
               options={{ title: 'Ajouter des exercices' }}

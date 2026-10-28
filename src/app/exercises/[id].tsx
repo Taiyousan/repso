@@ -1,6 +1,5 @@
 import { Link, Stack, useLocalSearchParams } from 'expo-router';
 import { Pressable, ScrollView, View } from 'react-native';
-
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Chip } from '@/components/ui/chip';

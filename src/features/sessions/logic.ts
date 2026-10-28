@@ -113,3 +113,21 @@ export function bestSet(sets: SetPerformance[], trackingType: TrackingType): Set
   }
   return best;
 }
+
+/**
+ * The workout to do next: the one after the last workout done, in its program's order (back to
+ * the first after the last). Without one, the first workout of the first program.
+ */
+export function nextWorkout<P extends { workouts: { id: number }[] }>(
+  programs: P[],
+  lastWorkoutId: number | null,
+): { program: P; workout: P['workouts'][number] } | null {
+  for (const program of programs) {
+    const index = program.workouts.findIndex((workout) => workout.id === lastWorkoutId);
+    if (index !== -1) {
+      return { program, workout: program.workouts[(index + 1) % program.workouts.length] };
+    }
+  }
+  const program = programs.find((candidate) => candidate.workouts.length > 0);
+  return program ? { program, workout: program.workouts[0] } : null;
+}

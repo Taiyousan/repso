@@ -5,6 +5,7 @@ import {
   formatPerformance,
   initialSetTypes,
   isExerciseComplete,
+  nextWorkout,
   previousFor,
   remainingSeconds,
   resolveSetValues,
@@ -147,5 +148,29 @@ describe('bestSet', () => {
 
   it('returns null without sets', () => {
     expect(bestSet([], 'weight_reps')).toBeNull();
+  });
+});
+
+describe('nextWorkout', () => {
+  const ppl = { id: 1, workouts: [{ id: 10 }, { id: 11 }, { id: 12 }] };
+  const fullBody = { id: 2, workouts: [{ id: 20 }, { id: 21 }] };
+
+  it('follows the last workout done in its program', () => {
+    expect(nextWorkout([ppl, fullBody], 11)).toEqual({ program: ppl, workout: { id: 12 } });
+    expect(nextWorkout([ppl, fullBody], 20)).toEqual({ program: fullBody, workout: { id: 21 } });
+  });
+
+  it('starts the program over after its last workout', () => {
+    expect(nextWorkout([ppl], 12)).toEqual({ program: ppl, workout: { id: 10 } });
+  });
+
+  it('falls back to the first workout when the last one is unknown or gone', () => {
+    const empty = { id: 3, workouts: [] };
+    expect(nextWorkout([empty, ppl], null)).toEqual({ program: ppl, workout: { id: 10 } });
+    expect(nextWorkout([ppl], 99)).toEqual({ program: ppl, workout: { id: 10 } });
+  });
+
+  it('has nothing to suggest without workouts', () => {
+    expect(nextWorkout([{ id: 3, workouts: [] }], null)).toBeNull();
   });
 });

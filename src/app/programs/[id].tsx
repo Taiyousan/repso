@@ -1,29 +1,25 @@
-import { Link, router, Stack, useLocalSearchParams } from 'expo-router';
+import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, View } from 'react-native';
-
-import Animated, { useAnimatedRef } from 'react-native-reanimated';
+import { ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Button } from '@/components/ui/button';
 import { Section } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
-import { DragHandle, SortableList } from '@/components/ui/sortable-list';
+import { HeaderButton } from '@/components/ui/header-button';
+import { HeaderMenu } from '@/components/ui/header-menu';
+import { ListRow } from '@/components/ui/list-row';
 import { Text } from '@/components/ui/text';
 import { muscleLabel } from '@/features/exercises/labels';
-import { createDraftWorkoutTemplate, reorderWorkoutTemplates } from '@/features/programs/mutations';
 import { ExportDialog } from '@/features/programs/components/export-dialog';
 import { useProgram } from '@/features/programs/queries';
 import { type ExportFile, programExportFile } from '@/features/programs/transfer/actions';
-import { useThemeColors } from '@/lib/theme';
 
+/** A program as read: its workouts open their page; "Modifier" opens the editor. */
 export default function ProgramScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const programId = Number(id);
   const program = useProgram(programId);
   const insets = useSafeAreaInsets();
-  const colors = useThemeColors();
-  const scrollRef = useAnimatedRef<Animated.ScrollView>();
   const [exportFile, setExportFile] = useState<ExportFile | null>(null);
 
   if (!program) {
@@ -35,80 +31,72 @@ export default function ProgramScreen() {
     );
   }
 
-  const addWorkout = () => {
-    const workoutId = createDraftWorkoutTemplate(programId);
-    router.push({ pathname: '/workouts/new/[id]', params: { id: workoutId } });
-  };
-
   return (
-    <Animated.ScrollView
-      ref={scrollRef}
-      style={{ flex: 1, backgroundColor: colors.background }}
-      contentContainerStyle={{ gap: 20, padding: 16, paddingBottom: insets.bottom + 16 }}>
+    <ScrollView
+      className="flex-1 bg-background"
+      contentContainerClassName="gap-5 p-4"
+      contentContainerStyle={{ paddingBottom: insets.bottom + 16 }}>
       <Stack.Screen
         options={{
-          title: program.name,
+          title: '',
           headerRight: () => (
-            <Link href={{ pathname: '/programs/edit/[id]', params: { id: programId } }} asChild>
-              <Pressable hitSlop={8}>
-                <Text className="text-base font-bold text-foreground underline">Modifier</Text>
-              </Pressable>
-            </Link>
+            <View className="flex-row items-center gap-3">
+              <HeaderButton
+                label="Modifier"
+                onPress={() =>
+                  router.push({ pathname: '/programs/edit/[id]', params: { id: programId } })
+                }
+              />
+              {/* An empty program would make an invalid file. */}
+              {program.workouts.length > 0 ? (
+                <HeaderMenu
+                  items={[
+                    {
+                      label: 'Exporter le programme',
+                      onPress: () => setExportFile(programExportFile(programId)),
+                    },
+                  ]}
+                />
+              ) : null}
+            </View>
           ),
         }}
       />
 
-      {program.description ? (
-        <Text className="text-base text-muted">{program.description}</Text>
-      ) : null}
+      <View className="gap-1.5">
+        <Text className="font-display text-4xl font-extrabold text-foreground">{program.name}</Text>
+        {program.description ? (
+          <Text className="text-base text-muted">{program.description}</Text>
+        ) : null}
+      </View>
 
       <Section title="Séances">
         {program.workouts.length === 0 ? (
           <EmptyState
             title="Aucune séance"
-            description="Ajoute les séances de ce programme, par exemple Push, Pull et Legs."
+            description="Passe en mode Modifier pour ajouter les séances de ce programme, par exemple Push, Pull et Legs."
           />
         ) : (
-          <SortableList
-            data={program.workouts}
-            keyExtractor={(workout) => String(workout.id)}
-            onReorder={(keys) => reorderWorkoutTemplates(keys.map(Number))}
-            scrollableRef={scrollRef}
-            renderItem={(workout) => (
-              <View
-                style={{ borderWidth: 2 }}
-                className="flex-row items-center rounded-2xl border-ink bg-surface pl-2">
-                <DragHandle label={`Déplacer ${workout.name}`} />
-                <Link href={{ pathname: '/workouts/[id]', params: { id: workout.id } }} asChild>
-                  <Pressable className="flex-1 gap-1 p-4 pl-2 active:opacity-80">
-                    <Text className="text-base font-semibold text-foreground">{workout.name}</Text>
-                    <Text className="text-sm text-muted">
-                      {workout.exerciseCount} exercice{workout.exerciseCount > 1 ? 's' : ''}
-                    </Text>
-                    {workout.muscles.length > 0 ? (
-                      <Text className="text-sm text-muted" numberOfLines={1}>
-                        {workout.muscles.map(muscleLabel).join(', ')}
-                      </Text>
-                    ) : null}
-                  </Pressable>
-                </Link>
-              </View>
-            )}
-          />
+          program.workouts.map((workout) => (
+            <ListRow
+              key={workout.id}
+              title={workout.name}
+              details={[
+                `${workout.exerciseCount} exercice${workout.exerciseCount > 1 ? 's' : ''}${
+                  workout.muscles.length > 0
+                    ? ` · ${workout.muscles.map(muscleLabel).join(', ')}`
+                    : ''
+                }`,
+              ]}
+              onPress={() =>
+                router.push({ pathname: '/workouts/[id]', params: { id: workout.id } })
+              }
+            />
+          ))
         )}
       </Section>
 
-      <View className="gap-3">
-        <Button label="Ajouter une séance" onPress={addWorkout} />
-        {program.workouts.length > 0 ? (
-          <Button
-            label="Exporter le programme"
-            variant="secondary"
-            onPress={() => setExportFile(programExportFile(programId))}
-          />
-        ) : null}
-      </View>
       <ExportDialog file={exportFile} onClose={() => setExportFile(null)} />
-    </Animated.ScrollView>
+    </ScrollView>
   );
 }

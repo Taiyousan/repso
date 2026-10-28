@@ -1,7 +1,6 @@
 import { router } from 'expo-router';
 import { type ReactNode, useState } from 'react';
 import { Alert, Pressable, ScrollView, TextInput, View } from 'react-native';
-
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/ui/button';

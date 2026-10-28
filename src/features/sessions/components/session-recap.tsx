@@ -1,7 +1,6 @@
 import { Link, router, Stack } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Pressable, ScrollView, View } from 'react-native';
-
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/ui/button';

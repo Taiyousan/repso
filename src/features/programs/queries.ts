@@ -71,6 +71,8 @@ export function useProgram(id: number) {
   );
 }
 
+export type ProgramDetail = NonNullable<ReturnType<typeof useProgram>>;
+
 export function useWorkoutTemplate(id: number) {
   return useLiveData(
     () => {

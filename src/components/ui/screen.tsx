@@ -1,6 +1,5 @@
 import type { PropsWithChildren, ReactNode } from 'react';
 import { ScrollView, View } from 'react-native';
-
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Text } from '@/components/ui/text';

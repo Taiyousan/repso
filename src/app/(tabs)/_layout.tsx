@@ -19,7 +19,7 @@ export default function TabsLayout() {
       indicatorColor={colors.primary}
       rippleColor={colors.surfaceMuted}>
       <NativeTabs.Trigger name="index">
-        <NativeTabs.Trigger.Label>Séance</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Label>Accueil</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="figure.strengthtraining.traditional" md="fitness_center" />
       </NativeTabs.Trigger>
 

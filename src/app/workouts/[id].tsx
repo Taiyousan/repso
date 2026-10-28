@@ -2,10 +2,10 @@ import { Stack, useLocalSearchParams } from 'expo-router';
 import { View } from 'react-native';
 
 import { EmptyState } from '@/components/ui/empty-state';
-import { WorkoutEditor } from '@/features/programs/components/workout-editor';
+import { WorkoutPreview } from '@/features/programs/components/workout-preview';
 import { useWorkoutTemplate } from '@/features/programs/queries';
 
-export default function EditWorkoutScreen() {
+export default function WorkoutScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const workout = useWorkoutTemplate(Number(id));
 
@@ -18,10 +18,5 @@ export default function EditWorkoutScreen() {
     );
   }
 
-  return (
-    <>
-      <Stack.Screen options={{ title: workout.name }} />
-      <WorkoutEditor key={workout.id} workout={workout} mode="edit" />
-    </>
-  );
+  return <WorkoutPreview workout={workout} />;
 }

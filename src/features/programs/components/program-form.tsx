@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ScrollView, View } from 'react-native';
+import { ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/ui/button';
@@ -11,10 +11,10 @@ type ProgramFormProps = {
   initialValue?: ProgramInput;
   submitLabel: string;
   onSubmit: (value: ProgramInput) => void;
-  onDelete?: () => void;
 };
 
-export function ProgramForm({ initialValue, submitLabel, onSubmit, onDelete }: ProgramFormProps) {
+/** Creation of a program; once created, it is edited in place (programs/edit). */
+export function ProgramForm({ initialValue, submitLabel, onSubmit }: ProgramFormProps) {
   const insets = useSafeAreaInsets();
   const [name, setName] = useState(initialValue?.name ?? '');
   const [description, setDescription] = useState(initialValue?.description ?? '');
@@ -46,12 +46,7 @@ export function ProgramForm({ initialValue, submitLabel, onSubmit, onDelete }: P
         placeholder="Optionnel : objectif, fréquence, notes…"
         multiline
       />
-      <View className="gap-3">
-        <Button label={submitLabel} onPress={submit} disabled={!isValid} />
-        {onDelete ? (
-          <Button label="Supprimer le programme" onPress={onDelete} variant="danger" />
-        ) : null}
-      </View>
+      <Button label={submitLabel} onPress={submit} disabled={!isValid} />
     </ScrollView>
   );
 }
