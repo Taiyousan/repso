@@ -47,5 +47,9 @@ export function useThemeColors() {
   };
 }
 
-/** Font families, loaded in the root layout: Figtree for text, Unbounded for titles and figures. */
+/**
+ * Font families, built into the app by the expo-font plugin (app.json) with one face per weight:
+ * Figtree for text, Unbounded for titles and figures. Native families, unlike fonts loaded at
+ * runtime, keep their weights below Android 10.
+ */
 export const FONTS = { sans: 'Figtree', display: 'Unbounded' } as const;
