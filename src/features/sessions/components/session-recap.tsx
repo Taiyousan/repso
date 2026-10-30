@@ -86,18 +86,18 @@ export function SessionRecap({ session, justFinished }: SessionRecapProps) {
       />
       <ScrollView
         contentContainerStyle={{
-          gap: 24,
+          gap: 16,
           padding: 16,
           paddingBottom: justFinished ? 16 : insets.bottom + 16,
         }}
         keyboardShouldPersistTaps="handled">
         <View className="gap-1">
           {justFinished ? (
-            <Text className="font-display text-2xl font-extrabold text-foreground">
+            <Text className="font-display text-3xl font-extrabold text-foreground">
               Entraînement terminé, bien joué !
             </Text>
           ) : null}
-          <Text className="text-base text-muted">
+          <Text className="text-sm text-muted">
             {formatDay(session.startedAt)} · {formatTime(session.startedAt)} – {formatTime(endedAt)}
           </Text>
         </View>
@@ -143,19 +143,19 @@ export function SessionRecap({ session, justFinished }: SessionRecapProps) {
         {newRecords.length > 0 ? (
           <Section title={newRecords.length > 1 ? 'Records battus' : 'Record battu'}>
             <View
-              style={{ borderWidth: 2 }}
-              className="gap-3 rounded-2xl border-ink bg-primary p-4">
+              style={{ borderWidth: 1.5 }}
+              className="gap-2 rounded-2xl border-reward-edge bg-reward p-3">
               {newRecords.map((record) => (
                 <View
                   key={`${record.exerciseId}-${record.kind}`}
                   className="flex-row items-center gap-3">
                   <Icon
                     name={{ ios: 'trophy.fill', android: 'trophy' }}
-                    size={20}
+                    size={16}
                     color={colors.foreground}
                   />
                   <View className="flex-1">
-                    <Text className="text-base font-semibold text-foreground" numberOfLines={1}>
+                    <Text className="text-[13px] font-bold text-foreground" numberOfLines={1}>
                       {record.exerciseName}
                     </Text>
                     <Text className="text-sm text-foreground">{RECORD_LABELS[record.kind]}</Text>
@@ -225,11 +225,11 @@ function StatTile({
 }) {
   return (
     <View
-      style={{ borderWidth: 2 }}
-      className="flex-1 gap-0.5 rounded-2xl border-ink bg-surface p-3">
+      style={{ borderWidth: 1.5 }}
+      className="flex-1 rounded-2xl border-edge bg-surface px-2.5 py-2">
       <Text className="text-xs text-muted">{label}</Text>
       <Text
-        className="text-lg font-bold text-foreground"
+        className="font-display text-[18px] font-bold text-foreground"
         numberOfLines={1}
         adjustsFontSizeToFit
         style={{ fontVariant: ['tabular-nums'] }}>
@@ -262,13 +262,13 @@ function ExerciseSummary({ item }: { item: SessionExerciseDetail }) {
       <View className="flex-row items-baseline justify-between gap-3">
         <Link href={{ pathname: '/exercises/[id]', params: { id: exercise.id } }} asChild>
           <Pressable className="shrink">
-            <Text className="text-base font-semibold text-foreground" numberOfLines={2}>
+            <Text className="text-[13px] font-bold text-foreground" numberOfLines={2}>
               {exercise.name}
             </Text>
           </Pressable>
         </Link>
         {best ? (
-          <Text className="text-base font-semibold text-foreground">
+          <Text className="text-[13px] font-bold text-foreground">
             {formatPerformance(best, exercise.trackingType)}
           </Text>
         ) : null}

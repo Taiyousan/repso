@@ -53,43 +53,47 @@
           "android": {
             "fonts": [
               {
-                "fontFamily": "Figtree",
+                "fontFamily": "Nunito",
                 "fontDefinitions": [
                   {
-                    "path": "./node_modules/@expo-google-fonts/figtree/400Regular/Figtree_400Regular.ttf",
+                    "path": "./node_modules/@expo-google-fonts/nunito/400Regular/Nunito_400Regular.ttf",
                     "weight": 400
                   },
                   {
-                    "path": "./node_modules/@expo-google-fonts/figtree/500Medium/Figtree_500Medium.ttf",
+                    "path": "./node_modules/@expo-google-fonts/nunito/500Medium/Nunito_500Medium.ttf",
                     "weight": 500
                   },
                   {
-                    "path": "./node_modules/@expo-google-fonts/figtree/600SemiBold/Figtree_600SemiBold.ttf",
+                    "path": "./node_modules/@expo-google-fonts/nunito/600SemiBold/Nunito_600SemiBold.ttf",
                     "weight": 600
                   },
                   {
-                    "path": "./node_modules/@expo-google-fonts/figtree/700Bold/Figtree_700Bold.ttf",
+                    "path": "./node_modules/@expo-google-fonts/nunito/700Bold/Nunito_700Bold.ttf",
                     "weight": 700
                   },
                   {
-                    "path": "./node_modules/@expo-google-fonts/figtree/800ExtraBold/Figtree_800ExtraBold.ttf",
+                    "path": "./node_modules/@expo-google-fonts/nunito/800ExtraBold/Nunito_800ExtraBold.ttf",
                     "weight": 800
                   }
                 ]
               },
               {
-                "fontFamily": "Unbounded",
+                "fontFamily": "Baloo2",
                 "fontDefinitions": [
                   {
-                    "path": "./node_modules/@expo-google-fonts/unbounded/500Medium/Unbounded_500Medium.ttf",
+                    "path": "./node_modules/@expo-google-fonts/baloo-2/500Medium/Baloo2_500Medium.ttf",
                     "weight": 500
                   },
                   {
-                    "path": "./node_modules/@expo-google-fonts/unbounded/700Bold/Unbounded_700Bold.ttf",
+                    "path": "./node_modules/@expo-google-fonts/baloo-2/600SemiBold/Baloo2_600SemiBold.ttf",
+                    "weight": 600
+                  },
+                  {
+                    "path": "./node_modules/@expo-google-fonts/baloo-2/700Bold/Baloo2_700Bold.ttf",
                     "weight": 700
                   },
                   {
-                    "path": "./node_modules/@expo-google-fonts/unbounded/800ExtraBold/Unbounded_800ExtraBold.ttf",
+                    "path": "./node_modules/@expo-google-fonts/baloo-2/800ExtraBold/Baloo2_800ExtraBold.ttf",
                     "weight": 800
                   }
                 ]

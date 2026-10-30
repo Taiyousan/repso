@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import { useThemeColors } from '@/lib/theme';
 
@@ -14,6 +14,10 @@ type ListRowProps = {
   onPress: () => void;
   /** Before the title, e.g. a thumbnail. */
   leading?: ReactNode;
+  /** Short value before the chevron. */
+  trailing?: string;
+  /** No card of its own: the row sits in a ListGroup. */
+  flat?: boolean;
   accessibilityLabel?: string;
 };
 
@@ -23,19 +27,17 @@ export function ListRow({
   details = [],
   onPress,
   leading,
+  trailing,
+  flat = false,
   accessibilityLabel,
 }: ListRowProps) {
   const colors = useThemeColors();
   const lines = details.filter((line): line is string => Boolean(line));
-
-  return (
-    <PressableCard
-      onPress={onPress}
-      accessibilityLabel={accessibilityLabel ?? title}
-      className="flex-row items-center gap-3 px-4 py-3.5">
+  const content = (
+    <>
       {leading}
-      <View className="flex-1 gap-0.5">
-        <Text className="text-base font-bold text-foreground" numberOfLines={2}>
+      <View className="flex-1">
+        <Text className="text-base font-extrabold text-foreground" numberOfLines={2}>
           {title}
         </Text>
         {lines.map((line) => (
@@ -44,7 +46,30 @@ export function ListRow({
           </Text>
         ))}
       </View>
-      <Icon name={{ ios: 'chevron.right', android: 'chevron_right' }} color={colors.foreground} />
+      {trailing ? <Text className="text-sm font-bold text-muted">{trailing}</Text> : null}
+      <Icon
+        name={{ ios: 'chevron.right', android: 'chevron_right' }}
+        size={18}
+        color={colors.muted}
+      />
+    </>
+  );
+
+  return flat ? (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel ?? title}
+      style={{ minHeight: 48 }}
+      className="flex-row items-center gap-2.5 px-3 py-2 active:bg-surface-muted">
+      {content}
+    </Pressable>
+  ) : (
+    <PressableCard
+      onPress={onPress}
+      accessibilityLabel={accessibilityLabel ?? title}
+      className="flex-row items-center gap-2.5 px-3 py-2.5">
+      {content}
     </PressableCard>
   );
 }

@@ -296,8 +296,8 @@ export type SessionExerciseDetail = SessionDetail['exercises'][number];
 type StartableWorkout = { id: number; name: string; exerciseCount: number; muscles: string[] };
 
 /**
- * Workouts that can be started, grouped by program, and the last finished session that came from
- * a workout (to suggest the next one).
+ * Workouts that can be started, grouped by program, the last finished session that came from a
+ * workout (to suggest the next one) and the last finished session of any kind.
  */
 export function useHomeWorkouts() {
   return useLiveData(
@@ -351,7 +351,20 @@ export function useHomeWorkouts() {
         .limit(1)
         .get();
 
-      return { programs: groups, last: last ?? null };
+      const latest = db
+        .select({
+          id: workoutSessions.id,
+          name: workoutSessions.name,
+          startedAt: workoutSessions.startedAt,
+          endedAt: workoutSessions.endedAt,
+        })
+        .from(workoutSessions)
+        .where(isNotNull(workoutSessions.endedAt))
+        .orderBy(desc(workoutSessions.startedAt))
+        .limit(1)
+        .get();
+
+      return { programs: groups, last: last ?? null, latest: latest ?? null };
     },
     ['programs', 'workout_templates', 'template_exercises', 'workout_sessions'],
     'home',

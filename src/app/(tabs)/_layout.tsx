@@ -9,14 +9,19 @@ export default function TabsLayout() {
     <NativeTabs
       backgroundColor={colors.surface}
       // Every state is set explicitly: Android's defaults don't follow the app theme.
-      iconColor={{ default: colors.muted, selected: colors.foreground }}
+      iconColor={{ default: colors.muted, selected: colors.primary }}
       labelStyle={{
-        default: { color: colors.muted, fontFamily: FONTS.sans, fontWeight: '600' },
-        selected: { color: colors.foreground, fontFamily: FONTS.sans, fontWeight: '700' },
+        default: { color: colors.muted, fontFamily: FONTS.sans, fontSize: 11, fontWeight: '600' },
+        selected: {
+          color: colors.primary,
+          fontFamily: FONTS.sans,
+          fontSize: 11,
+          fontWeight: '700',
+        },
       }}
       // Android hides unselected labels beyond three tabs by default.
       labelVisibilityMode="labeled"
-      indicatorColor={colors.primary}
+      indicatorColor={colors.primarySoft}
       rippleColor={colors.surfaceMuted}>
       <NativeTabs.Trigger name="index">
         <NativeTabs.Trigger.Label>Accueil</NativeTabs.Trigger.Label>

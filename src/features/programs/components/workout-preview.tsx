@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Chip } from '@/components/ui/chip';
 import { EmptyState } from '@/components/ui/empty-state';
 import { HeaderButton } from '@/components/ui/header-button';
+import { ListGroup } from '@/components/ui/list-group';
 import { ListRow } from '@/components/ui/list-row';
 import { Text } from '@/components/ui/text';
 import { isWorkingSet } from '@/domain/volume';
@@ -43,12 +44,12 @@ export function WorkoutPreview({ workout }: { workout: WorkoutTemplateDetail }) 
           ),
         }}
       />
-      <ScrollView contentContainerClassName="gap-4 p-4">
-        <View className="gap-1.5">
-          <Text className="font-display text-4xl font-extrabold text-foreground">
+      <ScrollView contentContainerClassName="gap-3 p-4">
+        <View className="gap-0.5">
+          <Text className="font-display text-[26px] font-extrabold text-foreground">
             {workout.name}
           </Text>
-          <Text className="text-sm text-muted">
+          <Text className="text-[13px] text-muted">
             {[
               `Programme ${workout.programName}`,
               `${count} exercice${count > 1 ? 's' : ''}`,
@@ -58,7 +59,7 @@ export function WorkoutPreview({ workout }: { workout: WorkoutTemplateDetail }) 
         </View>
 
         {muscles.length > 0 ? (
-          <View className="flex-row flex-wrap gap-2">
+          <View className="flex-row flex-wrap gap-1.5">
             {muscles.map((muscle) => (
               <Chip key={muscle} label={muscleLabel(muscle)} />
             ))}
@@ -71,9 +72,11 @@ export function WorkoutPreview({ workout }: { workout: WorkoutTemplateDetail }) 
             description="Passe en mode Modifier pour ajouter les exercices de cette séance."
           />
         ) : (
-          workout.exercises.map((item) => (
-            <ExerciseRow key={item.id} item={item} previous={previous.get(item.exercise.id)} />
-          ))
+          <ListGroup>
+            {workout.exercises.map((item) => (
+              <ExerciseRow key={item.id} item={item} previous={previous.get(item.exercise.id)} />
+            ))}
+          </ListGroup>
         )}
       </ScrollView>
 
@@ -97,23 +100,17 @@ function ExerciseRow({
 }) {
   const { exercise } = item;
   const best = bestSet(previous.filter(isWorkingSet), exercise.trackingType);
-  const plan = [
-    item.target ? `Objectif ${item.target}` : null,
-    `Repos ${formatDuration(item.restSeconds ?? DEFAULT_REST_SECONDS)}`,
-  ]
+  const plan = [item.target, `repos ${formatDuration(item.restSeconds ?? DEFAULT_REST_SECONDS)}`]
     .filter(Boolean)
     .join(' · ');
 
   return (
     <ListRow
+      flat
       title={exercise.name}
-      details={[
-        plan,
-        best
-          ? `Dernière fois : ${formatPerformance(best, exercise.trackingType)}`
-          : 'Première fois',
-      ]}
-      leading={<ExerciseThumbnail images={exercise.images} name={exercise.name} size={44} />}
+      details={[plan]}
+      trailing={best ? formatPerformance(best, exercise.trackingType) : undefined}
+      leading={<ExerciseThumbnail images={exercise.images} name={exercise.name} size={36} />}
       onPress={() => router.push({ pathname: '/exercises/[id]', params: { id: exercise.id } })}
     />
   );

@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { HeaderMenu } from '@/components/ui/header-menu';
 import { IconButton } from '@/components/ui/icon-button';
-import { ProgressRing } from '@/components/ui/progress-ring';
 import { SortableList } from '@/components/ui/sortable-list';
 import { Text } from '@/components/ui/text';
 import { DEFAULT_REST_SECONDS } from '@/features/programs/sets';
@@ -60,7 +59,7 @@ function SessionClock({ startedAt }: { startedAt: Date }) {
 
   return (
     <Text
-      className="font-display text-2xl font-extrabold text-foreground"
+      className="font-display text-xl font-bold text-foreground"
       style={{ fontVariant: ['tabular-nums'] }}>
       {formatElapsed(elapsedSeconds)}
     </Text>
@@ -183,35 +182,23 @@ function LiveSession({ session }: { session: SessionDetail }) {
         }}
       />
 
-      <View
-        style={{ borderBottomWidth: 2 }}
-        className="flex-row items-center justify-between border-ink px-4 pb-3">
+      <View className="flex-row items-center gap-2 px-4 pb-1.5">
         <SessionClock startedAt={session.startedAt} />
-        <View className="flex-row items-center gap-3">
-          <View className="items-end">
-            <Text className="text-sm font-bold text-foreground">
-              {exerciseCount === 0
-                ? 'Aucun exercice'
-                : `${completedExercises} / ${exerciseCount} exercice${exerciseCount > 1 ? 's' : ''}`}
-            </Text>
-            <Text className="text-xs text-muted">
-              {doneCount} / {allSets.length} série{allSets.length > 1 ? 's' : ''}
-            </Text>
-          </View>
-          <ProgressRing
-            progress={exerciseCount === 0 ? 0 : completedExercises / exerciseCount}
-            size={48}>
-            <Text className="text-xs font-bold text-foreground">
-              {completedExercises}/{exerciseCount}
-            </Text>
-          </ProgressRing>
+        <View className="h-1.5 flex-1 overflow-hidden rounded-full bg-edge">
+          <View
+            className="h-full bg-success"
+            style={{ width: `${allSets.length === 0 ? 0 : (doneCount / allSets.length) * 100}%` }}
+          />
         </View>
+        <Text className="text-sm font-bold text-muted">
+          {completedExercises}/{exerciseCount} exos · {doneCount}/{allSets.length} séries
+        </Text>
       </View>
 
       <Animated.ScrollView
         ref={scrollRef}
         style={{ flex: 1 }}
-        contentContainerStyle={{ gap: 16, padding: 16 }}
+        contentContainerStyle={{ gap: 8, paddingHorizontal: 16, paddingVertical: 8 }}
         keyboardShouldPersistTaps="handled">
         {session.exercises.length === 0 ? (
           <EmptyState
@@ -223,6 +210,7 @@ function LiveSession({ session }: { session: SessionDetail }) {
             data={session.exercises}
             keyExtractor={(item) => String(item.id)}
             renderItem={(item) => <SessionExerciseCard item={item} onSetCompleted={startRest} />}
+            gap={8}
             onReorder={(keys) => reorderSessionExercises(keys.map(Number))}
             scrollableRef={scrollRef}
           />

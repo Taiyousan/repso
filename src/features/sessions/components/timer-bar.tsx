@@ -23,10 +23,10 @@ export function TimerBar() {
   const caption = timerCaption({ status, kind, label });
 
   return (
-    <View className="gap-3">
+    <View className="gap-2">
       <View className="h-1.5 overflow-hidden rounded-full bg-surface-muted">
         <View
-          className="h-full bg-foreground"
+          className="h-full bg-primary"
           style={{ width: `${Math.min(100, Math.max(0, progress * 100))}%` }}
         />
       </View>
@@ -38,7 +38,7 @@ export function TimerBar() {
           accessibilityLabel="Ouvrir le minuteur"
           className="flex-1 items-center active:opacity-70">
           <Text
-            className="font-display text-2xl font-extrabold text-foreground"
+            className="font-display text-2xl font-bold text-foreground"
             style={{ fontVariant: ['tabular-nums'] }}>
             {formatDuration(remaining)}
           </Text>

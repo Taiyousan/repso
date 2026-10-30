@@ -4,27 +4,45 @@
 /*
  * Design tokens. The app is light only (forced in the root layout), so they are declared once for
  * every theme. `--color-foo` is used as `bg-foo`, `text-foo`, `border-foo`…
- * Yellow `primary` is a fill (main action, selection), never a text color: accents in text are ink.
+ * Blue `primary` is for the main action of a screen; selections use the pale `primary-soft`.
+ * A text on `primary` is `primary-foreground`.
  */
 @theme {
-  --color-background: #f5f3ee;
+  --color-background: #f4f7fb;
   --color-surface: #ffffff;
-  --color-surface-muted: #ebe7dd;
+  --color-surface-muted: #eef2f8;
   /* Thin separators. */
-  --color-border: #dcd8ce;
-  /* Thick outlines and the offset shadow of what can be tapped. */
-  --color-ink: #111111;
-  --color-foreground: #111111;
-  --color-muted: #5c5c5c;
-  --color-primary: #ffd23f;
-  --color-primary-soft: #fff0b0;
-  --color-primary-foreground: #111111;
-  --color-success: #17834a;
-  --color-success-soft: #8be3b0;
-  /* Fields of a validated set. */
-  --color-success-faint: #e3f8eb;
+  --color-border: #edf0f5;
+  /* Outlines, and the bottom edge of what can be tapped. */
+  --color-edge: #d3dae6;
+  --color-foreground: #1c2434;
+  --color-muted: #5b6678;
+  --color-primary: #2563eb;
+  --color-primary-edge: #1a47ad;
+  --color-primary-soft: #dbe7ff;
+  --color-primary-foreground: #ffffff;
+  /* Records, warm-up sets. */
+  --color-reward: #fff6d9;
+  --color-reward-edge: #f1e2ad;
+  --color-success: #15803d;
+  --color-success-soft: #b9e8cb;
+  /* Fields of a validated set, finished exercises. */
+  --color-success-faint: #dcf5e5;
   --color-danger: #d92d20;
 
-  --font-sans: Figtree;
-  --font-display: Unbounded;
+  --font-sans: Nunito;
+  --font-display: Baloo2;
+
+  /* The whole app's scale: smaller than Tailwind's defaults, so screens hold more and breathe. */
+  --text-xs: 11px;
+  --text-sm: 12px;
+  --text-base: 14px;
+  --text-lg: 15px;
+  --text-xl: 17px;
+  --text-2xl: 20px;
+  --text-3xl: 22px;
+  --text-4xl: 30px;
+
+  --radius-lg: 9px;
+  --radius-2xl: 14px;
 }

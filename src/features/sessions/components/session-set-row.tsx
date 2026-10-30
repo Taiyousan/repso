@@ -27,9 +27,9 @@ import { useTimer } from '../timer';
 import { useTimerTicker } from '../use-timer-ticker';
 
 const BADGE_STYLES: Record<SetType, { container: string; label: string }> = {
-  normal: { container: 'bg-surface', label: 'text-foreground' },
-  warmup: { container: 'bg-surface-muted', label: 'text-foreground' },
-  dropset: { container: 'bg-primary', label: 'text-foreground' },
+  normal: { container: 'bg-surface-muted', label: 'text-foreground' },
+  warmup: { container: 'bg-reward', label: 'text-foreground' },
+  dropset: { container: 'bg-primary-soft', label: 'text-foreground' },
   failure: { container: 'bg-danger', label: 'text-white' },
 };
 
@@ -113,26 +113,27 @@ export function SessionSetRow({
         onPress={() => updateSessionSet(set.id, { type: nextSetType(set.type) })}
         accessibilityRole="button"
         accessibilityLabel={`${SET_TYPE_LABELS[set.type]}. Toucher pour changer le type`}
-        hitSlop={6}
-        style={({ pressed }) => [{ borderWidth: 2 }, raised(pressed, colors.ink, 2)]}
-        className={`size-9 items-center justify-center rounded-lg border-ink ${style.container}`}>
-        <Text className={`text-sm font-bold ${style.label}`}>{badge}</Text>
+        hitSlop={11}
+        style={{ width: 26, height: 26 }}
+        className={`items-center justify-center rounded-full ${style.container}`}>
+        <Text className={`text-sm font-extrabold ${style.label}`}>{badge}</Text>
       </Pressable>
 
       {isRecord ? (
         <View
           accessible
           accessibilityLabel="Record battu"
-          className="w-16 flex-row items-center justify-center gap-1">
+          style={{ width: 52 }}
+          className="flex-row items-center justify-center gap-1">
           <Icon
             name={{ ios: 'trophy.fill', android: 'trophy' }}
-            size={14}
+            size={12}
             color={colors.foreground}
           />
           <Text className="text-xs font-bold text-foreground">Record</Text>
         </View>
       ) : (
-        <Text className="w-16 text-center text-xs text-muted" numberOfLines={1}>
+        <Text style={{ width: 52 }} className="text-center text-sm text-muted" numberOfLines={1}>
           {formatPerformance(previous, trackingType)}
         </Text>
       )}
@@ -156,16 +157,16 @@ export function SessionSetRow({
                 onPress={startTimedSet}
                 accessibilityRole="button"
                 accessibilityLabel="Lancer le minuteur de la série"
-                hitSlop={4}
+                hitSlop={8}
                 style={({ pressed }) => [
-                  { width: 40, height: 40, borderWidth: 2 },
-                  raised(pressed, colors.ink, 2),
+                  { width: 32, height: 32, borderWidth: 1.5 },
+                  raised(pressed, colors.primaryEdge),
                 ]}
-                className="items-center justify-center rounded-lg border-ink bg-primary">
+                className="items-center justify-center rounded-lg border-primary bg-primary">
                 <Icon
                   name={{ ios: 'play.fill', android: 'play_arrow' }}
-                  size={22}
-                  color={colors.foreground}
+                  size={16}
+                  color={colors.surface}
                 />
               </Pressable>
             )
@@ -202,17 +203,19 @@ export function SessionSetRow({
         accessibilityRole="checkbox"
         accessibilityState={{ checked: done }}
         accessibilityLabel="Valider la série"
-        hitSlop={4}
-        // Validated, the button stays pushed in: what is done shows at a glance.
+        hitSlop={8}
+        // Validated, the button loses its edge and turns green: what is done shows at a glance.
         style={({ pressed }) => [
-          { width: 40, height: 40, borderWidth: 2 },
-          raised(pressed || done, colors.ink, 2),
+          { width: 32, height: 32, borderWidth: 1.5 },
+          done ? null : raised(pressed, colors.edge),
         ]}
-        className={`items-center justify-center rounded-lg border-ink ${done ? 'bg-foreground' : 'bg-surface'}`}>
+        className={`items-center justify-center rounded-lg ${
+          done ? 'border-success bg-success' : 'border-edge bg-surface'
+        }`}>
         <Icon
           name={{ ios: 'checkmark', android: 'check' }}
-          size={22}
-          color={done ? colors.successSoft : colors.foreground}
+          size={16}
+          color={done ? colors.surface : colors.success}
         />
       </Pressable>
     </View>
@@ -229,10 +232,10 @@ function SetCountdown() {
       accessibilityRole="button"
       accessibilityLabel="Ouvrir le minuteur"
       style={({ pressed }) => [
-        { width: 40, height: 40, borderWidth: 2 },
-        raised(pressed, colors.ink, 2),
+        { width: 32, height: 32, borderWidth: 1.5 },
+        raised(pressed, colors.edge),
       ]}
-      className="items-center justify-center rounded-lg border-ink bg-primary-soft">
+      className="items-center justify-center rounded-lg border-edge bg-primary-soft">
       <Text className="text-xs font-bold text-foreground" style={{ fontVariant: ['tabular-nums'] }}>
         {formatDuration(Math.ceil(remainingMs / 1000))}
       </Text>
@@ -264,9 +267,9 @@ function NumberInput({
         if (length > 0) ref.current?.setSelection(0, length);
         onFocus?.(event);
       }}
-      style={{ fontFamily: FONTS.display, borderWidth: 1.5 }}
-      className={`flex-1 rounded-lg px-2 py-2 text-center text-base font-bold text-foreground ${
-        done ? 'border-success-soft bg-success-faint' : 'border-ink bg-surface'
+      style={{ fontFamily: FONTS.sans, height: 32, paddingVertical: 0 }}
+      className={`flex-1 rounded-lg px-1 text-center text-base font-extrabold text-foreground ${
+        done ? 'bg-success-faint' : 'bg-surface-muted'
       }`}
     />
   );

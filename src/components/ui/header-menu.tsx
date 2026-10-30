@@ -45,10 +45,10 @@ export function HeaderMenu({ items }: { items: HeaderMenuItem[] }) {
               top: insets.top + 52,
               right: 12,
               minWidth: 220,
-              borderWidth: 2,
-              boxShadow: `4px 4px 0px ${colors.ink}`,
+              borderWidth: 1.5,
+              boxShadow: `0px 4px 0px ${colors.edge}`,
             }}
-            className="rounded-2xl border-ink bg-surface py-1.5">
+            className="rounded-2xl border-edge bg-surface py-1.5">
             {regular.map((item) => (
               <MenuRow key={item.label} item={item} onSelect={select} />
             ))}

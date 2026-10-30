@@ -8,7 +8,7 @@ import { toBodyHeat } from '@/features/exercises/muscle-map';
 import { formatNumber, mixColors } from '@/lib/chart';
 import { useThemeColors } from '@/lib/theme';
 
-/** Steps of the body heat map, from pale yellow to ink. */
+/** Steps of the body heat map, from pale blue to near black. */
 const HEAT_LEVELS = 4;
 
 /** Sets per muscle on the body (darker = more sets), then listed with bars, most trained first. */

@@ -5,10 +5,11 @@ const TOKENS = [
   '--color-surface',
   '--color-surface-muted',
   '--color-border',
-  '--color-ink',
+  '--color-edge',
   '--color-foreground',
   '--color-muted',
   '--color-primary',
+  '--color-primary-edge',
   '--color-primary-soft',
   '--color-danger',
   '--color-success',
@@ -22,10 +23,11 @@ export function useThemeColors() {
     surface,
     surfaceMuted,
     border,
-    ink,
+    edge,
     foreground,
     muted,
     primary,
+    primaryEdge,
     primarySoft,
     danger,
     success,
@@ -36,10 +38,11 @@ export function useThemeColors() {
     surface,
     surfaceMuted,
     border,
-    ink,
+    edge,
     foreground,
     muted,
     primary,
+    primaryEdge,
     primarySoft,
     danger,
     success,
@@ -49,7 +52,7 @@ export function useThemeColors() {
 
 /**
  * Font families, built into the app by the expo-font plugin (app.json) with one face per weight:
- * Figtree for text, Unbounded for titles and figures. Native families, unlike fonts loaded at
+ * Nunito for text, Baloo 2 for titles and figures. Native families, unlike fonts loaded at
  * runtime, keep their weights below Android 10.
  */
-export const FONTS = { sans: 'Figtree', display: 'Unbounded' } as const;
+export const FONTS = { sans: 'Nunito', display: 'Baloo2' } as const;

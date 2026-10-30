@@ -6,15 +6,15 @@ import { Card, Section } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Icon } from '@/components/ui/icon';
 import { IconButton } from '@/components/ui/icon-button';
+import { ListGroup } from '@/components/ui/list-group';
 import { ListRow } from '@/components/ui/list-row';
 import { PressableCard } from '@/components/ui/pressable-card';
 import { Screen } from '@/components/ui/screen';
 import { Text } from '@/components/ui/text';
-import { muscleLabel } from '@/features/exercises/labels';
 import { formatElapsed, nextWorkout } from '@/features/sessions/logic';
 import { useActiveSession, useHomeWorkouts } from '@/features/sessions/queries';
 import { openSession, startAndOpenSession } from '@/features/sessions/start';
-import { formatDay } from '@/lib/dates';
+import { formatDay, formatDurationLong } from '@/lib/dates';
 import { useThemeColors } from '@/lib/theme';
 import { useNow } from '@/lib/use-now';
 
@@ -22,14 +22,12 @@ type Workout = ReturnType<typeof useHomeWorkouts>['programs'][number]['workouts'
 
 const openWorkout = (id: number) => router.push({ pathname: '/workouts/[id]', params: { id } });
 
-const workoutDetails = (workout: Workout) =>
-  `${workout.exerciseCount} exercice${workout.exerciseCount > 1 ? 's' : ''}${
-    workout.muscles.length > 0 ? ` · ${workout.muscles.map(muscleLabel).join(', ')}` : ''
-  }`;
+const exerciseCount = (workout: Workout) =>
+  `${workout.exerciseCount} exercice${workout.exerciseCount > 1 ? 's' : ''}`;
 
 export default function HomeScreen() {
   const active = useActiveSession();
-  const { programs, last } = useHomeWorkouts();
+  const { programs, last, latest } = useHomeWorkouts();
   const next = nextWorkout(programs, last?.templateId ?? null);
 
   return (
@@ -67,35 +65,50 @@ export default function HomeScreen() {
       ) : (
         programs.map((program) => (
           <Section key={program.id} title={program.name}>
-            {program.workouts.map((workout) => (
-              <ListRow
-                key={workout.id}
-                title={workout.name}
-                details={[workoutDetails(workout)]}
-                onPress={() => openWorkout(workout.id)}
-              />
-            ))}
+            <ListGroup>
+              {program.workouts.map((workout) => (
+                <ListRow
+                  key={workout.id}
+                  flat
+                  title={workout.name}
+                  trailing={`${workout.exerciseCount} exos`}
+                  onPress={() => openWorkout(workout.id)}
+                />
+              ))}
+            </ListGroup>
           </Section>
         ))
       )}
 
+      {latest ? (
+        <Section title="Dernier entraînement">
+          <ListGroup>
+            <ListRow
+              flat
+              title={latest.name}
+              details={[
+                `${formatDay(latest.startedAt)} · ${formatDurationLong(
+                  latest.endedAt!.getTime() - latest.startedAt.getTime(),
+                )}`,
+              ]}
+              onPress={() => openSession(latest.id)}
+            />
+          </ListGroup>
+        </Section>
+      ) : null}
+
       {active ? null : (
-        <View className="gap-1.5 pt-2">
-          <Button
-            label="Entraînement libre"
-            variant="secondary"
-            onPress={() => startAndOpenSession(null)}
-          />
-          <Text className="text-center text-sm text-muted">
-            Sans séance prévue : tu ajoutes les exercices au fur et à mesure.
-          </Text>
-        </View>
+        <Button
+          label="+ Entraînement libre"
+          variant="secondary"
+          onPress={() => startAndOpenSession(null)}
+        />
       )}
     </Screen>
   );
 }
 
-/** The workout after the last one done, in yellow: the obvious thing to open. */
+/** The workout after the last one done, in blue: the obvious thing to open. */
 function NextWorkoutCard({
   workout,
   programName,
@@ -111,23 +124,28 @@ function NextWorkoutCard({
     <PressableCard
       onPress={() => openWorkout(workout.id)}
       accessibilityLabel={`${after ? 'À suivre' : 'Pour commencer'} : ${workout.name}`}
-      selected
-      className="gap-1.5 p-4">
-      <View className="self-start rounded-full bg-foreground px-2.5 py-1">
-        <Text className="text-xs font-bold text-primary">
-          {after ? 'À SUIVRE' : 'POUR COMMENCER'}
+      primary
+      className="flex-row items-center gap-3 px-4 py-3.5">
+      <View className="flex-1">
+        <Text className="text-sm font-bold text-primary-foreground">
+          {after ? 'À suivre' : 'Pour commencer'}
         </Text>
-      </View>
-      <View className="flex-row items-center justify-between gap-3">
-        <Text className="shrink font-display text-4xl font-extrabold text-foreground">
+        <Text className="font-display text-4xl font-extrabold text-primary-foreground">
           {workout.name}
         </Text>
-        <Icon name={{ ios: 'arrow.right', android: 'arrow_forward' }} color={colors.foreground} />
+        <Text className="text-[13px] font-semibold text-primary-foreground">
+          {programName} · {exerciseCount(workout)}
+        </Text>
       </View>
-      <Text className="text-sm font-semibold text-foreground">
-        {programName} · {workoutDetails(workout)}
-      </Text>
-      {after ? <Text className="text-sm text-foreground">{after}</Text> : null}
+      <View
+        style={{ width: 36, height: 36 }}
+        className="items-center justify-center rounded-full bg-surface">
+        <Icon
+          name={{ ios: 'arrow.right', android: 'arrow_forward' }}
+          size={18}
+          color={colors.primaryEdge}
+        />
+      </View>
     </PressableCard>
   );
 }
@@ -139,10 +157,12 @@ function ActiveSessionCard({ id, name, startedAt }: { id: number; name: string; 
 
   return (
     <Card>
-      <Text className="font-display text-sm font-bold text-foreground">Entraînement en cours</Text>
+      <Text className="font-display text-base font-bold text-foreground">
+        Entraînement en cours
+      </Text>
       <View className="flex-row items-baseline justify-between">
-        <Text className="text-xl font-bold text-foreground">{name}</Text>
-        <Text className="text-base text-muted" style={{ fontVariant: ['tabular-nums'] }}>
+        <Text className="text-lg font-bold text-foreground">{name}</Text>
+        <Text className="text-sm text-muted" style={{ fontVariant: ['tabular-nums'] }}>
           {formatElapsed(elapsed)}
         </Text>
       </View>

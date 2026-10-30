@@ -12,7 +12,7 @@ type MuscleMapProps = {
   gender?: 'male' | 'female';
 };
 
-/** Front and back views with primary muscles in ink, secondary ones in yellow. */
+/** Front and back views with primary muscles in ink, secondary ones in blue. */
 export function MuscleMap({ primaryMuscles, secondaryMuscles, gender = 'male' }: MuscleMapProps) {
   const colors = useThemeColors();
   const data = toBodyParts(primaryMuscles, secondaryMuscles);
@@ -26,7 +26,7 @@ export function MuscleMap({ primaryMuscles, secondaryMuscles, gender = 'male' }:
   };
 
   return (
-    <View style={{ borderWidth: 2 }} className="gap-3 rounded-2xl border-ink bg-surface p-4">
+    <View style={{ borderWidth: 1.5 }} className="gap-3 rounded-2xl border-edge bg-surface p-4">
       <View className="flex-row justify-center">
         <Body {...bodyProps} side="front" />
         <Body {...bodyProps} side="back" />

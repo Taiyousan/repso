@@ -82,8 +82,8 @@ function Overview({ sessions }: { sessions: SessionSummary[] }) {
 function Tile({ value, label }: { value: string; label: string }) {
   return (
     <View
-      style={{ borderWidth: 2 }}
-      className="flex-1 gap-0.5 rounded-2xl border-ink bg-surface p-3">
+      style={{ borderWidth: 1.5 }}
+      className="flex-1 gap-0.5 rounded-2xl border-edge bg-surface p-3">
       <Text className="text-2xl font-bold text-foreground">{value}</Text>
       <Text className="text-xs text-muted" numberOfLines={2}>
         {label}

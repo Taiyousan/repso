@@ -13,7 +13,7 @@ type SmallButtonProps = Pick<PressableProps, 'accessibilityLabel' | 'accessibili
   grow?: boolean;
 };
 
-/** Compact raised button, for actions inside a card or a bar (+ Série, Repos, Passer…). */
+/** Compact button with a bottom edge, for actions inside a card or a bar (+ Série, Repos, Passer…). */
 export function SmallButton({
   label,
   onPress,
@@ -29,16 +29,16 @@ export function SmallButton({
       disabled={disabled}
       accessibilityRole="button"
       // Brings the touch target to 48 dp.
-      hitSlop={6}
+      hitSlop={7}
       {...props}
       style={({ pressed }) => [
-        { borderWidth: 2 },
-        disabled ? null : raised(pressed, colors.ink, 2),
+        { height: 34, borderWidth: 1.5 },
+        disabled ? null : raised(pressed, colors.edge),
       ]}
-      className={`items-center rounded-[10px] border-ink bg-surface px-3 py-1.5 ${
+      className={`items-center justify-center rounded-[10px] border-edge bg-surface px-2.5 ${
         grow ? 'flex-1' : ''
       } ${disabled ? 'opacity-40' : ''}`}>
-      <Text className="text-sm font-bold text-foreground">{label}</Text>
+      <Text className="text-[13px] font-extrabold text-foreground">{label}</Text>
     </Pressable>
   );
 }

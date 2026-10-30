@@ -21,7 +21,7 @@ export function IconButton({
   onPress,
   disabled = false,
   tone = 'muted',
-  size = 20,
+  size = 17,
 }: IconButtonProps) {
   const colors = useThemeColors();
 
@@ -31,13 +31,13 @@ export function IconButton({
       disabled={disabled}
       accessibilityRole="button"
       accessibilityLabel={label}
-      // 36 + 2 × 6 = the 48 dp touch target Android asks for.
-      hitSlop={6}
+      // 34 + 2 × 7 = the 48 dp touch target Android asks for.
+      hitSlop={7}
       style={({ pressed }) => [
-        { width: 36, height: 36, borderWidth: 2 },
-        disabled ? null : raised(pressed, colors.ink, 2),
+        { width: 34, height: 34, borderWidth: 1.5 },
+        disabled ? null : raised(pressed, colors.edge),
       ]}
-      className={`items-center justify-center rounded-[10px] border-ink bg-surface ${
+      className={`items-center justify-center rounded-[10px] border-edge bg-surface ${
         disabled ? 'opacity-30' : ''
       }`}>
       <Icon name={icon} size={size} color={tone === 'danger' ? colors.danger : colors.foreground} />

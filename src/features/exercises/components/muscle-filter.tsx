@@ -92,20 +92,20 @@ export const MuscleTile = memo(function MuscleTile({
       accessibilityLabel={label}
       accessibilityState={{ selected }}
       style={({ pressed }) => [
-        { borderWidth: 2 },
-        showLabel ? null : { width: 52, height: 64 },
-        raised(pressed, colors.ink, 2),
+        { borderWidth: 1.5 },
+        showLabel ? null : { width: 48, height: 56 },
+        raised(pressed, colors.edge),
       ]}
-      className={`items-center justify-center rounded-2xl border-ink ${
+      className={`items-center justify-center rounded-2xl border-edge ${
         showLabel ? 'w-24 gap-1 py-1.5' : ''
-      } ${selected ? 'bg-primary' : 'bg-surface'}`}>
+      } ${selected ? 'bg-primary-soft' : 'bg-surface'}`}>
       {/* The silhouettes keep the 1:2 ratio of their viewBox. */}
-      <Svg viewBox={silhouette.viewBox} width={showLabel ? 34 : 26} height={showLabel ? 68 : 52}>
+      <Svg viewBox={silhouette.viewBox} width={showLabel ? 34 : 22} height={showLabel ? 68 : 44}>
         {silhouette.parts.map((part, index) => (
           <Path
             key={index}
             d={part.d}
-            fill={highlighted.has(part.slug) ? colors.foreground : colors.border}
+            fill={highlighted.has(part.slug) ? colors.foreground : colors.edge}
           />
         ))}
       </Svg>

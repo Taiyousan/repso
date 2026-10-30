@@ -249,18 +249,18 @@ function ActionTile({ icon, label, active, badge = 0, onPress }: ActionTileProps
       accessibilityLabel={badge > 0 ? `${label}, ${badge} actif${badge > 1 ? 's' : ''}` : label}
       accessibilityState={{ selected: active }}
       style={({ pressed }) => [
-        { width: 52, height: 64, borderWidth: 2 },
-        raised(pressed, colors.ink, 2),
+        { width: 48, height: 56, borderWidth: 1.5 },
+        raised(pressed, colors.edge),
       ]}
-      className={`items-center justify-center rounded-2xl border-ink ${
-        active ? 'bg-primary' : 'bg-surface'
+      className={`items-center justify-center rounded-2xl border-edge ${
+        active ? 'bg-primary-soft' : 'bg-surface'
       }`}>
-      <Icon name={icon} color={colors.foreground} />
+      <Icon name={icon} size={20} color={colors.foreground} />
       {badge > 0 ? (
         <View
           style={{ width: 16, height: 16, top: 6, right: 6 }}
           className="absolute items-center justify-center rounded-full bg-foreground">
-          <Text style={{ fontSize: 10 }} className="font-bold text-primary">
+          <Text style={{ fontSize: 10 }} className="font-bold text-primary-foreground">
             {badge}
           </Text>
         </View>

@@ -72,7 +72,7 @@ export function LineChart({
       cy={y(points[index].y)}
       r={radius}
       fill={colors.primary}
-      stroke={colors.ink}
+      stroke={colors.surface}
       strokeWidth={2}
     />
   );

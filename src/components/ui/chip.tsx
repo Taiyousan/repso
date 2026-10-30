@@ -12,7 +12,7 @@ type ChipProps = {
   onLongPress?: () => void;
 };
 
-/** A label, or a toggle when it has `onPress` (then raised like any button). */
+/** A label, or a toggle when it has `onPress` (then outlined with a bottom edge, like a button). */
 export function Chip({ label, selected = false, onPress, onLongPress }: ChipProps) {
   const colors = useThemeColors();
   const tappable = Boolean(onPress);
@@ -25,11 +25,13 @@ export function Chip({ label, selected = false, onPress, onLongPress }: ChipProp
       accessibilityRole={tappable ? 'button' : 'text'}
       accessibilityState={{ selected }}
       style={({ pressed }) => [
-        { borderWidth: 2 },
-        tappable ? raised(pressed, colors.ink, 2) : null,
+        { borderWidth: tappable ? 1.5 : 0 },
+        tappable ? raised(pressed, colors.edge, 2) : null,
       ]}
-      className={`rounded-full border-ink px-3 py-1.5 ${selected ? 'bg-primary' : 'bg-surface'}`}>
-      <Text className="text-sm font-semibold text-foreground">{label}</Text>
+      className={`rounded-full border-edge px-2.5 py-1 ${
+        selected ? 'bg-primary-soft' : tappable ? 'bg-surface' : 'bg-surface-muted'
+      }`}>
+      <Text className="text-sm font-bold text-foreground">{label}</Text>
     </Pressable>
   );
 }

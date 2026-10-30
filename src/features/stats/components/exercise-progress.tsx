@@ -41,7 +41,7 @@ export function ExerciseProgress({ exerciseId, trackingType }: ExerciseProgressP
   return (
     <View className="gap-3">
       <Text className="text-lg font-semibold text-foreground">Progression</Text>
-      <View style={{ borderWidth: 2 }} className="gap-3 rounded-2xl border-ink bg-surface p-4">
+      <View style={{ borderWidth: 1.5 }} className="gap-3 rounded-2xl border-edge bg-surface p-4">
         {kinds.length > 1 ? (
           <SegmentedControl
             options={kinds.map((value) => ({ value, label: RECORD_LABELS[value] }))}

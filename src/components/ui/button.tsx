@@ -13,20 +13,22 @@ type ButtonProps = {
 };
 
 const CONTAINER = {
-  primary: 'border-ink bg-primary',
-  secondary: 'border-ink bg-surface',
+  primary: 'border-primary bg-primary',
+  secondary: 'border-edge bg-surface',
   danger: 'border-danger bg-surface',
 };
 
 const LABEL = {
-  primary: 'font-display text-[15px] font-bold text-primary-foreground',
-  secondary: 'text-base font-bold text-foreground',
-  danger: 'text-base font-bold text-danger',
+  primary: 'text-lg font-extrabold text-primary-foreground',
+  secondary: 'text-base font-extrabold text-foreground',
+  danger: 'text-base font-extrabold text-danger',
 };
 
 export function Button({ label, onPress, variant = 'primary', disabled = false }: ButtonProps) {
   const colors = useThemeColors();
-  const shadow = variant === 'danger' ? colors.danger : colors.ink;
+  const shadow = { primary: colors.primaryEdge, secondary: colors.edge, danger: colors.danger }[
+    variant
+  ];
 
   return (
     <Pressable
@@ -34,8 +36,8 @@ export function Button({ label, onPress, variant = 'primary', disabled = false }
       disabled={disabled}
       accessibilityRole="button"
       // Disabled, it can't be tapped: no shadow.
-      style={({ pressed }) => [{ borderWidth: 2.5 }, disabled ? null : raised(pressed, shadow)]}
-      className={`items-center rounded-xl px-4 py-3 ${CONTAINER[variant]} ${
+      style={({ pressed }) => [{ borderWidth: 1.5 }, disabled ? null : raised(pressed, shadow)]}
+      className={`items-center rounded-xl px-4 py-2.5 ${CONTAINER[variant]} ${
         disabled ? 'opacity-40' : ''
       }`}>
       <Text className={LABEL[variant]}>{label}</Text>

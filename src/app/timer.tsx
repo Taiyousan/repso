@@ -47,7 +47,7 @@ export default function TimerScreen() {
         highlightComplete={false}>
         <View className="items-center gap-1 px-8">
           <Text
-            style={{ fontSize: 68, lineHeight: 76, fontVariant: ['tabular-nums'] }}
+            style={{ fontSize: 56, lineHeight: 64, fontVariant: ['tabular-nums'] }}
             className="font-bold text-foreground">
             {formatDuration(remaining)}
           </Text>
@@ -139,12 +139,12 @@ function RoundButton({
         height: size,
         borderRadius: size / 2,
         backgroundColor: primary ? colors.primary : colors.surface,
-        borderWidth: 2.5,
-        borderColor: colors.ink,
+        borderWidth: 1.5,
+        borderColor: primary ? colors.primary : colors.edge,
       }}
       className="items-center justify-center active:opacity-80">
       {icon ? (
-        <Icon name={icon} size={size * 0.45} color={colors.foreground} />
+        <Icon name={icon} size={size * 0.45} color={primary ? colors.surface : colors.foreground} />
       ) : (
         <Text className="text-base font-semibold text-foreground">{label}</Text>
       )}

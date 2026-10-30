@@ -83,22 +83,25 @@ export const SessionExerciseCard = memo(function SessionExerciseCard({
         onPress={() => setExpanded(true)}
         accessibilityRole="button"
         accessibilityLabel={`${exercise.name}, terminé. Toucher pour afficher les séries`}
-        style={({ pressed }) => [{ borderWidth: 2 }, raised(pressed, colors.ink)]}
-        className="flex-row items-center gap-2 rounded-2xl border-ink bg-success-soft p-3">
+        style={({ pressed }) => [{ borderWidth: 1.5 }, raised(pressed, colors.successSoft)]}
+        className="flex-row items-center gap-2 rounded-2xl border-success-soft bg-success-faint px-3 py-2">
         <DragHandle label={`Déplacer ${exercise.name}`} />
         <Icon
           name={{ ios: 'checkmark.circle.fill', android: 'check_circle' }}
+          size={20}
+          color={colors.success}
+        />
+        <Text className="flex-1 text-[13px] font-extrabold text-foreground" numberOfLines={1}>
+          {exercise.name}
+        </Text>
+        <Text className="text-sm font-semibold text-foreground">
+          {sets.length} série{sets.length > 1 ? 's' : ''}
+        </Text>
+        <Icon
+          name={{ ios: 'chevron.down', android: 'expand_more' }}
+          size={18}
           color={colors.foreground}
         />
-        <View className="flex-1">
-          <Text className="text-base font-bold text-foreground" numberOfLines={1}>
-            {exercise.name}
-          </Text>
-          <Text className="text-sm text-foreground" numberOfLines={1}>
-            {sets.length} série{sets.length > 1 ? 's' : ''}
-          </Text>
-        </View>
-        <Icon name={{ ios: 'chevron.down', android: 'expand_more' }} color={colors.foreground} />
       </Pressable>
     );
   }
@@ -107,10 +110,10 @@ export const SessionExerciseCard = memo(function SessionExerciseCard({
     <Card tone={isComplete ? 'success' : 'default'}>
       <View className="flex-row items-center gap-2">
         <DragHandle label={`Déplacer ${exercise.name}`} />
-        <ExerciseThumbnail images={exercise.images} name={exercise.name} />
+        <ExerciseThumbnail images={exercise.images} name={exercise.name} size={36} />
         <Link href={{ pathname: '/exercises/[id]', params: { id: exercise.id } }} asChild>
           <Pressable className="flex-1 pl-1">
-            <Text className="text-base font-semibold text-foreground" numberOfLines={2}>
+            <Text className="font-display text-lg font-bold text-foreground" numberOfLines={2}>
               {exercise.name}
             </Text>
           </Pressable>
@@ -130,7 +133,7 @@ export const SessionExerciseCard = memo(function SessionExerciseCard({
         />
       </View>
 
-      <View className="flex-row items-center justify-between gap-3">
+      <View className="flex-row items-center justify-between gap-2">
         <SmallButton
           label={`Repos ${formatDuration(item.restSeconds ?? DEFAULT_REST_SECONDS)}`}
           onPress={() => setRestOpen((open) => !open)}
@@ -153,10 +156,14 @@ export const SessionExerciseCard = memo(function SessionExerciseCard({
         />
       ) : null}
 
-      <View className="gap-1.5">
-        <View className="flex-row items-center gap-2 px-1">
-          <Text className="w-9 text-center text-xs text-muted">Série</Text>
-          <Text className="w-16 text-center text-xs text-muted">Précédent</Text>
+      <View>
+        <View className="flex-row items-center gap-2">
+          <Text style={{ width: 26 }} className="text-center text-xs text-muted">
+            #
+          </Text>
+          <Text style={{ width: 52 }} className="text-center text-xs text-muted">
+            Avant
+          </Text>
           {VALUE_COLUMNS[exercise.trackingType].map((column) => (
             <Text key={column} className="flex-1 text-center text-xs text-muted">
               {column}
@@ -164,9 +171,9 @@ export const SessionExerciseCard = memo(function SessionExerciseCard({
           ))}
           {/* Room for the play button of timed sets, then the check button. */}
           {exercise.trackingType === 'duration' || exercise.trackingType === 'distance' ? (
-            <View style={{ width: 40 }} />
+            <View style={{ width: 32 }} />
           ) : null}
-          <View style={{ width: 40 }} />
+          <View style={{ width: 32 }} />
         </View>
         {sets.map((set, index) => (
           <SessionSetRow
@@ -182,7 +189,7 @@ export const SessionExerciseCard = memo(function SessionExerciseCard({
         ))}
       </View>
 
-      <View className="flex-row gap-3">
+      <View className="flex-row gap-2">
         <SmallButton label="+ Série" onPress={() => addSessionSet(item.id)} grow />
         <SmallButton
           label="− Série"

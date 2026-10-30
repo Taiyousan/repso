@@ -90,5 +90,5 @@ EAS (voir `eas.json`).
   (domaine public, Unlicense).
 - Carte des muscles : [react-native-body-highlighter](https://github.com/HichamELBSI/react-native-body-highlighter)
   (MIT).
-- Polices [Figtree](https://fonts.google.com/specimen/Figtree) et
-  [Unbounded](https://fonts.google.com/specimen/Unbounded) : SIL Open Font License 1.1.
+- Polices [Nunito](https://fonts.google.com/specimen/Nunito) et
+  [Baloo 2](https://fonts.google.com/specimen/Baloo+2) : SIL Open Font License 1.1.

@@ -11,8 +11,8 @@ export function EditModeBanner() {
 
   return (
     <View
-      style={{ borderWidth: 2, borderStyle: 'dashed' }}
-      className="flex-row items-center gap-2 rounded-xl border-ink px-3 py-2">
+      style={{ borderWidth: 1.5, borderStyle: 'dashed' }}
+      className="flex-row items-center gap-2 rounded-xl border-edge px-3 py-2">
       <Icon name={{ ios: 'pencil', android: 'edit' }} size={16} color={colors.foreground} />
       <Text className="text-sm font-semibold text-foreground">
         Mode édition · enregistré automatiquement

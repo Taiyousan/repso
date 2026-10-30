@@ -44,7 +44,7 @@ export const ExerciseCard = memo(function ExerciseCard({
             accessibilityLabel={`Voir la fiche : ${exercise.name}`}
             hitSlop={10}
             style={{ borderWidth: 1.5 }}
-            className="absolute top-2 left-2 size-7 items-center justify-center rounded-full border-ink bg-surface">
+            className="absolute top-2 left-2 size-7 items-center justify-center rounded-full border-edge bg-surface">
             <Icon name={{ ios: 'info', android: 'info' }} size={16} color={colors.foreground} />
           </Pressable>
           <View className="absolute top-2 right-2 rounded-full bg-surface">
