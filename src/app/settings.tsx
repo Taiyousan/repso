@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui/button';
 import { Card, Section } from '@/components/ui/card';
 import { Text } from '@/components/ui/text';
+import { BackupCard } from '@/features/backup/components/backup-card';
 import { LIBRARY_VERSION } from '@/features/exercises/library';
 import {
   buildTranslationRequestsExport,
@@ -36,6 +37,10 @@ export default function SettingsScreen() {
       className="flex-1 bg-background"
       contentContainerClassName="gap-6 p-4"
       contentContainerStyle={{ paddingBottom: insets.bottom + 16 }}>
+      <Section title="Données">
+        <BackupCard />
+      </Section>
+
       <Section title="Notifications">
         <NotificationStatusCard />
       </Section>

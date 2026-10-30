@@ -11,10 +11,12 @@ import { ListRow } from '@/components/ui/list-row';
 import { PressableCard } from '@/components/ui/pressable-card';
 import { Screen } from '@/components/ui/screen';
 import { Text } from '@/components/ui/text';
+import { useLastBackup } from '@/features/backup/data';
+import { isBackupDue } from '@/features/backup/format';
 import { formatElapsed, nextWorkout } from '@/features/sessions/logic';
 import { useActiveSession, useHomeWorkouts } from '@/features/sessions/queries';
 import { openSession, startAndOpenSession } from '@/features/sessions/start';
-import { formatDay, formatDurationLong } from '@/lib/dates';
+import { formatDay, formatDurationLong, formatShortDay } from '@/lib/dates';
 import { useThemeColors } from '@/lib/theme';
 import { useNow } from '@/lib/use-now';
 
@@ -29,6 +31,7 @@ export default function HomeScreen() {
   const active = useActiveSession();
   const { programs, last, latest } = useHomeWorkouts();
   const next = nextWorkout(programs, last?.templateId ?? null);
+  const lastBackup = useLastBackup();
 
   return (
     <Screen
@@ -95,6 +98,21 @@ export default function HomeScreen() {
             />
           </ListGroup>
         </Section>
+      ) : null}
+
+      {isBackupDue(lastBackup, latest?.startedAt ?? null) ? (
+        <ListGroup>
+          <ListRow
+            flat
+            title="Pense à sauvegarder"
+            details={[
+              lastBackup
+                ? `Dernière sauvegarde : ${formatShortDay(lastBackup)}`
+                : 'Aucune sauvegarde pour l’instant',
+            ]}
+            onPress={() => router.push('/settings')}
+          />
+        </ListGroup>
       ) : null}
 
       {active ? null : (
