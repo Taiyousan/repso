@@ -2,8 +2,6 @@ import { useState } from 'react';
 import { Modal, Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useThemeColors } from '@/lib/theme';
-
 import { IconButton } from './icon-button';
 import { Text } from './text';
 
@@ -16,7 +14,6 @@ export type HeaderMenuItem = {
 
 /** ⋮ button opening the screen's rare actions (export, abandon…). */
 export function HeaderMenu({ items }: { items: HeaderMenuItem[] }) {
-  const colors = useThemeColors();
   const insets = useSafeAreaInsets();
   const [open, setOpen] = useState(false);
   const regular = items.filter((item) => !item.destructive);
@@ -45,10 +42,10 @@ export function HeaderMenu({ items }: { items: HeaderMenuItem[] }) {
               top: insets.top + 52,
               right: 12,
               minWidth: 220,
-              borderWidth: 1.5,
-              boxShadow: `0px 4px 0px ${colors.edge}`,
+              // Floats above the screen: a soft shadow, not the bottom edge of a button.
+              boxShadow: '0px 8px 24px rgba(28, 36, 52, 0.14)',
             }}
-            className="rounded-2xl border-edge bg-surface py-1.5">
+            className="rounded-2xl border border-outline bg-surface py-1.5">
             {regular.map((item) => (
               <MenuRow key={item.label} item={item} onSelect={select} />
             ))}
