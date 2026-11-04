@@ -1,21 +1,14 @@
 import { Image } from 'expo-image';
 import { useEffect, useState } from 'react';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
-import { SegmentedControl } from '@/components/ui/segmented-control';
+import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
+import { useThemeColors } from '@/lib/theme';
 
 import { exerciseImageUrl } from '../library';
 
 const FRAME_DURATION_MS = 900;
-
-type Mode = 'animate' | '0' | '1';
-
-const MODES: { value: Mode; label: string }[] = [
-  { value: 'animate', label: 'Animation' },
-  { value: '0', label: 'Départ' },
-  { value: '1', label: 'Arrivée' },
-];
 
 type ExerciseAnimationProps = {
   images: string[];
@@ -23,13 +16,15 @@ type ExerciseAnimationProps = {
 
 /**
  * free-exercise-db provides a start and an end position: alternating them gives a simple
- * animation, which can be frozen on either position. Both frames stay mounted so switching
- * never waits for a download.
+ * animation. Tapping it pauses on the current position, tapping again resumes. Both frames stay
+ * mounted so switching never waits for a download.
  */
 export function ExerciseAnimation({ images }: ExerciseAnimationProps) {
-  const [mode, setMode] = useState<Mode>('animate');
+  const colors = useThemeColors();
+  const [paused, setPaused] = useState(false);
   const [tick, setTick] = useState(0);
-  const animates = mode === 'animate' && images.length >= 2;
+  const animated = images.length >= 2;
+  const animates = animated && !paused;
 
   useEffect(() => {
     if (!animates) return;
@@ -45,24 +40,33 @@ export function ExerciseAnimation({ images }: ExerciseAnimationProps) {
     );
   }
 
-  const frame = animates ? tick % images.length : mode === 'animate' ? 0 : Number(mode);
+  const frame = tick % images.length;
 
   return (
-    <View className="gap-2">
-      <View className="aspect-[3/2] overflow-hidden rounded-2xl bg-white">
-        {images.map((path, index) => (
-          <Image
-            key={path}
-            source={{ uri: exerciseImageUrl(path) }}
-            contentFit="contain"
-            accessibilityIgnoresInvertColors
-            style={{ position: 'absolute', inset: 0, opacity: index === frame ? 1 : 0 }}
+    <Pressable
+      onPress={() => setPaused((current) => !current)}
+      disabled={!animated}
+      accessibilityRole="button"
+      accessibilityLabel={paused ? "Reprendre l'animation" : "Mettre l'animation en pause"}
+      className="aspect-[3/2] overflow-hidden rounded-2xl bg-white">
+      {images.map((path, index) => (
+        <Image
+          key={path}
+          source={{ uri: exerciseImageUrl(path) }}
+          contentFit="contain"
+          accessibilityIgnoresInvertColors
+          style={{ position: 'absolute', inset: 0, opacity: index === frame ? 1 : 0 }}
+        />
+      ))}
+      {paused ? (
+        <View className="absolute right-2 bottom-2 size-8 items-center justify-center rounded-full bg-surface-muted">
+          <Icon
+            name={{ ios: 'play.fill', android: 'play_arrow' }}
+            size={16}
+            color={colors.foreground}
           />
-        ))}
-      </View>
-      {images.length >= 2 ? (
-        <SegmentedControl options={MODES} value={mode} onChange={setMode} />
+        </View>
       ) : null}
-    </View>
+    </Pressable>
   );
 }

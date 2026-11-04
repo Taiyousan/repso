@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View } from 'react-native';
 
+import { EmptyState } from '@/components/ui/empty-state';
 import { LineChart } from '@/components/ui/line-chart';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Text } from '@/components/ui/text';
@@ -30,7 +31,14 @@ export function ExerciseProgress({ exerciseId, trackingType }: ExerciseProgressP
   const [selected, setSelected] = useState<number | null>(null);
 
   const points = progressSeries(sets, trackingType, kind);
-  if (points.length === 0) return null;
+  if (points.length === 0) {
+    return (
+      <EmptyState
+        title="Pas encore d'historique"
+        description="Ta progression s'affiche après un premier entraînement avec cet exercice."
+      />
+    );
+  }
 
   const index = selected != null && selected < points.length ? selected : points.length - 1;
   const point = points[index];
@@ -39,48 +47,45 @@ export function ExerciseProgress({ exerciseId, trackingType }: ExerciseProgressP
   const format = (value: number) => formatRecord(kind, value);
 
   return (
-    <View className="gap-3">
-      <Text className="text-lg font-semibold text-foreground">Progression</Text>
-      <View className="gap-3 rounded-2xl border border-outline bg-surface p-4">
-        {kinds.length > 1 ? (
-          <SegmentedControl
-            options={kinds.map((value) => ({ value, label: RECORD_LABELS[value] }))}
-            value={kind}
-            onChange={(value) => {
-              setKind(value);
-              setSelected(null);
-            }}
-          />
-        ) : null}
-
-        <View className="flex-row items-end justify-between gap-3">
-          <View>
-            <Text className="text-2xl font-bold text-foreground">{format(point.value)}</Text>
-            <Text className="text-sm text-muted">{formatDay(point.at)}</Text>
-          </View>
-          {points.length > 1 ? (
-            <Text className="text-right text-sm text-muted">
-              <Text className="font-semibold text-foreground">
-                {formatDelta(last.value - first.value, format)}
-              </Text>{' '}
-              depuis le {formatShortDay(first.at)}
-            </Text>
-          ) : null}
-        </View>
-
-        <LineChart
-          points={points.map((entry) => ({
-            key: entry.sessionId,
-            x: entry.at.getTime(),
-            y: entry.value,
-            label: formatShortDay(entry.at),
-          }))}
-          selected={index}
-          onSelect={setSelected}
-          formatTick={kind === 'duration' ? format : formatCompact}
-          accessibilityLabel={`${RECORD_LABELS[kind]} : ${points.length} entraînements, dernier à ${format(last.value)}`}
+    <View className="gap-3 rounded-2xl border border-outline bg-surface p-4">
+      {kinds.length > 1 ? (
+        <SegmentedControl
+          options={kinds.map((value) => ({ value, label: RECORD_LABELS[value] }))}
+          value={kind}
+          onChange={(value) => {
+            setKind(value);
+            setSelected(null);
+          }}
         />
+      ) : null}
+
+      <View className="flex-row items-end justify-between gap-3">
+        <View>
+          <Text className="text-2xl font-bold text-foreground">{format(point.value)}</Text>
+          <Text className="text-sm text-muted">{formatDay(point.at)}</Text>
+        </View>
+        {points.length > 1 ? (
+          <Text className="text-right text-sm text-muted">
+            <Text className="font-semibold text-foreground">
+              {formatDelta(last.value - first.value, format)}
+            </Text>{' '}
+            depuis le {formatShortDay(first.at)}
+          </Text>
+        ) : null}
       </View>
+
+      <LineChart
+        points={points.map((entry) => ({
+          key: entry.sessionId,
+          x: entry.at.getTime(),
+          y: entry.value,
+          label: formatShortDay(entry.at),
+        }))}
+        selected={index}
+        onSelect={setSelected}
+        formatTick={kind === 'duration' ? format : formatCompact}
+        accessibilityLabel={`${RECORD_LABELS[kind]} : ${points.length} entraînements, dernier à ${format(last.value)}`}
+      />
     </View>
   );
 }
