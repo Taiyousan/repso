@@ -8,24 +8,20 @@ const TONES = {
   success: 'bg-success-faint',
 };
 
-/** A container: thin outline, no bottom edge (the edge is for what can be tapped). */
+/** A container: thin light outline, no bottom edge. */
 export function Card({
   children,
   tone = 'default',
 }: PropsWithChildren<{ tone?: keyof typeof TONES }>) {
   return (
-    <View
-      style={{ borderWidth: 1.5 }}
-      className={`gap-2 rounded-2xl border-edge p-3 ${TONES[tone]}`}>
-      {children}
-    </View>
+    <View className={`gap-3 rounded-2xl border border-outline p-4 ${TONES[tone]}`}>{children}</View>
   );
 }
 
 /** Titled group of content on a page. */
 export function Section({ title, children }: PropsWithChildren<{ title: string }>) {
   return (
-    <View className="gap-2">
+    <View className="gap-2.5">
       <Text className="font-display text-base font-bold text-foreground">{title}</Text>
       {children}
     </View>

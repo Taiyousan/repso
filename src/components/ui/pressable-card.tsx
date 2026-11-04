@@ -12,7 +12,10 @@ type PressableCardProps = Omit<PressableProps, 'style'> & {
   primary?: boolean;
 };
 
-/** A card that opens or toggles something: outlined like a card, with a button's bottom edge. */
+/**
+ * A card that opens or toggles something: outlined like a card, dims when pressed. Only the primary
+ * one gets a bottom edge.
+ */
 export function PressableCard({
   className = '',
   selected = false,
@@ -25,15 +28,15 @@ export function PressableCard({
     <Pressable
       accessibilityRole="button"
       {...props}
-      // Disabled, it can't be tapped: no shadow.
+      // Disabled, it can't be tapped: no edge.
       style={({ pressed }) => [
-        { borderWidth: 1.5 },
-        props.disabled ? null : raised(pressed, primary ? colors.primaryEdge : colors.edge),
+        { borderWidth: primary ? 1.5 : 1 },
+        primary && !props.disabled ? raised(pressed, colors.primaryEdge) : null,
       ]}
       className={`rounded-2xl ${
         primary
           ? 'border-primary bg-primary'
-          : `border-edge ${selected ? 'bg-primary-soft' : 'bg-surface'}`
+          : `border-outline active:opacity-70 ${selected ? 'bg-primary-soft' : 'bg-surface'}`
       } ${className}`}
     />
   );

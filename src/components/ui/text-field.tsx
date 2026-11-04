@@ -7,7 +7,7 @@ type TextFieldProps = Omit<TextInputProps, 'className' | 'placeholderTextColor'>
   label?: string;
 };
 
-/** A field to fill in: thin outline and no bottom edge, unlike buttons. */
+/** A field to fill in: thin outline, no bottom edge. */
 export function TextField({ label, multiline, style, ...props }: TextFieldProps) {
   const colors = useThemeColors();
 
@@ -19,7 +19,7 @@ export function TextField({ label, multiline, style, ...props }: TextFieldProps)
         multiline={multiline}
         placeholderTextColor={colors.muted}
         textAlignVertical={multiline ? 'top' : 'center'}
-        style={[{ fontFamily: FONTS.sans, borderWidth: 1.5 }, style]}
+        style={[{ fontFamily: FONTS.sans, borderWidth: 1 }, style]}
         className={`rounded-xl border-edge bg-surface px-3 py-2.5 text-base text-foreground ${
           multiline ? 'min-h-24' : ''
         }`}

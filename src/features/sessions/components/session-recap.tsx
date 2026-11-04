@@ -142,9 +142,7 @@ export function SessionRecap({ session, justFinished }: SessionRecapProps) {
 
         {newRecords.length > 0 ? (
           <Section title={newRecords.length > 1 ? 'Records battus' : 'Record battu'}>
-            <View
-              style={{ borderWidth: 1.5 }}
-              className="gap-2 rounded-2xl border-reward-edge bg-reward p-3">
+            <View className="gap-3 rounded-2xl border border-reward-edge bg-reward p-4">
               {newRecords.map((record) => (
                 <View
                   key={`${record.exerciseId}-${record.kind}`}
@@ -224,9 +222,7 @@ function StatTile({
   better?: boolean;
 }) {
   return (
-    <View
-      style={{ borderWidth: 1.5 }}
-      className="flex-1 rounded-2xl border-edge bg-surface px-2.5 py-2">
+    <View className="flex-1 rounded-2xl border border-outline bg-surface px-3 py-2.5">
       <Text className="text-xs text-muted">{label}</Text>
       <Text
         className="font-display text-[18px] font-bold text-foreground"

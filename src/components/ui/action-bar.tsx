@@ -8,8 +8,8 @@ export function ActionBar({ children }: PropsWithChildren) {
 
   return (
     <View
-      style={{ borderTopWidth: 1.5, paddingBottom: insets.bottom + 12 }}
-      className="gap-3 border-edge bg-surface px-4 pt-3">
+      style={{ borderTopWidth: 1, paddingBottom: insets.bottom + 12 }}
+      className="gap-3 border-outline bg-surface px-4 pt-3">
       {children}
     </View>
   );

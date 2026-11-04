@@ -5,7 +5,6 @@ import { Pressable, ScrollView, View } from 'react-native';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Icon } from '@/components/ui/icon';
-import { raised } from '@/components/ui/raised';
 import { Text } from '@/components/ui/text';
 import { TextField } from '@/components/ui/text-field';
 import type { Exercise } from '@/db/schema';
@@ -248,11 +247,8 @@ function ActionTile({ icon, label, active, badge = 0, onPress }: ActionTileProps
       accessibilityRole="button"
       accessibilityLabel={badge > 0 ? `${label}, ${badge} actif${badge > 1 ? 's' : ''}` : label}
       accessibilityState={{ selected: active }}
-      style={({ pressed }) => [
-        { width: 48, height: 56, borderWidth: 1.5 },
-        raised(pressed, colors.edge),
-      ]}
-      className={`items-center justify-center rounded-2xl border-edge ${
+      style={{ width: 48, height: 56 }}
+      className={`items-center justify-center rounded-2xl border border-outline active:opacity-70 ${
         active ? 'bg-primary-soft' : 'bg-surface'
       }`}>
       <Icon name={icon} size={20} color={colors.foreground} />

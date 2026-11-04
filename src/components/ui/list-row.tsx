@@ -61,14 +61,14 @@ export function ListRow({
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? title}
       style={{ minHeight: 48 }}
-      className="flex-row items-center gap-2.5 px-3 py-2 active:bg-surface-muted">
+      className="flex-row items-center gap-3 px-4 py-3 active:bg-surface-muted">
       {content}
     </Pressable>
   ) : (
     <PressableCard
       onPress={onPress}
       accessibilityLabel={accessibilityLabel ?? title}
-      className="flex-row items-center gap-2.5 px-3 py-2.5">
+      className="flex-row items-center gap-3 px-4 py-3">
       {content}
     </PressableCard>
   );

@@ -91,7 +91,7 @@ export function TagSelector({ sessionId }: { sessionId: number }) {
         returnKeyType="done"
         placeholder="Rechercher ou créer un tag"
         placeholderTextColor={colors.muted}
-        style={{ fontFamily: FONTS.sans, borderWidth: 1.5 }}
+        style={{ fontFamily: FONTS.sans, borderWidth: 1 }}
         className="rounded-xl border-edge bg-surface px-4 py-3 text-base text-foreground"
       />
 

@@ -143,9 +143,7 @@ function Records({
   if (kinds.length === 0) return null;
 
   return (
-    <View
-      style={{ borderWidth: 1.5 }}
-      className="gap-3 rounded-2xl border-reward-edge bg-reward p-3">
+    <View className="gap-3 rounded-2xl border border-reward-edge bg-reward p-4">
       <View className="flex-row items-center gap-2">
         <Icon
           name={{ ios: 'trophy.fill', android: 'trophy' }}

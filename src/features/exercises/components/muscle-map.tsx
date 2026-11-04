@@ -26,7 +26,7 @@ export function MuscleMap({ primaryMuscles, secondaryMuscles, gender = 'male' }:
   };
 
   return (
-    <View style={{ borderWidth: 1.5 }} className="gap-3 rounded-2xl border-edge bg-surface p-4">
+    <View className="gap-3 rounded-2xl border border-outline bg-surface p-4">
       <View className="flex-row justify-center">
         <Body {...bodyProps} side="front" />
         <Body {...bodyProps} side="back" />

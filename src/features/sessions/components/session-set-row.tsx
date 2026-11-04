@@ -224,18 +224,14 @@ export function SessionSetRow({
 
 /** Time left of the timed set being counted down; opens the timer screen. */
 function SetCountdown() {
-  const colors = useThemeColors();
   const remainingMs = useTimerTicker();
   return (
     <Pressable
       onPress={() => router.push('/timer')}
       accessibilityRole="button"
       accessibilityLabel="Ouvrir le minuteur"
-      style={({ pressed }) => [
-        { width: 32, height: 32, borderWidth: 1.5 },
-        raised(pressed, colors.edge),
-      ]}
-      className="items-center justify-center rounded-lg border-edge bg-primary-soft">
+      style={{ width: 32, height: 32 }}
+      className="items-center justify-center rounded-lg bg-primary-soft active:opacity-70">
       <Text className="text-xs font-bold text-foreground" style={{ fontVariant: ['tabular-nums'] }}>
         {formatDuration(Math.ceil(remainingMs / 1000))}
       </Text>

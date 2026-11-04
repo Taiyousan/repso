@@ -5,7 +5,6 @@ import { bodyBack } from 'react-native-body-highlighter/dist/assets/bodyBack';
 import { bodyFront } from 'react-native-body-highlighter/dist/assets/bodyFront';
 import Svg, { Path } from 'react-native-svg';
 
-import { raised } from '@/components/ui/raised';
 import { Text } from '@/components/ui/text';
 import { useThemeColors } from '@/lib/theme';
 
@@ -91,12 +90,8 @@ export const MuscleTile = memo(function MuscleTile({
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityState={{ selected }}
-      style={({ pressed }) => [
-        { borderWidth: 1.5 },
-        showLabel ? null : { width: 48, height: 56 },
-        raised(pressed, colors.edge),
-      ]}
-      className={`items-center justify-center rounded-2xl border-edge ${
+      style={showLabel ? null : { width: 48, height: 56 }}
+      className={`items-center justify-center rounded-2xl border border-outline active:opacity-70 ${
         showLabel ? 'w-24 gap-1 py-1.5' : ''
       } ${selected ? 'bg-primary-soft' : 'bg-surface'}`}>
       {/* The silhouettes keep the 1:2 ratio of their viewBox. */}

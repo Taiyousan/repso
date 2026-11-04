@@ -23,10 +23,12 @@ export function HeaderButton({ label, onPress, primary = false }: HeaderButtonPr
       hitSlop={7}
       style={({ pressed }) => [
         { height: 34, borderWidth: 1.5 },
-        raised(pressed, primary ? colors.primaryEdge : colors.edge),
+        primary ? raised(pressed, colors.primaryEdge) : null,
       ]}
       className={`justify-center rounded-[10px] px-3 ${
-        primary ? 'border-primary bg-primary' : 'border-edge bg-surface'
+        primary
+          ? 'border-primary bg-primary'
+          : 'border-surface-muted bg-surface-muted active:opacity-70'
       }`}>
       <Text
         className={`text-[13px] font-extrabold ${

@@ -28,12 +28,12 @@ export function Screen({ title, action, banner, scrollable = true, children }: S
     <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
       {banner}
       {scrollable ? (
-        <ScrollView contentContainerClassName="gap-4 px-4 pb-8">
+        <ScrollView contentContainerClassName="gap-6 px-4 pb-10">
           {heading}
           {children}
         </ScrollView>
       ) : (
-        <View className="flex-1 gap-3">
+        <View className="flex-1 gap-4">
           <View className="px-4">{heading}</View>
           {children}
         </View>

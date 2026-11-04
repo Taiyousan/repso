@@ -13,7 +13,9 @@
   --color-surface-muted: #eef2f8;
   /* Thin separators. */
   --color-border: #edf0f5;
-  /* Outlines, and the bottom edge of what can be tapped. */
+  /* Outline of cards and containers. */
+  --color-outline: #e1e6ef;
+  /* Outline of fields, and the bottom edge of the main actions. */
   --color-edge: #d3dae6;
   --color-foreground: #1c2434;
   --color-muted: #5b6678;

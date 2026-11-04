@@ -5,7 +5,6 @@ import { Alert, Pressable, View } from 'react-native';
 import { Card } from '@/components/ui/card';
 import { Icon } from '@/components/ui/icon';
 import { IconButton } from '@/components/ui/icon-button';
-import { raised } from '@/components/ui/raised';
 import { SmallButton } from '@/components/ui/small-button';
 import { DragHandle } from '@/components/ui/sortable-list';
 import { Text } from '@/components/ui/text';
@@ -83,8 +82,7 @@ export const SessionExerciseCard = memo(function SessionExerciseCard({
         onPress={() => setExpanded(true)}
         accessibilityRole="button"
         accessibilityLabel={`${exercise.name}, terminé. Toucher pour afficher les séries`}
-        style={({ pressed }) => [{ borderWidth: 1.5 }, raised(pressed, colors.successSoft)]}
-        className="flex-row items-center gap-2 rounded-2xl border-success-soft bg-success-faint px-3 py-2">
+        className="flex-row items-center gap-2 rounded-2xl border border-success-soft bg-success-faint px-4 py-3 active:opacity-70">
         <DragHandle label={`Déplacer ${exercise.name}`} />
         <Icon
           name={{ ios: 'checkmark.circle.fill', android: 'check_circle' }}
