@@ -35,9 +35,30 @@ function mergeShapes(parts: BodyPart[]) {
   }));
 }
 
-const SILHOUETTES = {
-  front: { viewBox: '0 0 724 1448', parts: mergeShapes(bodyFront) },
-  back: { viewBox: '724 0 724 1448', parts: mergeShapes(bodyBack) },
+const SILHOUETTES = { front: mergeShapes(bodyFront), back: mergeShapes(bodyBack) };
+
+/**
+ * Zoom on each muscle: a square of the library's drawing (front 0-724, back 724-1448) centered on
+ * the muscle's parts, 1.25 × their bounding box and at least 350 units so some body shows around.
+ */
+const FRAMES: Record<Muscle, string> = {
+  chest: '189 202 350 350',
+  shoulders: '149 128 438 438',
+  triceps: '852 227 464 464',
+  biceps: '135 223 458 458',
+  forearms: '63 291 604 604',
+  lats: '908 279 350 350',
+  'middle back': '908 279 350 350',
+  traps: '908 210 350 350',
+  'lower back': '907 388 350 350',
+  abdominals: '177 380 374 374',
+  quadriceps: '186 632 356 356',
+  hamstrings: '909 700 350 350',
+  glutes: '909 522 350 350',
+  calves: '885 931 399 399',
+  adductors: '189 598 350 350',
+  abductors: '909 522 350 350',
+  neck: '189 103 350 350',
 };
 
 type MuscleFilterProps = {
@@ -91,12 +112,11 @@ export const MuscleTile = memo(function MuscleTile({
       accessibilityLabel={label}
       accessibilityState={{ selected }}
       style={showLabel ? null : { width: 48, height: 56 }}
-      className={`items-center justify-center rounded-2xl border border-outline active:opacity-70 ${
+      className={`items-center justify-center overflow-hidden rounded-2xl border border-outline active:opacity-70 ${
         showLabel ? 'w-24 gap-1 py-1.5' : ''
       } ${selected ? 'bg-primary-soft' : 'bg-surface'}`}>
-      {/* The silhouettes keep the 1:2 ratio of their viewBox. */}
-      <Svg viewBox={silhouette.viewBox} width={showLabel ? 34 : 22} height={showLabel ? 68 : 44}>
-        {silhouette.parts.map((part, index) => (
+      <Svg viewBox={FRAMES[muscle]} width={showLabel ? 60 : 40} height={showLabel ? 60 : 40}>
+        {silhouette.map((part, index) => (
           <Path
             key={index}
             d={part.d}
