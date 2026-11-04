@@ -1,4 +1,4 @@
-# Workout Planner
+# Repso
 
 Application Android de suivi d'entraînement en salle : programmes, séances live avec timer de repos,
 records personnels, statistiques et import/export de programmes au format JSON.
@@ -30,8 +30,8 @@ npm start          # serveur de dev pour ce development build
 | `npm run check`         | Lint + typecheck + tests                                          |
 | `npm run format`        | Formatage Prettier                                                |
 | `npm run db:generate`   | Génère une migration SQL après modification du schéma             |
-| `npm run build:dev`     | APK de développement sur EAS (`com.taiyousan.workoutplanner.dev`) |
-| `npm run build:preview` | APK de l'app réelle sur EAS (`com.taiyousan.workoutplanner`)      |
+| `npm run build:dev`     | APK de développement sur EAS (`com.taiyoudev.repso.dev`) |
+| `npm run build:preview` | APK de l'app réelle sur EAS (`com.taiyoudev.repso`)      |
 
 ## Structure
 

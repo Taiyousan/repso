@@ -1,4 +1,4 @@
-package com.taiyousan.countdownnotification
+package com.taiyoudev.countdownnotification
 
 import android.Manifest
 import android.annotation.SuppressLint

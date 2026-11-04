@@ -1,8 +1,8 @@
-# Politique de confidentialité — Workout Planner
+# Politique de confidentialité — Repso
 
 Dernière mise à jour : 28 octobre 2026
 
-Workout Planner est une application Android de suivi d'entraînement développée par Shams Benhamou à
+Repso est une application Android de suivi d'entraînement développée par Shams Benhamou à
 titre personnel. Contact : [adresse de contact].
 
 ## En bref

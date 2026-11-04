@@ -1,6 +1,6 @@
 {
   "platforms": ["android"],
   "android": {
-    "modules": ["com.taiyousan.filesaver.FileSaverModule"]
+    "modules": ["com.taiyoudev.filesaver.FileSaverModule"]
   }
 }

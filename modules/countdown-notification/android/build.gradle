@@ -3,11 +3,11 @@ plugins {
   id 'expo-module-gradle-plugin'
 }
 
-group = 'com.taiyousan.countdownnotification'
+group = 'com.taiyoudev.countdownnotification'
 version = '0.1.0'
 
 android {
-  namespace "com.taiyousan.countdownnotification"
+  namespace "com.taiyoudev.countdownnotification"
   defaultConfig {
     versionCode 1
     versionName "0.1.0"

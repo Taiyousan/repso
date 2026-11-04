@@ -91,7 +91,7 @@ describe('parseProgramFile', () => {
       '{"name": "A", "workouts": [{"name": "Push", "exercises": [{"restSeconds": 60}]}]}',
       'Push, exercice 1 : il faut un « slug » ou un « name ».',
     ],
-    ['{"format": "other", "program": {}}', '« format » doit valoir "workout-planner.program".'],
+    ['{"format": "other", "program": {}}', '« format » doit valoir "repso.program".'],
     [
       `{"version": ${PROGRAM_FILE_VERSION + 1}, "program": {}}`,
       `Ce fichier utilise la version ${PROGRAM_FILE_VERSION + 1} du format : mets l’application à jour.`,

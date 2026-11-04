@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/Taiyousan/workout-planner/main/schemas/program.v1.json",
-  "title": "Workout Planner program",
-  "description": "A training program (workouts and their ordered exercises) imported into or exported from Workout Planner. The app also accepts the bare program object, without the envelope.",
+  "$id": "https://raw.githubusercontent.com/Taiyousan/repso/main/schemas/program.v1.json",
+  "title": "Repso program",
+  "description": "A training program (workouts and their ordered exercises) imported into or exported from Repso. The app also accepts the bare program object, without the envelope.",
   "type": "object",
   "required": ["program"],
   "properties": {
     "$schema": { "type": "string" },
-    "format": { "const": "workout-planner.program" },
+    "format": { "const": "repso.program" },
     "version": {
       "const": 1,
       "description": "Format version. Files from a newer version are rejected by older apps."

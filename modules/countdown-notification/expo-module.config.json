@@ -1,6 +1,6 @@
 {
   "platforms": ["android"],
   "android": {
-    "modules": ["com.taiyousan.countdownnotification.CountdownNotificationModule"]
+    "modules": ["com.taiyoudev.countdownnotification.CountdownNotificationModule"]
   }
 }

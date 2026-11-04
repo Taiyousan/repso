@@ -126,10 +126,10 @@ describe('parseBackup', () => {
   });
 
   it('refuses what is not a backup', () => {
-    const notBackup = 'Ce fichier n’est pas une sauvegarde Workout Planner.';
+    const notBackup = 'Ce fichier n’est pas une sauvegarde Repso.';
     expect(errorOf('pas du json')).toBe(notBackup);
     expect(errorOf('[]')).toBe(notBackup);
-    expect(errorOf(fileWith({ format: 'workout-planner.program' }))).toBe(notBackup);
+    expect(errorOf(fileWith({ format: 'repso.program' }))).toBe(notBackup);
   });
 
   it('refuses a backup from a newer version', () => {

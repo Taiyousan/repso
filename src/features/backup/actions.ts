@@ -36,7 +36,7 @@ export function backupExportFile(): ExportFile | null {
       description: `Programmes, historique, tags et exercices personnalisés. Garde ce fichier ailleurs que sur ce téléphone (Drive, mail…).${
         readActiveSession() ? ' L’entraînement en cours n’est pas inclus.' : ''
       }`,
-      name: `workout-planner-sauvegarde-${new Date().toISOString().slice(0, 10)}.json`,
+      name: `repso-sauvegarde-${new Date().toISOString().slice(0, 10)}.json`,
       mimeType: 'application/json',
       content,
     };

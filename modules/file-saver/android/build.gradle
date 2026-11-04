@@ -3,11 +3,11 @@ plugins {
   id 'expo-module-gradle-plugin'
 }
 
-group = 'com.taiyousan.filesaver'
+group = 'com.taiyoudev.filesaver'
 version = '0.1.0'
 
 android {
-  namespace "com.taiyousan.filesaver"
+  namespace "com.taiyoudev.filesaver"
   defaultConfig {
     versionCode 1
     versionName "0.1.0"

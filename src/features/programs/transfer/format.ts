@@ -5,10 +5,10 @@ import { EQUIPMENT, MUSCLES } from '@/features/exercises/labels';
  * Program file shared between apps and written by AIs. Described by schemas/program.v1.json:
  * bump PROGRAM_FILE_VERSION and add a new schema file for any breaking change.
  */
-export const PROGRAM_FILE_FORMAT = 'workout-planner.program';
+export const PROGRAM_FILE_FORMAT = 'repso.program';
 export const PROGRAM_FILE_VERSION = 1;
 export const PROGRAM_SCHEMA_URL =
-  'https://raw.githubusercontent.com/Taiyousan/workout-planner/main/schemas/program.v1.json';
+  'https://raw.githubusercontent.com/Taiyousan/repso/main/schemas/program.v1.json';
 
 export const MAX_REST_SECONDS = 3600;
 

@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Workout Planner",
-    "slug": "workout-planner",
+    "name": "Repso",
+    "slug": "repso",
     "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "workoutplanner",
+    "scheme": "repso",
     "userInterfaceStyle": "light",
     "ios": {
       "icon": "./assets/expo.icon"
@@ -17,7 +17,7 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.taiyousan.workoutplanner",
+      "package": "com.taiyoudev.repso",
       "permissions": ["android.permission.SCHEDULE_EXACT_ALARM", "android.permission.VIBRATE"],
       "blockedPermissions": [
         "android.permission.READ_EXTERNAL_STORAGE",
@@ -109,7 +109,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "7c73eaa3-0338-4838-8076-4afd9732d976"
+        "projectId": "7875f6cd-066b-4117-a3b3-4ec18e966de9"
       }
     },
     "owner": "taiyousan"

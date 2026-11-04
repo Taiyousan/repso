@@ -3,7 +3,7 @@ import { openDatabaseSync } from 'expo-sqlite';
 
 import * as schema from './schema';
 
-export const DATABASE_NAME = 'workout-planner.db';
+export const DATABASE_NAME = 'repso.db';
 
 // Change listeners power Drizzle's useLiveQuery.
 const expoDb = openDatabaseSync(DATABASE_NAME, { enableChangeListener: true });

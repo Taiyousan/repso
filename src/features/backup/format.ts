@@ -17,7 +17,7 @@ import {
  * referenced by slug because the ids of library exercises differ between installations.
  * Bump BACKUP_VERSION for any change, and keep parsing the older versions.
  */
-export const BACKUP_FORMAT = 'workout-planner.backup';
+export const BACKUP_FORMAT = 'repso.backup';
 export const BACKUP_VERSION = 1;
 
 type WithSlug<T> = Omit<T, 'exerciseId'> & { exerciseSlug: string };
@@ -185,10 +185,10 @@ export function parseBackup(text: string): BackupParseResult {
   try {
     root = JSON.parse(text);
   } catch {
-    return { ok: false, error: 'Ce fichier n’est pas une sauvegarde Workout Planner.' };
+    return { ok: false, error: 'Ce fichier n’est pas une sauvegarde Repso.' };
   }
   if (!isRecord(root) || root.format !== BACKUP_FORMAT) {
-    return { ok: false, error: 'Ce fichier n’est pas une sauvegarde Workout Planner.' };
+    return { ok: false, error: 'Ce fichier n’est pas une sauvegarde Repso.' };
   }
   if (typeof root.version !== 'number' || root.version > BACKUP_VERSION) {
     return {

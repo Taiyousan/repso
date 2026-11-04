@@ -1,7 +1,7 @@
 import { PROGRAM_FILE_FORMAT, PROGRAM_FILE_VERSION, type ProgramFile } from './format';
 import schema from '../../../../schemas/program.v1.json';
 
-export const GUIDE_FILE_NAME = `workout-planner-format-v${PROGRAM_FILE_VERSION}.md`;
+export const GUIDE_FILE_NAME = `repso-format-v${PROGRAM_FILE_VERSION}.md`;
 
 const LIBRARY_URL = 'https://github.com/yuhonas/free-exercise-db';
 
@@ -57,9 +57,9 @@ Exercices créés dans l'app, utilisables par leur \`slug\` :
 ${customExercises.map(({ slug, name }) => `- \`${slug}\` : ${name}`).join('\n')}`
       : '';
 
-  return `# Format de programme Workout Planner (v${PROGRAM_FILE_VERSION})
+  return `# Format de programme Repso (v${PROGRAM_FILE_VERSION})
 
-Fichier JSON décrivant un programme d'entraînement, à importer dans Workout Planner (onglet Programmes, « Importer un programme »).
+Fichier JSON décrivant un programme d'entraînement, à importer dans Repso (onglet Programmes, « Importer un programme »).
 
 ## Structure
 
