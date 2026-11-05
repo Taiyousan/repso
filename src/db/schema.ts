@@ -56,14 +56,6 @@ export const exercises = sqliteTable(
   (t) => [index('exercises_name_idx').on(t.name)],
 );
 
-/** Library exercises whose instructions the user asked to translate (exported from settings). */
-export const translationRequests = sqliteTable('translation_requests', {
-  exerciseId: integer('exercise_id')
-    .primaryKey()
-    .references(() => exercises.id, { onDelete: 'cascade' }),
-  requestedAt: createdAt(),
-});
-
 // ---------------------------------------------------------------------------
 // Programs (templates)
 // ---------------------------------------------------------------------------

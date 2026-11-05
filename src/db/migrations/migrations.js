@@ -6,6 +6,7 @@ import m0001 from './0001_app_meta.sql';
 import m0002 from './0002_translations.sql';
 import m0003 from './0003_workout_drafts.sql';
 import m0004 from './0004_exercise_list_templates.sql';
+import m0005 from './0005_drop_translation_requests.sql';
 
   export default {
     journal,
@@ -14,7 +15,8 @@ import m0004 from './0004_exercise_list_templates.sql';
 m0001,
 m0002,
 m0003,
-m0004
+m0004,
+m0005
     }
   }
   

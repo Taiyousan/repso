@@ -22,10 +22,7 @@ type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
 const LAST_BACKUP_KEY = 'last_backup_at';
 
-/**
- * Everything the user entered, apart from the running workout. Translation requests stay out: they
- * are a development tool, not the user's data.
- */
+/** Everything the user entered, apart from the running workout. */
 export function readBackupData(): BackupData {
   const allExercises = db.select().from(exercises).all();
   const slugs = new Map(allExercises.map((exercise) => [exercise.id, exercise.slug]));

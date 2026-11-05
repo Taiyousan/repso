@@ -17,7 +17,6 @@ import {
 } from '@/domain/records';
 import { ExerciseAnimation } from '@/features/exercises/components/exercise-animation';
 import { MuscleSummary } from '@/features/exercises/components/muscle-map';
-import { TranslationRequestButton } from '@/features/exercises/components/translation-request-button';
 import {
   categoryLabel,
   equipmentLabel,
@@ -134,12 +133,6 @@ export default function ExerciseDetailScreen() {
           ) : (
             <EmptyState title="Pas d'instructions pour cet exercice" />
           )}
-          {exercise.instructionsLanguage === 'en' && !exercise.isCustom ? (
-            <View className="flex-row items-center justify-between gap-3">
-              <Text className="text-sm text-muted">En anglais</Text>
-              <TranslationRequestButton exerciseId={exercise.id} />
-            </View>
-          ) : null}
           {exercise.nameEn && exercise.nameEn !== exercise.name ? (
             <Text className="text-sm text-muted">Nom d&apos;origine : {exercise.nameEn}</Text>
           ) : null}
