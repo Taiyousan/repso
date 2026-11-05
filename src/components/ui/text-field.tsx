@@ -1,6 +1,6 @@
 import { TextInput, type TextInputProps, View } from 'react-native';
 
-import { Text } from '@/components/ui/text';
+import { MAX_FONT_SCALE, Text } from '@/components/ui/text';
 import { FONTS, useThemeColors } from '@/lib/theme';
 
 type TextFieldProps = Omit<TextInputProps, 'className' | 'placeholderTextColor'> & {
@@ -15,6 +15,7 @@ export function TextField({ label, multiline, style, ...props }: TextFieldProps)
     <View className="gap-1.5">
       {label ? <Text className="text-sm font-semibold text-foreground">{label}</Text> : null}
       <TextInput
+        maxFontSizeMultiplier={MAX_FONT_SCALE}
         {...props}
         multiline={multiline}
         placeholderTextColor={colors.muted}

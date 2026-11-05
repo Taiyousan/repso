@@ -5,7 +5,7 @@ import { Pressable, TextInput, type TextInputProps, View } from 'react-native';
 
 import { Icon } from '@/components/ui/icon';
 import { raised } from '@/components/ui/raised';
-import { Text } from '@/components/ui/text';
+import { MAX_FONT_SCALE, Text } from '@/components/ui/text';
 import type { SessionSet, SetType, TrackingType } from '@/db/schema';
 import {
   formatDecimal,
@@ -264,6 +264,7 @@ function NumberInput({
     <TextInput
       ref={ref}
       keyboardType="number-pad"
+      maxFontSizeMultiplier={MAX_FONT_SCALE}
       placeholderTextColor={colors.muted}
       {...props}
       onFocus={(event) => {

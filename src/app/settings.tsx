@@ -1,8 +1,11 @@
 import Constants from 'expo-constants';
+import { router } from 'expo-router';
 import { ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Card, Section } from '@/components/ui/card';
+import { Section } from '@/components/ui/card';
+import { ListGroup } from '@/components/ui/list-group';
+import { ListRow } from '@/components/ui/list-row';
 import { Text } from '@/components/ui/text';
 import { BackupCard } from '@/features/backup/components/backup-card';
 import { LIBRARY_VERSION } from '@/features/exercises/library';
@@ -25,15 +28,12 @@ export default function SettingsScreen() {
       </Section>
 
       <Section title="À propos">
-        <Card>
-          <Text className="text-foreground">
-            Version {Constants.expoConfig?.version ?? '?'} · Bibliothèque v{LIBRARY_VERSION}
-          </Text>
-          <Text className="text-sm text-muted">
-            Exercices : free-exercise-db (domaine public). Silhouettes :
-            react-native-body-highlighter (MIT).
-          </Text>
-        </Card>
+        <ListGroup>
+          <ListRow title="Licences" onPress={() => router.push('/licenses')} flat />
+        </ListGroup>
+        <Text className="text-sm text-muted">
+          Version {Constants.expoConfig?.version ?? '?'} · Bibliothèque v{LIBRARY_VERSION}
+        </Text>
       </Section>
     </ScrollView>
   );

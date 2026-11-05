@@ -8,7 +8,7 @@ import { Section } from '@/components/ui/card';
 import { Chip } from '@/components/ui/chip';
 import { Icon } from '@/components/ui/icon';
 import { IconButton } from '@/components/ui/icon-button';
-import { Text } from '@/components/ui/text';
+import { MAX_FONT_SCALE, Text } from '@/components/ui/text';
 import { normalizeText } from '@/lib/text';
 import { FONTS, useThemeColors } from '@/lib/theme';
 
@@ -81,6 +81,7 @@ export function TagSelector({ sessionId }: { sessionId: number }) {
       contentContainerStyle={{ gap: 16, padding: 16, paddingBottom: insets.bottom + 16 }}
       keyboardShouldPersistTaps="handled">
       <TextInput
+        maxFontSizeMultiplier={MAX_FONT_SCALE}
         value={query}
         onChangeText={setQuery}
         onSubmitEditing={() => {
