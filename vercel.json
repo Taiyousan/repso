@@ -1,0 +1,8 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "echo 'The site build has no dependency'",
+  "buildCommand": "node scripts/build-site.mjs",
+  "outputDirectory": "site-dist",
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- PRIVACY.md scripts/build-site.mjs vercel.json"
+}

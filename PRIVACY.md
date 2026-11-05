@@ -1,9 +1,9 @@
 # Politique de confidentialité — Repso
 
-Dernière mise à jour : 28 octobre 2026
+Dernière mise à jour : 5 novembre 2026
 
 Repso est une application Android de suivi d'entraînement développée par Shams Benhamou à
-titre personnel. Contact : [adresse de contact].
+titre personnel. Contact : [taiyoudev@gmail.com](mailto:taiyoudev@gmail.com).
 
 ## En bref
 
@@ -27,12 +27,14 @@ téléphone et des informations techniques sur la requête (voir sa
 [politique de confidentialité](https://www.jsdelivr.com/terms/privacy-policy)). Aucune
 donnée d'entraînement n'est envoyée.
 
-L'application n'effectue aucune autre connexion.
+L'application n'effectue aucune autre connexion. Les liens de l'écran « Licences » s'ouvrent dans
+votre navigateur.
 
 ## Fichiers et partage
 
-L'import et l'export de programmes ne se font qu'à votre demande : vous choisissez le fichier à
-importer, l'endroit où enregistrer un export ou l'application à laquelle le partager. Ce que devient un
+La sauvegarde de vos données dans un fichier, sa restauration, et l'import et l'export de programmes
+ne se font qu'à votre demande : vous choisissez le fichier à importer, l'endroit où enregistrer un
+fichier ou l'application à laquelle le partager. Ce que devient un
 fichier partagé dépend de l'application qui le reçoit.
 
 ## Sauvegarde Android

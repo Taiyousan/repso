@@ -44,3 +44,6 @@ example
 
 # Claude Code (local settings)
 .claude/settings.local.json
+
+# public site (scripts/build-site.mjs)
+site-dist/
