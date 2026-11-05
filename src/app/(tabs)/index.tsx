@@ -53,7 +53,11 @@ export default function HomeScreen() {
         <View className="gap-3">
           <EmptyState
             title="Aucun programme"
-            description="Crée un programme pour retrouver tes séances ici, prêtes à démarrer."
+            description="Choisis un programme tout prêt ou crée le tien pour retrouver tes séances ici, prêtes à démarrer."
+          />
+          <Button
+            label="Choisir un programme tout prêt"
+            onPress={() => router.push('/programs/starters')}
           />
           <Button
             label="Créer un programme"

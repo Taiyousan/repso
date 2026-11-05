@@ -18,6 +18,7 @@ import {
 import { ActiveWorkoutBanner } from '@/features/sessions/components/active-workout-banner';
 
 const createProgram = () => router.push('/programs/new');
+const chooseStarter = () => router.push('/programs/starters');
 
 export default function ProgramsScreen() {
   const programs = usePrograms();
@@ -36,6 +37,7 @@ export default function ProgramsScreen() {
           />
           <HeaderMenu
             items={[
+              { label: 'Programmes tout prêts', onPress: chooseStarter },
               { label: 'Importer un programme', onPress: importProgramFile },
               ...(programs.length > 0
                 ? [
@@ -54,8 +56,9 @@ export default function ProgramsScreen() {
         <View className="gap-3">
           <EmptyState
             title="Aucun programme"
-            description="Crée ton premier programme, par exemple « PPL » avec ses séances Push, Pull et Legs, ou importe-le."
+            description="Pars d’un programme tout prêt, crée le tien, par exemple « PPL » avec ses séances Push, Pull et Legs, ou importe-le."
           />
+          <Button label="Choisir un programme tout prêt" onPress={chooseStarter} />
           <Button label="Créer un programme" variant="secondary" onPress={createProgram} />
           <Button label="Importer un programme" variant="secondary" onPress={importProgramFile} />
         </View>
