@@ -25,14 +25,15 @@ npm start          # serveur de dev pour ce development build
 
 ## Scripts
 
-| Script                  | Rôle                                                                                   |
-| ----------------------- | -------------------------------------------------------------------------------------- |
-| `npm run check`         | Lint + typecheck + tests                                                               |
-| `npm run format`        | Formatage Prettier                                                                     |
-| `npm run db:generate`   | Génère une migration SQL après modification du schéma                                  |
-| `npm run build:dev`     | APK de développement sur EAS (`com.taiyoudev.repso.dev`)                               |
-| `npm run build:preview` | APK de l'app réelle sur EAS (`com.taiyoudev.repso`)                                    |
-| `npm run site:build`    | Pages web publiques (accueil, confidentialité) dans `site-dist/`, déployées par Vercel |
+| Script                     | Rôle                                                                                   |
+| -------------------------- | -------------------------------------------------------------------------------------- |
+| `npm run check`            | Lint + typecheck + tests                                                               |
+| `npm run format`           | Formatage Prettier                                                                     |
+| `npm run db:generate`      | Génère une migration SQL après modification du schéma                                  |
+| `npm run build:dev`        | APK de développement sur EAS (`com.taiyoudev.repso.dev`)                               |
+| `npm run build:preview`    | APK de l'app réelle sur EAS (`com.taiyoudev.repso`)                                    |
+| `npm run build:production` | AAB signé pour le Play Store (`com.taiyoudev.repso`)                                   |
+| `npm run site:build`       | Pages web publiques (accueil, confidentialité) dans `site-dist/`, déployées par Vercel |
 
 ## Structure
 
