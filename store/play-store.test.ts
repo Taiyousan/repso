@@ -1,7 +1,6 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-
-const listing = readFileSync(join(__dirname, 'play-store.md'), 'utf8');
+// The project has no Node types: fs comes untyped from Jest, the path from the project root.
+const { readFileSync } = jest.requireActual('fs');
+const listing: string = readFileSync(`${process.cwd()}/store/play-store.md`, 'utf8');
 
 /** Text between `<!-- name -->` and `<!-- /name -->`. */
 function field(name: string): string {
