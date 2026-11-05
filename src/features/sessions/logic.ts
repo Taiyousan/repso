@@ -131,3 +131,31 @@ export function nextWorkout<P extends { workouts: { id: number }[] }>(
   const program = programs.find((candidate) => candidate.workouts.length > 0);
   return program ? { program, workout: program.workouts[0] } : null;
 }
+
+/** "18:05", "18h05", "18h", "1805", "9" -> minutes since midnight; null when it isn't a time. */
+export function parseTimeOfDay(input: string): number | null {
+  const match = /^(\d{1,2})(?:\s*[:h.]\s*(\d{2})?|(\d{2}))?$/i.exec(input.trim());
+  if (!match) return null;
+  const hours = Number(match[1]);
+  const minutes = Number(match[2] ?? match[3] ?? 0);
+  if (hours > 23 || minutes > 59) return null;
+  return hours * 60 + minutes;
+}
+
+/** Longest duration accepted for a workout logged by hand, in minutes. */
+export const MAX_LOGGED_MINUTES = 600;
+
+/**
+ * Start and end of a workout from its day, start time (minutes since midnight) and duration in
+ * minutes.
+ */
+export function sessionTiming(day: Date, startMinutes: number, durationMinutes: number) {
+  const startedAt = new Date(
+    day.getFullYear(),
+    day.getMonth(),
+    day.getDate(),
+    Math.floor(startMinutes / 60),
+    startMinutes % 60,
+  );
+  return { startedAt, endedAt: new Date(startedAt.getTime() + durationMinutes * 60_000) };
+}

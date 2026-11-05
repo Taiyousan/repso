@@ -6,13 +6,14 @@ import { View } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { seedExerciseLibrary } from '@/features/exercises/library';
 import { discardDraftWorkoutTemplates } from '@/features/programs/mutations';
+import { tidyFinishedSessions } from '@/features/sessions/mutations';
 
 import { db } from './client';
 import migrations from './migrations/migrations';
 
 /**
- * Runs pending migrations, imports the exercise library and drops abandoned drafts, keeping the
- * splash screen up until the database is ready.
+ * Runs pending migrations, imports the exercise library, drops abandoned drafts and tidies
+ * workouts left in the editor, keeping the splash screen up until the database is ready.
  */
 export function DatabaseGate({ children }: PropsWithChildren) {
   const migration = useMigrations(db, migrations);
@@ -26,6 +27,7 @@ export function DatabaseGate({ children }: PropsWithChildren) {
       .then(() => {
         seedExerciseLibrary();
         discardDraftWorkoutTemplates();
+        tidyFinishedSessions();
       })
       .then(
         () => setSeeded(true),

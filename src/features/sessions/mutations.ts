@@ -1,4 +1,15 @@
-import { and, asc, desc, eq, inArray, isNull, max, notInArray } from 'drizzle-orm';
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  inArray,
+  isNotNull,
+  isNull,
+  max,
+  notExists,
+  notInArray,
+} from 'drizzle-orm';
 
 import { db } from '@/db/client';
 import {
@@ -54,8 +65,11 @@ function insertSessionExercises(
   }
 }
 
-/** Starts a session from a workout template (copying its exercises) or an empty free session. */
-export function startSession(templateId: number | null): number {
+/**
+ * Creates a session from a workout template (copying its exercises) or an empty free session.
+ * Without an end, it is the workout in progress; with one, a past workout logged by hand.
+ */
+function createSession(templateId: number | null, startedAt: Date, endedAt: Date | null): number {
   const items = templateId
     ? db
         .select()
@@ -64,7 +78,11 @@ export function startSession(templateId: number | null): number {
         .orderBy(asc(templateExercises.position))
         .all()
     : [];
-  const previous = readPreviousPerformance(items.map((item) => item.exerciseId));
+  const previous = readPreviousPerformance(
+    items.map((item) => item.exerciseId),
+    undefined,
+    startedAt,
+  );
 
   return db.transaction((tx) => {
     const template = templateId
@@ -72,7 +90,7 @@ export function startSession(templateId: number | null): number {
       : undefined;
     const session = tx
       .insert(workoutSessions)
-      .values({ templateId, name: template?.name ?? 'Entraînement libre', startedAt: new Date() })
+      .values({ templateId, name: template?.name ?? 'Entraînement libre', startedAt, endedAt })
       .returning({ id: workoutSessions.id })
       .get();
     insertSessionExercises(
@@ -87,6 +105,15 @@ export function startSession(templateId: number | null): number {
     );
     return session.id;
   });
+}
+
+export function startSession(templateId: number | null): number {
+  return createSession(templateId, new Date(), null);
+}
+
+/** A workout done without the app, entered afterwards: it opens in the editor. */
+export function logPastSession(templateId: number | null, startedAt: Date, endedAt: Date): number {
+  return createSession(templateId, startedAt, endedAt);
 }
 
 export function addExercisesToSession(sessionId: number, exerciseIds: number[]): void {
@@ -143,13 +170,16 @@ export function addSessionSet(sessionExerciseId: number): void {
   });
 }
 
-/** Removes the last set that isn't validated yet, if any. */
-export function removeLastPendingSet(sessionExerciseId: number): void {
+/** Removes the last set; during a workout, the last one not validated yet, if any. */
+export function removeLastSet(sessionExerciseId: number, pendingOnly: boolean): void {
   const last = db
     .select({ id: sessionSets.id })
     .from(sessionSets)
     .where(
-      and(eq(sessionSets.sessionExerciseId, sessionExerciseId), isNull(sessionSets.completedAt)),
+      and(
+        eq(sessionSets.sessionExerciseId, sessionExerciseId),
+        pendingOnly ? isNull(sessionSets.completedAt) : undefined,
+      ),
     )
     .orderBy(desc(sessionSets.position))
     .limit(1)
@@ -178,38 +208,101 @@ export function uncompleteSessionSet(id: number): void {
 // End of session
 // ---------------------------------------------------------------------------
 
+/** Keeps validated sets only and drops exercises left without any. */
+function keepValidatedSets(tx: Transaction, id: number) {
+  const itemIds = tx
+    .select({ id: sessionExercises.id })
+    .from(sessionExercises)
+    .where(eq(sessionExercises.sessionId, id))
+    .all()
+    .map((row) => row.id);
+
+  if (itemIds.length === 0) return;
+  tx.delete(sessionSets)
+    .where(and(inArray(sessionSets.sessionExerciseId, itemIds), isNull(sessionSets.completedAt)))
+    .run();
+  const withSets = new Set(
+    tx
+      .select({ id: sessionSets.sessionExerciseId })
+      .from(sessionSets)
+      .where(inArray(sessionSets.sessionExerciseId, itemIds))
+      .all()
+      .map((row) => row.id),
+  );
+  const empty = itemIds.filter((itemId) => !withSets.has(itemId));
+  if (empty.length > 0) {
+    tx.delete(sessionExercises).where(inArray(sessionExercises.id, empty)).run();
+  }
+}
+
 /** Keeps validated sets only, drops exercises left without any, and closes the session. */
 export function finishSession(id: number): void {
   db.transaction((tx) => {
-    const itemIds = tx
-      .select({ id: sessionExercises.id })
-      .from(sessionExercises)
-      .where(eq(sessionExercises.sessionId, id))
-      .all()
-      .map((row) => row.id);
-
-    if (itemIds.length > 0) {
-      tx.delete(sessionSets)
-        .where(
-          and(inArray(sessionSets.sessionExerciseId, itemIds), isNull(sessionSets.completedAt)),
-        )
-        .run();
-      const withSets = new Set(
-        tx
-          .select({ id: sessionSets.sessionExerciseId })
-          .from(sessionSets)
-          .where(inArray(sessionSets.sessionExerciseId, itemIds))
-          .all()
-          .map((row) => row.id),
-      );
-      const empty = itemIds.filter((itemId) => !withSets.has(itemId));
-      if (empty.length > 0) {
-        tx.delete(sessionExercises).where(inArray(sessionExercises.id, empty)).run();
-      }
-    }
-
+    keepValidatedSets(tx, id);
     tx.update(workoutSessions).set({ endedAt: new Date() }).where(eq(workoutSessions.id, id)).run();
   });
+}
+
+/** Leaving the editor of a finished session: same rule as when it was finished. */
+export function closeSessionEdit(id: number): void {
+  db.transaction((tx) => keepValidatedSets(tx, id));
+}
+
+/**
+ * Tidies finished sessions an editor left open when the app was closed: unvalidated sets go, and
+ * a past workout logged without any set is dropped.
+ */
+export function tidyFinishedSessions(): void {
+  const finished = db
+    .select({ id: workoutSessions.id })
+    .from(workoutSessions)
+    .where(isNotNull(workoutSessions.endedAt));
+  const finishedItems = db
+    .select({ id: sessionExercises.id })
+    .from(sessionExercises)
+    .where(inArray(sessionExercises.sessionId, finished));
+
+  db.transaction((tx) => {
+    tx.delete(sessionSets)
+      .where(
+        and(isNull(sessionSets.completedAt), inArray(sessionSets.sessionExerciseId, finishedItems)),
+      )
+      .run();
+    tx.delete(sessionExercises)
+      .where(
+        and(
+          inArray(sessionExercises.sessionId, finished),
+          notExists(
+            tx
+              .select({ id: sessionSets.id })
+              .from(sessionSets)
+              .where(eq(sessionSets.sessionExerciseId, sessionExercises.id)),
+          ),
+        ),
+      )
+      .run();
+    tx.delete(workoutSessions)
+      .where(
+        and(
+          isNotNull(workoutSessions.endedAt),
+          notExists(
+            tx
+              .select({ id: sessionExercises.id })
+              .from(sessionExercises)
+              .where(eq(sessionExercises.sessionId, workoutSessions.id)),
+          ),
+        ),
+      )
+      .run();
+  });
+}
+
+export function renameSession(id: number, name: string): void {
+  db.update(workoutSessions).set({ name }).where(eq(workoutSessions.id, id)).run();
+}
+
+export function setSessionTiming(id: number, startedAt: Date, endedAt: Date): void {
+  db.update(workoutSessions).set({ startedAt, endedAt }).where(eq(workoutSessions.id, id)).run();
 }
 
 /** Also used to delete a finished session from the history. */

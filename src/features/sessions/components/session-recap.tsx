@@ -79,6 +79,11 @@ export function SessionRecap({ session, justFinished }: SessionRecapProps) {
           headerRight: () => (
             <HeaderMenu
               items={[
+                {
+                  label: 'Modifier l’entraînement',
+                  onPress: () =>
+                    router.push({ pathname: '/session/edit/[id]', params: { id: session.id } }),
+                },
                 { label: 'Supprimer l’entraînement', onPress: confirmDelete, destructive: true },
               ]}
             />

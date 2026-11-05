@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { View } from 'react-native';
 
 import { EmptyState } from '@/components/ui/empty-state';
+import { IconButton } from '@/components/ui/icon-button';
 import { PressableCard } from '@/components/ui/pressable-card';
 import { Screen } from '@/components/ui/screen';
 import { Text } from '@/components/ui/text';
@@ -34,7 +35,17 @@ export default function HistoryScreen() {
   }, [sessions]);
 
   return (
-    <Screen title="Historique" banner={<ActiveWorkoutBanner />} scrollable={false}>
+    <Screen
+      title="Historique"
+      banner={<ActiveWorkoutBanner />}
+      action={
+        <IconButton
+          icon={{ ios: 'plus', android: 'add' }}
+          label="Ajouter un entraînement passé"
+          onPress={() => router.push('/session/log')}
+        />
+      }
+      scrollable={false}>
       <FlashList
         data={rows}
         keyExtractor={(row) => (row.type === 'month' ? `month-${row.key}` : String(row.session.id))}
@@ -55,7 +66,7 @@ export default function HistoryScreen() {
           <View className="px-4">
             <EmptyState
               title="Aucun entraînement"
-              description="Tes entraînements terminés apparaîtront ici."
+              description="Tes entraînements terminés apparaîtront ici. Un entraînement fait sans l’app s’ajoute avec le +."
             />
           </View>
         }

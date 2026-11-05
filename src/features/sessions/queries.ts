@@ -222,13 +222,14 @@ function createSessionReader(id: number) {
             .all();
 
     const exerciseIds = rows.map((row) => row.exercise.id);
-    // Finishing or deleting a session changes this: then the history may have changed.
+    // Finishing or deleting a session changes this: then the history may have changed. So does
+    // moving this one to another date.
     const finished = db
       .select({ count: count(), lastId: max(workoutSessions.id) })
       .from(workoutSessions)
       .where(isNotNull(workoutSessions.endedAt))
       .get();
-    const key = `${exerciseIds.join(',')}|${finished?.count}|${finished?.lastId}`;
+    const key = `${exerciseIds.join(',')}|${finished?.count}|${finished?.lastId}|${session.startedAt.getTime()}`;
     if (context?.key !== key) {
       context = {
         key,

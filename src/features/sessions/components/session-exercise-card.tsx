@@ -17,7 +17,7 @@ import { useThemeColors } from '@/lib/theme';
 import { isExerciseComplete, previousFor } from '../logic';
 import {
   addSessionSet,
-  removeLastPendingSet,
+  removeLastSet,
   removeSessionExercise,
   setSessionExerciseRest,
 } from '../mutations';
@@ -33,6 +33,8 @@ const VALUE_COLUMNS = {
 
 type SessionExerciseCardProps = {
   item: SessionExerciseDetail;
+  /** Editing a finished workout: no rest time or countdown, any set can be removed. */
+  editing?: boolean;
   onSetCompleted: (item: SessionExerciseDetail) => void;
 };
 
@@ -42,6 +44,7 @@ type SessionExerciseCardProps = {
  */
 export const SessionExerciseCard = memo(function SessionExerciseCard({
   item,
+  editing = false,
   onSetCompleted,
 }: SessionExerciseCardProps) {
   const { exercise, sets, previous } = item;
@@ -55,7 +58,8 @@ export const SessionExerciseCard = memo(function SessionExerciseCard({
     exercise.trackingType,
   );
   const doneCount = sets.filter((set) => set.completedAt != null).length;
-  const hasPendingSet = doneCount < sets.length;
+  const canRemoveSet = editing ? sets.length > 0 : doneCount < sets.length;
+  const isTimed = exercise.trackingType === 'duration' || exercise.trackingType === 'distance';
   const isComplete = isExerciseComplete(sets);
   // A finished exercise folds into one line; it can be reopened.
   const [expanded, setExpanded] = useState(!isComplete);
@@ -131,18 +135,22 @@ export const SessionExerciseCard = memo(function SessionExerciseCard({
         />
       </View>
 
-      <View className="flex-row items-center justify-between gap-2">
-        <SmallButton
-          label={`Repos ${formatDuration(item.restSeconds ?? DEFAULT_REST_SECONDS)}`}
-          onPress={() => setRestOpen((open) => !open)}
-          accessibilityState={{ expanded: restOpen }}
-        />
-        {item.target ? (
-          <Text className="shrink text-sm text-muted" numberOfLines={1}>
-            Objectif <Text className="font-semibold text-foreground">{item.target}</Text>
-          </Text>
-        ) : null}
-      </View>
+      {editing && !item.target ? null : (
+        <View className="flex-row items-center justify-between gap-2">
+          {editing ? null : (
+            <SmallButton
+              label={`Repos ${formatDuration(item.restSeconds ?? DEFAULT_REST_SECONDS)}`}
+              onPress={() => setRestOpen((open) => !open)}
+              accessibilityState={{ expanded: restOpen }}
+            />
+          )}
+          {item.target ? (
+            <Text className="shrink text-sm text-muted" numberOfLines={1}>
+              Objectif <Text className="font-semibold text-foreground">{item.target}</Text>
+            </Text>
+          ) : null}
+        </View>
+      )}
 
       {restOpen ? (
         <RestPresets
@@ -168,9 +176,7 @@ export const SessionExerciseCard = memo(function SessionExerciseCard({
             </Text>
           ))}
           {/* Room for the play button of timed sets, then the check button. */}
-          {exercise.trackingType === 'duration' || exercise.trackingType === 'distance' ? (
-            <View style={{ width: 32 }} />
-          ) : null}
+          {isTimed && !editing ? <View style={{ width: 32 }} /> : null}
           <View style={{ width: 32 }} />
         </View>
         {sets.map((set, index) => (
@@ -182,6 +188,7 @@ export const SessionExerciseCard = memo(function SessionExerciseCard({
             trackingType={exercise.trackingType}
             previous={previousFor(previous, index)}
             isRecord={records.has(set.id)}
+            editing={editing}
             onCompleted={handleSetCompleted}
           />
         ))}
@@ -191,8 +198,8 @@ export const SessionExerciseCard = memo(function SessionExerciseCard({
         <SmallButton label="+ Série" onPress={() => addSessionSet(item.id)} grow />
         <SmallButton
           label="− Série"
-          onPress={() => removeLastPendingSet(item.id)}
-          disabled={!hasPendingSet}
+          onPress={() => removeLastSet(item.id, !editing)}
+          disabled={!canRemoveSet}
           grow
         />
       </View>

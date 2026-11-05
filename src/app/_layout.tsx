@@ -66,6 +66,12 @@ export default function RootLayout() {
               dangerouslySingular
             />
             <Stack.Screen name="session/[id]" options={{ title: '' }} />
+            <Stack.Screen name="session/edit/[id]" options={{ title: 'Modifier l’entraînement' }} />
+            <Stack.Screen
+              name="session/log"
+              options={{ title: 'Entraînement passé' }}
+              dangerouslySingular
+            />
             <Stack.Screen name="timer" options={{ title: 'Minuteur', presentation: 'modal' }} />
             <Stack.Screen
               name="session/tags/[id]"

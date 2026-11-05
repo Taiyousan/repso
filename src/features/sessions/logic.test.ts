@@ -6,9 +6,11 @@ import {
   initialSetTypes,
   isExerciseComplete,
   nextWorkout,
+  parseTimeOfDay,
   previousFor,
   remainingSeconds,
   resolveSetValues,
+  sessionTiming,
   type SetPerformance,
 } from './logic';
 
@@ -172,5 +174,30 @@ describe('nextWorkout', () => {
 
   it('has nothing to suggest without workouts', () => {
     expect(nextWorkout([{ id: 3, workouts: [] }], null)).toBeNull();
+  });
+});
+
+describe('parseTimeOfDay', () => {
+  it('reads the usual ways of writing a time', () => {
+    expect(parseTimeOfDay('18:05')).toBe(18 * 60 + 5);
+    expect(parseTimeOfDay('18h05')).toBe(18 * 60 + 5);
+    expect(parseTimeOfDay('18h')).toBe(18 * 60);
+    expect(parseTimeOfDay(' 7 ')).toBe(7 * 60);
+    expect(parseTimeOfDay('0930')).toBe(9 * 60 + 30);
+  });
+
+  it('refuses what is not a time', () => {
+    expect(parseTimeOfDay('')).toBeNull();
+    expect(parseTimeOfDay('24:00')).toBeNull();
+    expect(parseTimeOfDay('18:75')).toBeNull();
+    expect(parseTimeOfDay('soir')).toBeNull();
+  });
+});
+
+describe('sessionTiming', () => {
+  it('starts on the given day at the given time', () => {
+    const timing = sessionTiming(new Date(2026, 10, 4, 23, 59), 18 * 60 + 30, 75);
+    expect(timing.startedAt).toEqual(new Date(2026, 10, 4, 18, 30));
+    expect(timing.endedAt).toEqual(new Date(2026, 10, 4, 19, 45));
   });
 });

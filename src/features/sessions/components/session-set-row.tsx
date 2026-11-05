@@ -45,10 +45,18 @@ type SessionSetRowProps = {
   previous: SetPerformance | null;
   /** This set holds a new record of the exercise. */
   isRecord: boolean;
+  /** Editing a finished workout: validated sets stay editable, and there is no countdown. */
+  editing: boolean;
   onCompleted: () => void;
 };
 
 const toText = (value: number | null) => (value == null ? '' : String(value));
+
+const toInput = (values: Pick<SetPerformance, 'weight' | 'reps' | 'durationSeconds'>) => ({
+  weight: formatDecimal(values.weight),
+  reps: toText(values.reps),
+  duration: toText(values.durationSeconds),
+});
 
 export function SessionSetRow({
   set,
@@ -57,16 +65,15 @@ export function SessionSetRow({
   trackingType,
   previous,
   isRecord,
+  editing,
   onCompleted,
 }: SessionSetRowProps) {
   const colors = useThemeColors();
   // Inputs keep local text and save when editing ends, so typing never fights the database.
-  const [input, setInput] = useState<SetInput>({
-    weight: formatDecimal(set.weight),
-    reps: toText(set.reps),
-    duration: toText(set.durationSeconds),
-  });
+  const [input, setInput] = useState<SetInput>(() => toInput(set));
   const done = set.completedAt != null;
+  // During a workout, a validated set is unchecked to be changed.
+  const locked = done && !editing;
   const isTimed = trackingType === 'duration' || trackingType === 'distance';
   const timerSetId = useTimer((state) => state.setId);
   const isCounting = timerSetId === set.id;
@@ -78,6 +85,11 @@ export function SessionSetRow({
 
   const saveTyped = () => {
     const typed = resolveSetValues(input, null, trackingType);
+    // A validated set keeps its value: clearing the field brings the saved one back.
+    if (done && !canComplete(typed, trackingType)) {
+      setInput(toInput(set));
+      return;
+    }
     updateSessionSet(set.id, typed);
   };
 
@@ -88,11 +100,7 @@ export function SessionSetRow({
     }
     if (!canComplete(resolved, trackingType)) return;
     completeSessionSet(set.id, resolved);
-    setInput({
-      weight: formatDecimal(resolved.weight),
-      reps: toText(resolved.reps),
-      duration: toText(resolved.durationSeconds),
-    });
+    setInput(toInput(resolved));
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onCompleted();
   };
@@ -141,15 +149,15 @@ export function SessionSetRow({
       {isTimed ? (
         <>
           <NumberInput
-            value={done ? toText(set.durationSeconds) : input.duration}
+            value={locked ? toText(set.durationSeconds) : input.duration}
             onChangeText={change('duration')}
             onEndEditing={saveTyped}
             placeholder={toText(previous?.durationSeconds ?? null) || 's'}
             accessibilityLabel="Durée en secondes"
-            editable={!done && !isCounting}
+            editable={!locked && !isCounting}
             done={done}
           />
-          {!done ? (
+          {!done && !editing ? (
             isCounting ? (
               <SetCountdown />
             ) : (
@@ -176,23 +184,23 @@ export function SessionSetRow({
         <>
           {trackingType === 'weight_reps' ? (
             <NumberInput
-              value={done ? formatDecimal(set.weight) : input.weight}
+              value={locked ? formatDecimal(set.weight) : input.weight}
               onChangeText={change('weight')}
               onEndEditing={saveTyped}
               placeholder={formatDecimal(previous?.weight ?? null) || 'kg'}
               keyboardType="decimal-pad"
               accessibilityLabel="Poids en kilos"
-              editable={!done}
+              editable={!locked}
               done={done}
             />
           ) : null}
           <NumberInput
-            value={done ? toText(set.reps) : input.reps}
+            value={locked ? toText(set.reps) : input.reps}
             onChangeText={change('reps')}
             onEndEditing={saveTyped}
             placeholder={toText(previous?.reps ?? null) || 'reps'}
             accessibilityLabel="Répétitions"
-            editable={!done}
+            editable={!locked}
             done={done}
           />
         </>
