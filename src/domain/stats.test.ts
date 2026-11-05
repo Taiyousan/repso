@@ -1,5 +1,6 @@
 import type { RecordSet } from './records';
 import {
+  currentWeek,
   periodStart,
   progressSeries,
   setsPerMuscle,
@@ -144,5 +145,22 @@ describe('progressSeries', () => {
         'reps',
       ),
     ).toEqual([{ sessionId: 2, at: day(17), value: 12 }]);
+  });
+});
+
+describe('currentWeek', () => {
+  it('lists Monday to Sunday with trained days and today', () => {
+    const week = currentWeek([day(26), day(26, 9, 8), day(20)], now);
+    expect(week.map((item) => item.date.getDate())).toEqual([26, 27, 28, 29, 30, 31, 1]);
+    expect(week.map((item) => item.trained)).toEqual([
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+    ]);
+    expect(week.findIndex((item) => item.today)).toBe(1);
   });
 });

@@ -26,6 +26,8 @@
   /* Records, warm-up sets. */
   --color-reward: #fff6d9;
   --color-reward-edge: #f1e2ad;
+  /* The "Record" stamp on `reward`. */
+  --color-reward-ink: #b45309;
   --color-success: #15803d;
   --color-success-soft: #b9e8cb;
   /* Fields of a validated set, finished exercises. */

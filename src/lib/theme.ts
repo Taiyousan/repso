@@ -14,6 +14,8 @@ const TOKENS = [
   '--color-danger',
   '--color-success',
   '--color-success-soft',
+  '--color-reward',
+  '--color-reward-ink',
 ] as const;
 
 /** Theme colors as plain values, for props that don't accept class names. */
@@ -32,6 +34,8 @@ export function useThemeColors() {
     danger,
     success,
     successSoft,
+    reward,
+    rewardInk,
   ] = useCSSVariable([...TOKENS]) as string[];
   return {
     background,
@@ -47,6 +51,8 @@ export function useThemeColors() {
     danger,
     success,
     successSoft,
+    reward,
+    rewardInk,
   };
 }
 

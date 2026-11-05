@@ -364,7 +364,14 @@ export function useHomeWorkouts() {
         .limit(1)
         .get();
 
-      return { programs: groups, last: last ?? null, latest: latest ?? null };
+      const trainedDates = db
+        .select({ startedAt: workoutSessions.startedAt })
+        .from(workoutSessions)
+        .where(isNotNull(workoutSessions.endedAt))
+        .all()
+        .map((row) => row.startedAt);
+
+      return { programs: groups, last: last ?? null, latest: latest ?? null, trainedDates };
     },
     ['programs', 'workout_templates', 'template_exercises', 'workout_sessions'],
     'home',

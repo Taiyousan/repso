@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, Section } from '@/components/ui/card';
 import { HeaderMenu } from '@/components/ui/header-menu';
 import { Icon } from '@/components/ui/icon';
+import { Stamp } from '@/components/ui/stamp';
 import { Text } from '@/components/ui/text';
 import { TextField } from '@/components/ui/text-field';
 import { formatRecord, RECORD_LABELS, sessionNewRecords } from '@/domain/records';
@@ -91,12 +92,34 @@ export function SessionRecap({ session, justFinished }: SessionRecapProps) {
           paddingBottom: justFinished ? 16 : insets.bottom + 16,
         }}
         keyboardShouldPersistTaps="handled">
-        <View className="gap-1">
+        <View className="items-center gap-2.5 pt-1">
           {justFinished ? (
-            <Text className="font-display text-3xl font-extrabold text-foreground">
-              Entraînement terminé, bien joué !
-            </Text>
+            <Stamp
+              label="Entraînement terminé"
+              color={colors.primary}
+              background={colors.surface}
+              tilt={-6}
+              animate
+              delay={250}
+            />
           ) : null}
+          <View className="items-center">
+            <Text
+              className="font-display text-[44px] font-extrabold text-foreground"
+              style={{ lineHeight: 50, fontVariant: ['tabular-nums'] }}>
+              {totals.volume > 0
+                ? formatVolume(totals.volume)
+                : formatDurationLong(totals.durationMs)}
+            </Text>
+            <Text className="text-[13px] font-semibold text-muted">
+              {totals.volume > 0
+                ? `soulevés en ${formatDurationLong(totals.durationMs)}`
+                : `${totals.setCount} série${totals.setCount > 1 ? 's' : ''}`}
+            </Text>
+            {previous && totals.volume > 0 ? (
+              <VolumeDelta delta={Math.round(totals.volume - previous.volume)} />
+            ) : null}
+          </View>
           <Text className="text-sm text-muted">
             {formatDay(session.startedAt)} · {formatTime(session.startedAt)} – {formatTime(endedAt)}
           </Text>
@@ -117,21 +140,12 @@ export function SessionRecap({ session, justFinished }: SessionRecapProps) {
               }
             />
             <StatTile
-              label="Volume"
-              value={formatVolume(totals.volume)}
-              delta={
-                previous
-                  ? formatDelta(Math.round(totals.volume - previous.volume), formatVolume)
-                  : undefined
-              }
-              better={previous ? totals.volume > previous.volume : false}
-            />
-            <StatTile
               label="Séries"
               value={String(totals.setCount)}
               delta={previous ? formatDelta(totals.setCount - previous.setCount) : undefined}
               better={previous ? totals.setCount > previous.setCount : false}
             />
+            <StatTile label="Exercices" value={String(session.exercises.length)} />
           </View>
           {previous ? (
             <Text className="text-xs text-muted">
@@ -143,6 +157,17 @@ export function SessionRecap({ session, justFinished }: SessionRecapProps) {
         {newRecords.length > 0 ? (
           <Section title={newRecords.length > 1 ? 'Records battus' : 'Record battu'}>
             <View className="gap-3 rounded-2xl border border-reward-edge bg-reward p-4">
+              <View className="absolute -top-3 right-3.5">
+                <Stamp
+                  label={newRecords.length > 1 ? 'Records' : 'Record'}
+                  color={colors.rewardInk}
+                  background={colors.reward}
+                  tilt={8}
+                  size="sm"
+                  animate={justFinished}
+                  delay={900}
+                />
+              </View>
               {newRecords.map((record) => (
                 <View
                   key={`${record.exerciseId}-${record.kind}`}
@@ -206,6 +231,20 @@ export function SessionRecap({ session, justFinished }: SessionRecapProps) {
         </ActionBar>
       ) : null}
     </KeyboardAvoidingView>
+  );
+}
+
+/** Volume gained or lost since the last time this workout was done. */
+function VolumeDelta({ delta }: { delta: number }) {
+  return (
+    <View
+      className={`mt-1.5 rounded-full px-2.5 py-0.5 ${delta > 0 ? 'bg-success-faint' : 'bg-surface-muted'}`}>
+      <Text className={`text-[13px] font-extrabold ${delta > 0 ? 'text-success' : 'text-muted'}`}>
+        {delta === 0
+          ? 'Même volume que la dernière fois'
+          : `${formatDelta(delta, formatVolume)} par rapport à la dernière fois`}
+      </Text>
+    </View>
   );
 }
 

@@ -68,6 +68,20 @@ export function weekStreak(dates: Date[], now = new Date()): number {
   return streak;
 }
 
+export type WeekDay = { date: Date; trained: boolean; today: boolean };
+
+/** The current week, Monday to Sunday, with the days that had a session. */
+export function currentWeek(dates: Date[], now = new Date()): WeekDay[] {
+  // addDays(date, 0) drops the time, so dates compare by calendar day.
+  const trained = new Set(dates.map((date) => addDays(date, 0).getTime()));
+  const today = addDays(now, 0).getTime();
+  const monday = startOfWeek(now);
+  return Array.from({ length: 7 }, (_, index) => {
+    const date = addDays(monday, index);
+    return { date, trained: trained.has(date.getTime()), today: date.getTime() === today };
+  });
+}
+
 // ---------------------------------------------------------------------------
 // Training calendar
 // ---------------------------------------------------------------------------

@@ -10,12 +10,17 @@ type ScreenProps = PropsWithChildren<{
   action?: ReactNode;
   /** Pinned above the title, outside the scroll (e.g. the running workout). */
   banner?: ReactNode;
+  /**
+   * Full-width blue header replacing the title, under a blue status bar (the home screen). It
+   * brings its own title.
+   */
+  hero?: ReactNode;
   /** Set to false when the content brings its own list (e.g. FlashList). */
   scrollable?: boolean;
 }>;
 
 /** Base layout of a top-level screen: safe area, large title, content. */
-export function Screen({ title, action, banner, scrollable = true, children }: ScreenProps) {
+export function Screen({ title, action, banner, hero, scrollable = true, children }: ScreenProps) {
   const insets = useSafeAreaInsets();
   const heading = (
     <View className="flex-row items-center justify-between pt-4">
@@ -23,6 +28,19 @@ export function Screen({ title, action, banner, scrollable = true, children }: S
       {action}
     </View>
   );
+
+  if (hero) {
+    return (
+      <View className="flex-1 bg-background">
+        <View className="bg-primary" style={{ height: insets.top }} />
+        {banner}
+        <ScrollView contentContainerClassName="gap-6 pb-10">
+          {hero}
+          <View className="gap-6 px-4">{children}</View>
+        </ScrollView>
+      </View>
+    );
+  }
 
   return (
     <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>

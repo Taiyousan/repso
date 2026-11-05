@@ -1,6 +1,7 @@
 // Hand-rolled French formatting: Intl is slow on Hermes and its output varies between engines.
 
 const WEEKDAYS = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
+const LONG_WEEKDAYS = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
 const MONTHS = [
   'janvier',
   'février',
@@ -34,6 +35,11 @@ const SHORT_MONTHS = [
 export function formatDay(date: Date, now = new Date()): string {
   const year = date.getFullYear() === now.getFullYear() ? '' : ` ${date.getFullYear()}`;
   return `${WEEKDAYS[date.getDay()]} ${date.getDate()} ${SHORT_MONTHS[date.getMonth()]}${year}`;
+}
+
+/** "Mercredi 4 novembre" */
+export function formatLongDay(date: Date): string {
+  return `${LONG_WEEKDAYS[date.getDay()]} ${date.getDate()} ${MONTHS[date.getMonth()]}`;
 }
 
 /** "18:05" */

@@ -10,16 +10,19 @@ type PressableCardProps = Omit<PressableProps, 'style'> & {
   selected?: boolean;
   /** The screen's main thing to open, in blue. Its text has to be `primary-foreground`. */
   primary?: boolean;
+  /** The main thing to open on a blue background: white, with the blue edge. */
+  inverse?: boolean;
 };
 
 /**
  * A card that opens or toggles something: outlined like a card, dims when pressed. Only the primary
- * one gets a bottom edge.
+ * and inverse ones get a bottom edge.
  */
 export function PressableCard({
   className = '',
   selected = false,
   primary = false,
+  inverse = false,
   ...props
 }: PressableCardProps) {
   const colors = useThemeColors();
@@ -31,12 +34,14 @@ export function PressableCard({
       // Disabled, it can't be tapped: no edge.
       style={({ pressed }) => [
         { borderWidth: primary ? 1.5 : 1 },
-        primary && !props.disabled ? raised(pressed, colors.primaryEdge) : null,
+        (primary || inverse) && !props.disabled ? raised(pressed, colors.primaryEdge) : null,
       ]}
       className={`rounded-2xl ${
         primary
           ? 'border-primary bg-primary'
-          : `border-outline active:opacity-70 ${selected ? 'bg-primary-soft' : 'bg-surface'}`
+          : inverse
+            ? 'border-surface bg-surface'
+            : `border-outline active:opacity-70 ${selected ? 'bg-primary-soft' : 'bg-surface'}`
       } ${className}`}
     />
   );

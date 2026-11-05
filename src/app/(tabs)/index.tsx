@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Card, Section } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Icon } from '@/components/ui/icon';
-import { IconButton } from '@/components/ui/icon-button';
 import { ListGroup } from '@/components/ui/list-group';
 import { ListRow } from '@/components/ui/list-row';
 import { PressableCard } from '@/components/ui/pressable-card';
@@ -13,6 +12,7 @@ import { Screen } from '@/components/ui/screen';
 import { Text } from '@/components/ui/text';
 import { useLastBackup } from '@/features/backup/data';
 import { isBackupDue } from '@/features/backup/format';
+import { HomeHeader } from '@/features/sessions/components/home-header';
 import { formatElapsed, nextWorkout } from '@/features/sessions/logic';
 import { useActiveSession, useHomeWorkouts } from '@/features/sessions/queries';
 import { openSession, startAndOpenSession } from '@/features/sessions/start';
@@ -29,30 +29,26 @@ const exerciseCount = (workout: Workout) =>
 
 export default function HomeScreen() {
   const active = useActiveSession();
-  const { programs, last, latest } = useHomeWorkouts();
+  const { programs, last, latest, trainedDates } = useHomeWorkouts();
   const next = nextWorkout(programs, last?.templateId ?? null);
   const lastBackup = useLastBackup();
 
   return (
     <Screen
       title="Accueil"
-      action={
-        <IconButton
-          icon={{ ios: 'gearshape', android: 'settings' }}
-          label="Réglages"
-          onPress={() => router.push('/settings')}
-        />
+      hero={
+        <HomeHeader trainedDates={trainedDates}>
+          {active ? (
+            <ActiveSessionCard id={active.id} name={active.name} startedAt={active.startedAt} />
+          ) : next ? (
+            <NextWorkoutCard
+              workout={next.workout}
+              programName={next.program.name}
+              after={last ? `après ${last.name}, ${formatDay(last.startedAt)}` : null}
+            />
+          ) : null}
+        </HomeHeader>
       }>
-      {active ? (
-        <ActiveSessionCard id={active.id} name={active.name} startedAt={active.startedAt} />
-      ) : next ? (
-        <NextWorkoutCard
-          workout={next.workout}
-          programName={next.program.name}
-          after={last ? `après ${last.name}, ${formatDay(last.startedAt)}` : null}
-        />
-      ) : null}
-
       {programs.length === 0 ? (
         <View className="gap-3">
           <EmptyState
@@ -126,7 +122,7 @@ export default function HomeScreen() {
   );
 }
 
-/** The workout after the last one done, in blue: the obvious thing to open. */
+/** The workout after the last one done, white on the blue header: the obvious thing to open. */
 function NextWorkoutCard({
   workout,
   programName,
@@ -142,26 +138,24 @@ function NextWorkoutCard({
     <PressableCard
       onPress={() => openWorkout(workout.id)}
       accessibilityLabel={`${after ? 'À suivre' : 'Pour commencer'} : ${workout.name}`}
-      primary
+      inverse
       className="flex-row items-center gap-3 px-4 py-3.5">
       <View className="flex-1">
-        <Text className="text-sm font-bold text-primary-foreground">
+        <Text className="text-sm font-bold text-primary">
           {after ? 'À suivre' : 'Pour commencer'}
         </Text>
-        <Text className="font-display text-4xl font-extrabold text-primary-foreground">
-          {workout.name}
-        </Text>
-        <Text className="text-[13px] font-semibold text-primary-foreground">
+        <Text className="font-display text-4xl font-extrabold text-foreground">{workout.name}</Text>
+        <Text className="text-[13px] font-semibold text-muted">
           {programName} · {exerciseCount(workout)}
         </Text>
       </View>
       <View
         style={{ width: 36, height: 36 }}
-        className="items-center justify-center rounded-full bg-surface">
+        className="items-center justify-center rounded-full bg-primary">
         <Icon
           name={{ ios: 'arrow.right', android: 'arrow_forward' }}
           size={18}
-          color={colors.primaryEdge}
+          color={colors.surface}
         />
       </View>
     </PressableCard>
