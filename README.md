@@ -25,11 +25,11 @@ npm start          # serveur de dev pour ce development build
 
 ## Scripts
 
-| Script                  | Rôle                                                              |
-| ----------------------- | ----------------------------------------------------------------- |
-| `npm run check`         | Lint + typecheck + tests                                          |
-| `npm run format`        | Formatage Prettier                                                |
-| `npm run db:generate`   | Génère une migration SQL après modification du schéma             |
+| Script                  | Rôle                                                     |
+| ----------------------- | -------------------------------------------------------- |
+| `npm run check`         | Lint + typecheck + tests                                 |
+| `npm run format`        | Formatage Prettier                                       |
+| `npm run db:generate`   | Génère une migration SQL après modification du schéma    |
 | `npm run build:dev`     | APK de développement sur EAS (`com.taiyoudev.repso.dev`) |
 | `npm run build:preview` | APK de l'app réelle sur EAS (`com.taiyoudev.repso`)      |
 
