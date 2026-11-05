@@ -4,7 +4,7 @@ import { db } from '@/db/client';
 import { appMeta, type ContentLanguage, exercises, type TrackingType } from '@/db/schema';
 
 /** Bump when src/data/exercise-library.json changes, so installed apps re-import it. */
-export const LIBRARY_VERSION = 3;
+export const LIBRARY_VERSION = 4;
 const LIBRARY_VERSION_KEY = 'exercise_library_version';
 
 /** Same commit as scripts/build-exercise-library.mjs. Images are served by jsDelivr's CDN. */
