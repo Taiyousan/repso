@@ -7,14 +7,14 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Text } from '@/components/ui/text';
 import {
-  addStarterProgram,
-  readStarterExerciseNames,
-  STARTER_PROGRAMS,
-} from '@/features/programs/starters';
+  addSuggestedProgram,
+  readSuggestedExerciseNames,
+  SUGGESTED_PROGRAMS,
+} from '@/features/programs/suggested';
 
-export default function StarterProgramsScreen() {
+export default function SuggestedProgramsScreen() {
   const insets = useSafeAreaInsets();
-  const names = useMemo(() => readStarterExerciseNames(), []);
+  const names = useMemo(() => readSuggestedExerciseNames(), []);
 
   return (
     <ScrollView
@@ -24,7 +24,7 @@ export default function StarterProgramsScreen() {
         Ajoute un programme pour démarrer tout de suite. Tu pourras ensuite le modifier comme tu
         veux.
       </Text>
-      {STARTER_PROGRAMS.map((program) => (
+      {SUGGESTED_PROGRAMS.map((program) => (
         <Card key={program.name}>
           <View className="gap-1">
             <Text className="font-display text-lg font-bold text-foreground">{program.name}</Text>
@@ -42,7 +42,7 @@ export default function StarterProgramsScreen() {
             label="Ajouter ce programme"
             variant="secondary"
             onPress={() => {
-              const id = addStarterProgram(program);
+              const id = addSuggestedProgram(program);
               router.replace({ pathname: '/programs/[id]', params: { id } });
             }}
           />

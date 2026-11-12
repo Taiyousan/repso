@@ -14,7 +14,7 @@ const item = (slug: string, target: string, restSeconds: number): ProgramFileExe
 });
 
 /** Classic programs offered to start with, built from essential library exercises. */
-export const STARTER_PROGRAMS: ProgramFileProgram[] = [
+export const SUGGESTED_PROGRAMS: ProgramFileProgram[] = [
   {
     name: 'Full body débutant',
     description:
@@ -150,13 +150,13 @@ function readExercises(slugs: string[]) {
     .all();
 }
 
-/** French names of the starter programs' exercises, by slug. */
-export function readStarterExerciseNames(): Map<string, string> {
-  return new Map(readExercises(slugsOf(STARTER_PROGRAMS)).map((row) => [row.slug, row.name]));
+/** French names of the suggested programs' exercises, by slug. */
+export function readSuggestedExerciseNames(): Map<string, string> {
+  return new Map(readExercises(slugsOf(SUGGESTED_PROGRAMS)).map((row) => [row.slug, row.name]));
 }
 
-/** Adds a copy of a starter program, with its exercises found in the library by slug. */
-export function addStarterProgram(program: ProgramFileProgram): number {
+/** Adds a copy of a suggested program, with its exercises found in the library by slug. */
+export function addSuggestedProgram(program: ProgramFileProgram): number {
   const ids = new Map(readExercises(slugsOf([program])).map((row) => [row.slug, row.id]));
   const refs = listImportRefs(program, (entry) => {
     const exerciseId = ids.get(entry.slug ?? '');

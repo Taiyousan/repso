@@ -18,7 +18,7 @@ import {
 import { ActiveWorkoutBanner } from '@/features/sessions/components/active-workout-banner';
 
 const createProgram = () => router.push('/programs/new');
-const chooseStarter = () => router.push('/programs/starters');
+const showSuggested = () => router.push('/programs/suggested');
 
 export default function ProgramsScreen() {
   const programs = usePrograms();
@@ -37,7 +37,7 @@ export default function ProgramsScreen() {
           />
           <HeaderMenu
             items={[
-              { label: 'Programmes tout prêts', onPress: chooseStarter },
+              { label: 'Programmes suggérés', onPress: showSuggested },
               { label: 'Importer un programme', onPress: importProgramFile },
               ...(programs.length > 0
                 ? [
@@ -56,24 +56,33 @@ export default function ProgramsScreen() {
         <View className="gap-3">
           <EmptyState
             title="Aucun programme"
-            description="Pars d’un programme tout prêt, crée le tien, par exemple « PPL » avec ses séances Push, Pull et Legs, ou importe-le."
+            description="Pars d’un programme suggéré, crée le tien, par exemple « PPL » avec ses séances Push, Pull et Legs, ou importe-le."
           />
-          <Button label="Choisir un programme tout prêt" onPress={chooseStarter} />
+          <Button label="Voir les programmes suggérés" onPress={showSuggested} />
           <Button label="Créer un programme" variant="secondary" onPress={createProgram} />
           <Button label="Importer un programme" variant="secondary" onPress={importProgramFile} />
         </View>
       ) : (
-        programs.map((program) => (
-          <ListRow
-            key={program.id}
-            title={program.name}
-            details={[
-              program.description,
-              `${program.workoutCount} séance${program.workoutCount > 1 ? 's' : ''}`,
-            ]}
-            onPress={() => router.push({ pathname: '/programs/[id]', params: { id: program.id } })}
+        <>
+          {programs.map((program) => (
+            <ListRow
+              key={program.id}
+              title={program.name}
+              details={[
+                program.description,
+                `${program.workoutCount} séance${program.workoutCount > 1 ? 's' : ''}`,
+              ]}
+              onPress={() =>
+                router.push({ pathname: '/programs/[id]', params: { id: program.id } })
+              }
+            />
+          ))}
+          <Button
+            label="Voir les programmes suggérés"
+            variant="secondary"
+            onPress={showSuggested}
           />
-        ))
+        </>
       )}
       <ExportDialog file={exportFile} onClose={() => setExportFile(null)} />
     </Screen>

@@ -30,7 +30,7 @@ Repso est un carnet d'entraînement de musculation simple et rapide. Prépare te
 
 PROGRAMMES ET SÉANCES
 • Crée tes programmes et leurs séances : Push, Pull, Legs, Full body, Haut / Bas…
-• Ou pars d'un programme tout prêt et adapte-le.
+• Ou pars d'un programme suggéré et adapte-le.
 • Pour chaque exercice : ordre, temps de repos et objectif (« 4 × 8-10 »).
 • Importe et exporte tes programmes en fichier, pour les partager ou les écrire à l'avance.
 

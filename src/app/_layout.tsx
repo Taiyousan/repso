@@ -53,8 +53,8 @@ export default function RootLayout() {
               />
               <Stack.Screen name="programs/import" options={{ title: 'Importer un programme' }} />
               <Stack.Screen
-                name="programs/starters"
-                options={{ title: 'Programmes tout prêts' }}
+                name="programs/suggested"
+                options={{ title: 'Programmes suggérés' }}
                 dangerouslySingular
               />
               <Stack.Screen
