@@ -82,6 +82,26 @@ export function currentWeek(dates: Date[], now = new Date()): WeekDay[] {
   });
 }
 
+/** Weeks of the date's month, Monday to Sunday; days of the neighbouring months are null. */
+export function monthWeeks(date: Date): (Date | null)[][] {
+  const month = date.getMonth();
+  const last = new Date(date.getFullYear(), month + 1, 0);
+  const weeks: (Date | null)[][] = [];
+  for (
+    let week = startOfWeek(new Date(date.getFullYear(), month, 1));
+    week <= last;
+    week = addDays(week, 7)
+  ) {
+    weeks.push(
+      Array.from({ length: 7 }, (_, index) => {
+        const day = addDays(week, index);
+        return day.getMonth() === month ? day : null;
+      }),
+    );
+  }
+  return weeks;
+}
+
 // ---------------------------------------------------------------------------
 // Training calendar
 // ---------------------------------------------------------------------------

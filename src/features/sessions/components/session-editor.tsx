@@ -1,6 +1,6 @@
 import { router, Stack, useNavigation, usePreventRemove } from 'expo-router';
 import { useState } from 'react';
-import { Alert, View } from 'react-native';
+import { Alert, Pressable, View } from 'react-native';
 import Animated, { useAnimatedRef } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -9,12 +9,12 @@ import { Card, Section } from '@/components/ui/card';
 import { EditModeBanner } from '@/components/ui/edit-mode-banner';
 import { EmptyState } from '@/components/ui/empty-state';
 import { HeaderButton } from '@/components/ui/header-button';
-import { IconButton } from '@/components/ui/icon-button';
+import { Icon } from '@/components/ui/icon';
 import { KeyboardScrollView } from '@/components/ui/keyboard-scroll-view';
+import { MonthCalendar } from '@/components/ui/month-calendar';
 import { SortableList } from '@/components/ui/sortable-list';
 import { Text } from '@/components/ui/text';
 import { TextField } from '@/components/ui/text-field';
-import { addDays } from '@/domain/stats';
 import { parseInteger } from '@/features/programs/sets';
 import { formatLongDay, formatTime } from '@/lib/dates';
 import { useThemeColors } from '@/lib/theme';
@@ -58,11 +58,11 @@ export function SessionEditor({ session }: { session: SessionDetail }) {
   const [startTime, setStartTime] = useState(formatTime(session.startedAt));
   const [duration, setDuration] = useState(String(savedMinutes));
   const [leaving, setLeaving] = useState(false);
+  const [calendarOpen, setCalendarOpen] = useState(false);
 
   const allSets = session.exercises.flatMap((item) => item.sets);
   const doneCount = allSets.filter((set) => set.completedAt != null).length;
   const pendingCount = allSets.length - doneCount;
-  const isLastDay = addDays(session.startedAt, 1) > new Date();
   const year =
     session.startedAt.getFullYear() === new Date().getFullYear()
       ? ''
@@ -96,7 +96,10 @@ export function SessionEditor({ session }: { session: SessionDetail }) {
     }
   };
 
-  const shiftDay = (days: number) => saveTiming(addDays(session.startedAt, days));
+  const pickDay = (day: Date) => {
+    saveTiming(day);
+    setCalendarOpen(false);
+  };
 
   usePreventRemove(!leaving, ({ repeat }) => {
     // "Terminé" can be tapped while a field is still being typed.
@@ -152,23 +155,26 @@ export function SessionEditor({ session }: { session: SessionDetail }) {
           />
           <View className="gap-1.5">
             <Text className="text-sm font-semibold text-foreground">Date</Text>
-            <View className="flex-row items-center gap-2">
-              <IconButton
-                icon={{ ios: 'chevron.left', android: 'chevron_left' }}
-                label="Jour précédent"
-                onPress={() => shiftDay(-1)}
-              />
-              <Text className="flex-1 text-center text-base font-bold text-foreground">
+            <Pressable
+              onPress={() => setCalendarOpen((open) => !open)}
+              accessibilityRole="button"
+              accessibilityState={{ expanded: calendarOpen }}
+              accessibilityHint="Ouvre le calendrier"
+              style={{ borderWidth: 1 }}
+              className="flex-row items-center gap-2 rounded-xl border-edge bg-surface px-3 py-2.5 active:opacity-70">
+              <Text className="flex-1 text-base text-foreground">
                 {formatLongDay(session.startedAt)}
                 {year}
               </Text>
-              <IconButton
-                icon={{ ios: 'chevron.right', android: 'chevron_right' }}
-                label="Jour suivant"
-                onPress={() => shiftDay(1)}
-                disabled={isLastDay}
+              <Icon
+                name={{ ios: 'calendar', android: 'calendar_month' }}
+                size={18}
+                color={colors.foreground}
               />
-            </View>
+            </Pressable>
+            {calendarOpen ? (
+              <MonthCalendar value={session.startedAt} onChange={pickDay} max={new Date()} />
+            ) : null}
           </View>
           <View className="flex-row gap-3">
             <View className="flex-1">

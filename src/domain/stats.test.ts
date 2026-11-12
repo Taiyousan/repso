@@ -1,6 +1,7 @@
 import type { RecordSet } from './records';
 import {
   currentWeek,
+  monthWeeks,
   periodStart,
   progressSeries,
   setsPerMuscle,
@@ -162,5 +163,17 @@ describe('currentWeek', () => {
       false,
     ]);
     expect(week.findIndex((item) => item.today)).toBe(1);
+  });
+});
+
+describe('monthWeeks', () => {
+  it('lays a month out in Monday-first weeks', () => {
+    // November 2026 starts on a Sunday and ends on a Monday.
+    const weeks = monthWeeks(new Date(2026, 10, 18));
+    expect(weeks).toHaveLength(6);
+    expect(weeks[0].slice(0, 6)).toEqual([null, null, null, null, null, null]);
+    expect(weeks[0][6]).toEqual(new Date(2026, 10, 1));
+    expect(weeks[5][0]).toEqual(new Date(2026, 10, 30));
+    expect(weeks[5].slice(1)).toEqual([null, null, null, null, null, null]);
   });
 });
