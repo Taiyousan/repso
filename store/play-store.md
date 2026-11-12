@@ -137,6 +137,9 @@ remise en forme » (suivi d'entraînements). Pas de Santé Connect, pas de fonct
    comptes personnels récents).
 5. Demander l'accès à la production, puis publier.
 
-Attention : l'app de production est signée par Google (signature d'application Play). Elle ne peut
-pas remplacer un APK installé à la main avec la même identité : faire une sauvegarde dans Réglages,
-désinstaller l'APK, installer depuis le Play Store, puis restaurer la sauvegarde.
+Attention à la signature : l'APK v1 distribué à la main (`npm run build:preview`) est signé avec la
+clé générée par EAS. Pour que la version du Play Store le mette à jour sans perte de données, choisir
+dans la signature d'application Play « Utiliser la clé de signature existante » et y envoyer cette
+clé (`eas credentials` → Android → télécharger le keystore). Sinon Google signe avec sa propre clé :
+il faudra faire une sauvegarde dans Réglages, désinstaller l'APK, installer depuis le Play Store,
+puis restaurer la sauvegarde.
