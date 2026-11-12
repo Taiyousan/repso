@@ -85,6 +85,19 @@ de corriger chaque correspondance avant de créer le programme.
 GitHub Actions : lint, typecheck, tests et formatage sur chaque push/PR. Les APK sont construits sur
 EAS (voir `eas.json`).
 
+## Distribuer l'APK
+
+Le site ([repso-five.vercel.app](https://repso-five.vercel.app)) propose la dernière Release du dépôt
+public [Taiyousan/repso-releases](https://github.com/Taiyousan/repso-releases), le code restant
+privé. Les liens des builds EAS expirent : ne jamais les diffuser. Pour publier une version :
+
+```bash
+npm run build:preview   # puis télécharger l'APK depuis la page du build
+gh release create v1.0.0 repso.apk --repo Taiyousan/repso-releases --title "Repso 1.0.0"
+```
+
+L'asset doit s'appeler `repso.apk` : c'est le nom du lien `releases/latest/download/repso.apk`.
+
 ## Crédits et licences
 
 - Code : licence [MIT](LICENSE).
