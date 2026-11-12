@@ -160,11 +160,11 @@ const brand = `<a class="brand" href="/">${logo}Repso</a>`;
 const features = [
   [
     'Programmes et séances',
-    'Crée les tiens ou pars d’un programme suggéré. Pour chaque exercice : ordre, repos et objectif.',
+    'Créez les vôtres ou partez d’un programme suggéré. Pour chaque exercice : ordre, repos et objectif.',
   ],
   [
     'En salle',
-    'Tes séries de la dernière fois sont déjà là. Minuteur de repos avec notification, même écran éteint.',
+    'Vos séries de la dernière fois sont déjà là. Minuteur de repos avec notification, même écran éteint.',
   ],
   [
     'Progrès',
@@ -172,18 +172,18 @@ const features = [
   ],
   [
     'Plus de 870 exercices',
-    'En français, avec illustrations et consignes d’exécution. Tu peux aussi créer les tiens.',
+    'En français, avec illustrations et consignes d’exécution. Vous pouvez aussi créer les vôtres.',
   ],
   [
-    'Tes données restent chez toi',
-    'Aucun compte, aucun serveur, aucune publicité, aucun traqueur. Sauvegarde dans un fichier quand tu veux.',
+    'Vos données restent chez vous',
+    'Aucun compte, aucun serveur, aucune publicité, aucun traqueur. Sauvegarde dans un fichier quand vous voulez.',
   ],
 ];
 
 const steps = [
-  'Depuis ton téléphone Android, télécharge le fichier <strong>repso.apk</strong>.',
-  'Ouvre-le. Android te demande d’autoriser ton navigateur à installer des applications : accepte.',
-  'Installe, c’est prêt. Pour mettre à jour, installe la nouvelle version par-dessus : tes données sont conservées.',
+  'Depuis votre téléphone Android, téléchargez le fichier <strong>repso.apk</strong>.',
+  'Ouvrez-le. Android vous demande d’autoriser votre navigateur à installer des applications : acceptez.',
+  'Installez, c’est prêt. Pour mettre à jour, installez la nouvelle version par-dessus : vos données sont conservées.',
 ];
 
 const description =
@@ -207,9 +207,9 @@ write(
     band: `<header class="band">
 <div class="wrap">
 ${brand}
-<h1>Ton carnet de musculation</h1>
+<h1>Votre carnet de musculation</h1>
 <p class="lead">Programmes, séances, records et statistiques. Sans compte, sans publicité : tout reste
-sur ton téléphone.</p>
+sur votre téléphone.</p>
 <a class="download" href="${APK_URL}">${downloadIcon}Télécharger pour Android</a>
 <p class="meta">Gratuit · version ${escape(version)} · bientôt sur le Play Store</p>
 </div>
@@ -223,14 +223,14 @@ ${features.map(([name, text]) => `<li><strong>${name}</strong><p>${text}</p></li
 ${steps.map((step) => `<li><p>${step}</p></li>`).join('\n')}
 </ol>
 <p class="note">L’application n’est pas encore sur le Play Store, d’où ce fichier à installer
-soi-même.</p>`,
+vous-même.</p>`,
   }),
 );
 write(
   'privacy/index.html',
   page({
     title: 'Politique de confidentialité — Repso',
-    description: 'Repso ne collecte aucune donnée personnelle : tout reste sur ton téléphone.',
+    description: 'Repso ne collecte aucune donnée personnelle : tout reste sur votre téléphone.',
     band: `<header class="band small"><div class="wrap">${brand}</div></header>`,
     main: `<article class="prose">
 ${markdownToHtml(readFileSync(join(root, 'PRIVACY.md'), 'utf8'))}
