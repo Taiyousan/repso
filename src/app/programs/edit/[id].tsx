@@ -1,6 +1,6 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Alert, KeyboardAvoidingView, View } from 'react-native';
+import { Alert, View } from 'react-native';
 import Animated, { useAnimatedRef } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -9,6 +9,7 @@ import { Section } from '@/components/ui/card';
 import { EditModeBanner } from '@/components/ui/edit-mode-banner';
 import { EmptyState } from '@/components/ui/empty-state';
 import { HeaderButton } from '@/components/ui/header-button';
+import { KeyboardScrollView } from '@/components/ui/keyboard-scroll-view';
 import { ListRow } from '@/components/ui/list-row';
 import { DragHandle, SortableList } from '@/components/ui/sortable-list';
 import { TextField } from '@/components/ui/text-field';
@@ -84,14 +85,12 @@ function ProgramEditor({ program }: { program: ProgramDetail }) {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior="padding"
-      style={{ flex: 1, backgroundColor: colors.background }}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       <Stack.Screen
         options={{ headerRight: () => <HeaderButton label="Terminé" onPress={done} primary /> }}
       />
-      <Animated.ScrollView
-        ref={scrollRef}
+      <KeyboardScrollView
+        scrollRef={scrollRef}
         style={{ flex: 1 }}
         contentContainerStyle={{ gap: 16, padding: 16, paddingBottom: insets.bottom + 16 }}
         keyboardShouldPersistTaps="handled">
@@ -150,7 +149,7 @@ function ProgramEditor({ program }: { program: ProgramDetail }) {
         <View className="pt-6">
           <Button label="Supprimer le programme" onPress={confirmDelete} variant="danger" />
         </View>
-      </Animated.ScrollView>
-    </KeyboardAvoidingView>
+      </KeyboardScrollView>
+    </View>
   );
 }

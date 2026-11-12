@@ -83,6 +83,12 @@ export const LIBRARY_CREDITS: Credit[] = [
     url: 'https://github.com/software-mansion',
   },
   {
+    name: 'React Native Keyboard Controller',
+    author: 'Kiryl Ziusko',
+    license: 'MIT',
+    url: 'https://github.com/kirillzyusko/react-native-keyboard-controller',
+  },
+  {
     name: 'React Native Safe Area Context',
     author: 'App & Flow',
     license: 'MIT',
@@ -125,6 +131,7 @@ export const DEPENDENCY_CREDITS: Record<string, string> = {
   'react-native-body-highlighter': 'React Native Body Highlighter',
   'react-native-gesture-handler':
     'React Native Gesture Handler, Reanimated, Screens, SVG et Worklets',
+  'react-native-keyboard-controller': 'React Native Keyboard Controller',
   'react-native-reanimated': 'React Native Gesture Handler, Reanimated, Screens, SVG et Worklets',
   'react-native-safe-area-context': 'React Native Safe Area Context',
   'react-native-screens': 'React Native Gesture Handler, Reanimated, Screens, SVG et Worklets',

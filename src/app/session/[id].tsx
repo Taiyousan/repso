@@ -1,7 +1,7 @@
 import { useKeepAwake } from 'expo-keep-awake';
 import { router, Stack, useIsFocused, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Alert, KeyboardAvoidingView, View } from 'react-native';
+import { Alert, View } from 'react-native';
 import Animated, { useAnimatedRef } from 'react-native-reanimated';
 
 import { ActionBar } from '@/components/ui/action-bar';
@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { HeaderMenu } from '@/components/ui/header-menu';
 import { IconButton } from '@/components/ui/icon-button';
+import { KeyboardScrollView } from '@/components/ui/keyboard-scroll-view';
 import { SortableList } from '@/components/ui/sortable-list';
 import { Text } from '@/components/ui/text';
 import { DEFAULT_REST_SECONDS } from '@/features/programs/sets';
@@ -144,9 +145,7 @@ function LiveSession({ session }: { session: SessionDetail }) {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior="padding"
-      style={{ flex: 1, backgroundColor: colors.background }}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       <Stack.Screen
         options={{
           title: session.name,
@@ -195,8 +194,8 @@ function LiveSession({ session }: { session: SessionDetail }) {
         </Text>
       </View>
 
-      <Animated.ScrollView
-        ref={scrollRef}
+      <KeyboardScrollView
+        scrollRef={scrollRef}
         style={{ flex: 1 }}
         contentContainerStyle={{ gap: 8, paddingHorizontal: 16, paddingVertical: 8 }}
         keyboardShouldPersistTaps="handled">
@@ -217,12 +216,12 @@ function LiveSession({ session }: { session: SessionDetail }) {
         )}
 
         <Button label="+ Ajouter des exercices" variant="secondary" onPress={addExercises} />
-      </Animated.ScrollView>
+      </KeyboardScrollView>
 
       <ActionBar>
         <TimerBar />
         <Button label="Terminer l’entraînement" onPress={confirmFinish} />
       </ActionBar>
-    </KeyboardAvoidingView>
+    </View>
   );
 }

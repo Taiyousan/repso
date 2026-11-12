@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/ui/button';
+import { KeyboardScrollView } from '@/components/ui/keyboard-scroll-view';
 import { TextField } from '@/components/ui/text-field';
+import { useThemeColors } from '@/lib/theme';
 
 import type { ProgramInput } from '../mutations';
 
@@ -16,6 +17,7 @@ type ProgramFormProps = {
 /** Creation of a program; once created, it is edited in place (programs/edit). */
 export function ProgramForm({ initialValue, submitLabel, onSubmit }: ProgramFormProps) {
   const insets = useSafeAreaInsets();
+  const colors = useThemeColors();
   const [name, setName] = useState(initialValue?.name ?? '');
   const [description, setDescription] = useState(initialValue?.description ?? '');
   const isValid = name.trim().length > 0;
@@ -26,11 +28,9 @@ export function ProgramForm({ initialValue, submitLabel, onSubmit }: ProgramForm
   };
 
   return (
-    <ScrollView
-      className="flex-1 bg-background"
-      contentContainerClassName="gap-6 p-4"
-      contentContainerStyle={{ paddingBottom: insets.bottom + 16 }}
-      keyboardShouldPersistTaps="handled">
+    <KeyboardScrollView
+      style={{ flex: 1, backgroundColor: colors.background }}
+      contentContainerStyle={{ gap: 24, padding: 16, paddingBottom: insets.bottom + 16 }}>
       <TextField
         label="Nom"
         value={name}
@@ -47,6 +47,6 @@ export function ProgramForm({ initialValue, submitLabel, onSubmit }: ProgramForm
         multiline
       />
       <Button label={submitLabel} onPress={submit} disabled={!isValid} />
-    </ScrollView>
+    </KeyboardScrollView>
   );
 }

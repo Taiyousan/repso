@@ -1,6 +1,6 @@
 import { Link, router, Stack } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, KeyboardAvoidingView, Pressable, ScrollView, View } from 'react-native';
+import { Alert, Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ActionBar } from '@/components/ui/action-bar';
@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, Section } from '@/components/ui/card';
 import { HeaderMenu } from '@/components/ui/header-menu';
 import { Icon } from '@/components/ui/icon';
+import { KeyboardScrollView } from '@/components/ui/keyboard-scroll-view';
 import { Stamp } from '@/components/ui/stamp';
 import { Text } from '@/components/ui/text';
 import { TextField } from '@/components/ui/text-field';
@@ -70,9 +71,7 @@ export function SessionRecap({ session, justFinished }: SessionRecapProps) {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior="padding"
-      style={{ flex: 1, backgroundColor: colors.background }}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       <Stack.Screen
         options={{
           title: session.name,
@@ -90,7 +89,7 @@ export function SessionRecap({ session, justFinished }: SessionRecapProps) {
           ),
         }}
       />
-      <ScrollView
+      <KeyboardScrollView
         contentContainerStyle={{
           gap: 16,
           padding: 16,
@@ -229,13 +228,13 @@ export function SessionRecap({ session, justFinished }: SessionRecapProps) {
         <Section title="Notes">
           <NotesField sessionId={session.id} initialValue={session.notes ?? ''} />
         </Section>
-      </ScrollView>
+      </KeyboardScrollView>
       {justFinished ? (
         <ActionBar>
           <Button label="OK" onPress={() => router.back()} />
         </ActionBar>
       ) : null}
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 

@@ -1,12 +1,14 @@
 import { useState } from 'react';
-import { ScrollView, View } from 'react-native';
+import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/ui/button';
 import { Chip } from '@/components/ui/chip';
+import { KeyboardScrollView } from '@/components/ui/keyboard-scroll-view';
 import { Text } from '@/components/ui/text';
 import { TextField } from '@/components/ui/text-field';
 import { TRACKING_TYPES } from '@/db/schema';
+import { useThemeColors } from '@/lib/theme';
 
 import { EQUIPMENT, equipmentLabel, MUSCLES, muscleLabel, TRACKING_TYPE_LABELS } from '../labels';
 import type { CustomExerciseInput } from '../mutations';
@@ -38,6 +40,7 @@ export function ExerciseForm({
   onDelete,
 }: ExerciseFormProps) {
   const insets = useSafeAreaInsets();
+  const colors = useThemeColors();
   const [name, setName] = useState(initialValue.name);
   const [primaryMuscles, setPrimaryMuscles] = useState(initialValue.primaryMuscles);
   const [secondaryMuscles, setSecondaryMuscles] = useState(initialValue.secondaryMuscles);
@@ -64,11 +67,9 @@ export function ExerciseForm({
   };
 
   return (
-    <ScrollView
-      className="flex-1 bg-background"
-      contentContainerClassName="gap-6 p-4"
-      contentContainerStyle={{ paddingBottom: insets.bottom + 16 }}
-      keyboardShouldPersistTaps="handled">
+    <KeyboardScrollView
+      style={{ flex: 1, backgroundColor: colors.background }}
+      contentContainerStyle={{ gap: 24, padding: 16, paddingBottom: insets.bottom + 16 }}>
       <TextField
         label="Nom"
         value={name}
@@ -135,7 +136,7 @@ export function ExerciseForm({
           <Button label="Supprimer l'exercice" onPress={onDelete} variant="danger" />
         ) : null}
       </View>
-    </ScrollView>
+    </KeyboardScrollView>
   );
 }
 

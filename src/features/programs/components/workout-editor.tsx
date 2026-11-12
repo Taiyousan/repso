@@ -1,6 +1,6 @@
 import { router, Stack, useNavigation, usePreventRemove } from 'expo-router';
 import { useState } from 'react';
-import { Alert, KeyboardAvoidingView, View } from 'react-native';
+import { Alert, View } from 'react-native';
 import Animated, { useAnimatedRef } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { EditModeBanner } from '@/components/ui/edit-mode-banner';
 import { EmptyState } from '@/components/ui/empty-state';
 import { HeaderButton } from '@/components/ui/header-button';
+import { KeyboardScrollView } from '@/components/ui/keyboard-scroll-view';
 import { SortableList } from '@/components/ui/sortable-list';
 import { Text } from '@/components/ui/text';
 import { TextField } from '@/components/ui/text-field';
@@ -105,16 +106,14 @@ export function WorkoutEditor({ workout, mode }: WorkoutEditorProps) {
     router.push({ pathname: '/workouts/add-exercises/[id]', params: { id: workout.id } });
 
   return (
-    <KeyboardAvoidingView
-      behavior="padding"
-      style={{ flex: 1, backgroundColor: colors.background }}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       {isCreating ? null : (
         <Stack.Screen
           options={{ headerRight: () => <HeaderButton label="Terminé" onPress={done} primary /> }}
         />
       )}
-      <Animated.ScrollView
-        ref={scrollRef}
+      <KeyboardScrollView
+        scrollRef={scrollRef}
         style={{ flex: 1 }}
         contentContainerStyle={{
           gap: 16,
@@ -161,7 +160,7 @@ export function WorkoutEditor({ workout, mode }: WorkoutEditorProps) {
             />
           </View>
         )}
-      </Animated.ScrollView>
+      </KeyboardScrollView>
 
       {isCreating ? (
         <ActionBar>
@@ -171,6 +170,6 @@ export function WorkoutEditor({ workout, mode }: WorkoutEditorProps) {
           ) : null}
         </ActionBar>
       ) : null}
-    </KeyboardAvoidingView>
+    </View>
   );
 }
