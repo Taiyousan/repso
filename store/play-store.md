@@ -3,7 +3,7 @@
 Tout ce qu'il faut saisir dans la Play Console pour publier Repso, prêt à copier. Les limites de
 longueur de Google sont indiquées entre parenthèses ; `npm test` les vérifie.
 
-Adresse du site : `https://repso-five.vercel.app` (projet Vercel « repso », déployé depuis `main`).
+Adresse du site : `https://repso-app-android.vercel.app` (projet Vercel « repso », déployé depuis `main`).
 
 ## Fiche principale
 
@@ -63,7 +63,7 @@ TES DONNÉES RESTENT CHEZ TOI
 - Catégorie : Santé et remise en forme
 - Tags : Musculation, Suivi d'entraînement, Fitness
 - Adresse e-mail : taiyoudev@gmail.com
-- Site web : `https://repso-five.vercel.app`
+- Site web : `https://repso-app-android.vercel.app`
 - Téléphone : laisser vide
 
 ### Éléments graphiques
@@ -80,7 +80,7 @@ Dans [store/graphics/](graphics/) :
 
 ### Règles de confidentialité
 
-URL : `https://repso-five.vercel.app/privacy/` (générée depuis [PRIVACY.md](../PRIVACY.md)).
+URL : `https://repso-app-android.vercel.app/privacy/` (générée depuis [PRIVACY.md](../PRIVACY.md)).
 
 ### Annonces
 

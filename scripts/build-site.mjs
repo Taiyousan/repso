@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const out = join(root, 'site-dist');
 
-const SITE_URL = 'https://repso-five.vercel.app';
+const SITE_URL = 'https://repso-app-android.vercel.app';
 /** The latest release APK. */
 const APK_URL = 'https://github.com/Taiyousan/repso-releases/releases/latest/download/repso.apk';
 const PORTFOLIO_URL = 'https://shamsbenhamou.fr';

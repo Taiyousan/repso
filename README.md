@@ -87,7 +87,7 @@ EAS (voir `eas.json`).
 
 ## Distribuer l'APK
 
-Le site ([repso-five.vercel.app](https://repso-five.vercel.app)) propose la dernière Release du dépôt
+Le site ([repso-app-android.vercel.app](https://repso-app-android.vercel.app)) propose la dernière Release du dépôt
 public [Taiyousan/repso-releases](https://github.com/Taiyousan/repso-releases), le code restant
 privé. Les liens des builds EAS expirent : ne jamais les diffuser. Pour publier une version :
 
