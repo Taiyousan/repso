@@ -13,7 +13,7 @@ const out = join(root, 'site-dist');
 
 const SITE_URL = 'https://repso-app-android.vercel.app';
 /** The latest release APK. */
-const APK_URL = 'https://github.com/Taiyousan/repso-releases/releases/latest/download/repso.apk';
+const APK_URL = 'https://github.com/Taiyousan/repso/releases/latest/download/repso.apk';
 const PORTFOLIO_URL = 'https://shamsbenhamou.fr';
 const { version } = JSON.parse(readFileSync(join(root, 'app.json'), 'utf8')).expo;
 
