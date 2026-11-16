@@ -1,3 +1,4 @@
+import { requireOptionalNativeModule } from 'expo';
 import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -15,8 +16,12 @@ import { useThemeColors } from '@/lib/theme';
 import { EQUIPMENT, equipmentLabel, MUSCLES, muscleLabel, TRACKING_TYPE_LABELS } from '../labels';
 import { MAX_EXERCISE_IMAGES } from '../local-images';
 import type { CustomExerciseInput } from '../mutations';
-import { addExerciseImage } from '../pick-image';
 import { ExerciseThumbnail } from './exercise-thumbnail';
+
+// Absent from builds made before photos existed: pick-image.ts is then never loaded.
+const canAddImages =
+  requireOptionalNativeModule('ExponentImagePicker') !== null &&
+  requireOptionalNativeModule('ExpoImageManipulator') !== null;
 
 type ExerciseFormProps = {
   initialValue?: CustomExerciseInput;
@@ -77,6 +82,7 @@ export function ExerciseForm({
 
   const addImage = async (source: 'camera' | 'library') => {
     setAddingImage(true);
+    const { addExerciseImage } = await import('../pick-image');
     const image = await addExerciseImage(source);
     setAddingImage(false);
     if (image) setImages((list) => [...list, image].slice(0, MAX_EXERCISE_IMAGES));
@@ -94,36 +100,42 @@ export function ExerciseForm({
         autoFocus={!initialValue.name}
       />
 
-      <Section title="Photos" hint="2 max, début et fin du mouvement">
-        {images.map((image, index) => (
-          <View key={image}>
-            <ExerciseThumbnail images={[image]} name={name} size={72} />
-            <Pressable
-              onPress={() => setImages((list) => list.filter((item) => item !== image))}
-              accessibilityRole="button"
-              accessibilityLabel={`Retirer la photo ${index + 1}`}
-              hitSlop={12}
-              style={{ position: 'absolute', top: 4, right: 4, width: 24, height: 24 }}
-              className="items-center justify-center rounded-full bg-surface active:opacity-70">
-              <Icon name={{ ios: 'xmark', android: 'close' }} size={14} color={colors.foreground} />
-            </Pressable>
-          </View>
-        ))}
-        {images.length < MAX_EXERCISE_IMAGES ? (
-          <View className="justify-center gap-2">
-            <SmallButton
-              label="Galerie"
-              onPress={() => addImage('library')}
-              disabled={addingImage}
-            />
-            <SmallButton
-              label="Appareil photo"
-              onPress={() => addImage('camera')}
-              disabled={addingImage}
-            />
-          </View>
-        ) : null}
-      </Section>
+      {canAddImages || images.length > 0 ? (
+        <Section title="Photos" hint="2 max, début et fin du mouvement">
+          {images.map((image, index) => (
+            <View key={image}>
+              <ExerciseThumbnail images={[image]} name={name} size={72} />
+              <Pressable
+                onPress={() => setImages((list) => list.filter((item) => item !== image))}
+                accessibilityRole="button"
+                accessibilityLabel={`Retirer la photo ${index + 1}`}
+                hitSlop={12}
+                style={{ position: 'absolute', top: 4, right: 4, width: 24, height: 24 }}
+                className="items-center justify-center rounded-full bg-surface active:opacity-70">
+                <Icon
+                  name={{ ios: 'xmark', android: 'close' }}
+                  size={14}
+                  color={colors.foreground}
+                />
+              </Pressable>
+            </View>
+          ))}
+          {canAddImages && images.length < MAX_EXERCISE_IMAGES ? (
+            <View className="justify-center gap-2">
+              <SmallButton
+                label="Galerie"
+                onPress={() => addImage('library')}
+                disabled={addingImage}
+              />
+              <SmallButton
+                label="Appareil photo"
+                onPress={() => addImage('camera')}
+                disabled={addingImage}
+              />
+            </View>
+          ) : null}
+        </Section>
+      ) : null}
 
       <Section title="Muscles principaux" hint="Au moins un">
         {MUSCLES.map((muscle) => (
