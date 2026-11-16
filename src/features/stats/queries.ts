@@ -3,7 +3,9 @@ import { and, asc, eq, gte, isNotNull, ne, sql } from 'drizzle-orm';
 import { db } from '@/db/client';
 import { useLiveData } from '@/db/live';
 import { exercises, sessionExercises, sessionSets, workoutSessions } from '@/db/schema';
+import { bodyWeightAt } from '@/domain/body-weight';
 import { periodStart, setsPerMuscle } from '@/domain/stats';
+import { readWeighIns } from '@/features/body-weight/data';
 
 /** Working sets of finished sessions; finished sessions only keep completed sets. */
 const workingSetOfFinishedSession = and(
@@ -38,11 +40,15 @@ export function useMuscleSets(days: number) {
   );
 }
 
-/** Working sets of an exercise with their session, oldest first, to chart its progress. */
+/**
+ * Working sets of an exercise with their session and the body weight then, oldest first, to chart
+ * its progress.
+ */
 export function useExerciseProgressSets(exerciseId: number) {
   return useLiveData(
-    () =>
-      db
+    () => {
+      const weighIns = readWeighIns();
+      return db
         .select({
           sessionId: workoutSessions.id,
           at: workoutSessions.startedAt,
@@ -56,8 +62,10 @@ export function useExerciseProgressSets(exerciseId: number) {
         .innerJoin(workoutSessions, eq(workoutSessions.id, sessionExercises.sessionId))
         .where(and(eq(sessionExercises.exerciseId, exerciseId), workingSetOfFinishedSession))
         .orderBy(asc(workoutSessions.startedAt))
-        .all(),
-    ['workout_sessions', 'session_exercises', 'session_sets'],
+        .all()
+        .map((set) => ({ ...set, bodyWeight: bodyWeightAt(weighIns, set.at) }));
+    },
+    ['workout_sessions', 'session_exercises', 'session_sets', 'body_weights'],
     `progress-${exerciseId}`,
   );
 }

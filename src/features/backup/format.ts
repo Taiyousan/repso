@@ -1,4 +1,5 @@
 import {
+  type BodyWeight,
   CONTENT_LANGUAGES,
   type Exercise,
   type Program,
@@ -18,7 +19,7 @@ import {
  * Bump BACKUP_VERSION for any change, and keep parsing the older versions.
  */
 export const BACKUP_FORMAT = 'repso.backup';
-export const BACKUP_VERSION = 1;
+export const BACKUP_VERSION = 2;
 
 type WithSlug<T> = Omit<T, 'exerciseId'> & { exerciseSlug: string };
 
@@ -34,6 +35,7 @@ export type BackupData = {
   sessionSets: SessionSet[];
   tags: Tag[];
   sessionTags: { sessionId: number; tagId: number }[];
+  bodyWeights: BodyWeight[];
 };
 
 export type Backup = { exportedAt: Date; data: BackupData };
@@ -128,7 +130,11 @@ const TABLES: Record<keyof BackupData, Record<string, FieldSpec>> = {
   },
   tags: { id: 'number', name: 'string', color: 'string?' },
   sessionTags: { sessionId: 'number', tagId: 'number' },
+  bodyWeights: { id: 'number', measuredAt: 'date', weight: 'number' },
 };
+
+/** Tables added after the first version: older backups don't have them. */
+const ADDED_IN_VERSION: Partial<Record<keyof BackupData, number>> = { bodyWeights: 2 };
 
 /** Table, field, referenced table, referenced field. */
 const REFERENCES: [keyof BackupData, string, keyof BackupData, string][] = [
@@ -202,7 +208,8 @@ export function parseBackup(text: string): BackupParseResult {
 
   const data: Record<string, Record<string, unknown>[]> = {};
   for (const [table, fields] of Object.entries(TABLES)) {
-    const rows = root.data[table];
+    const addedIn = ADDED_IN_VERSION[table as keyof BackupData] ?? 1;
+    const rows = root.version < addedIn ? [] : root.data[table];
     if (!Array.isArray(rows)) return damaged(table);
     data[table] = [];
     for (const [index, row] of rows.entries()) {

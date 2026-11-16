@@ -28,8 +28,10 @@ import {
   workoutSessions,
   workoutTemplates,
 } from '@/db/schema';
+import { bodyWeightAt, type WeighIn } from '@/domain/body-weight';
 import { computeRecords, type ExerciseRecords } from '@/domain/records';
 import { VOLUME_TRACKING_TYPES } from '@/domain/volume';
+import { readWeighIns } from '@/features/body-weight/data';
 import { mainMuscles } from '@/features/programs/sets';
 
 import type { SetPerformance } from './logic';
@@ -98,6 +100,7 @@ export function readExerciseRecords(
   exerciseIds: number[],
   excludeSessionId?: number,
   before?: Date,
+  weighIns: WeighIn[] = readWeighIns(),
 ): Map<number, ExerciseRecords> {
   const result = new Map<number, ExerciseRecords>();
   if (exerciseIds.length === 0) return result;
@@ -129,8 +132,9 @@ export function readExerciseRecords(
     .orderBy(asc(workoutSessions.startedAt))
     .all();
 
+  const weighed = rows.map((row) => ({ ...row, bodyWeight: bodyWeightAt(weighIns, row.at) }));
   for (const exerciseId of exerciseIds) {
-    const own = rows.filter((row) => row.exerciseId === exerciseId);
+    const own = weighed.filter((row) => row.exerciseId === exerciseId);
     if (own.length === 0) continue;
     result.set(exerciseId, computeRecords(own, own[0].trackingType));
   }
@@ -159,7 +163,7 @@ export function useRecentExerciseIds() {
 export function useExerciseRecords(exerciseId: number) {
   return useLiveData(
     () => readExerciseRecords([exerciseId]).get(exerciseId) ?? {},
-    ['workout_sessions', 'session_exercises', 'session_sets'],
+    ['workout_sessions', 'session_exercises', 'session_sets', 'body_weights'],
     exerciseId,
   );
 }
@@ -230,16 +234,19 @@ function createSessionReader(id: number) {
       .from(workoutSessions)
       .where(isNotNull(workoutSessions.endedAt))
       .get();
-    const key = `${exerciseIds.join(',')}|${finished?.count}|${finished?.lastId}|${session.startedAt.getTime()}`;
+    const weighIns = readWeighIns();
+    const weighInsKey = weighIns.map((w) => `${w.measuredAt.getTime()}:${w.weight}`).join(',');
+    const key = `${exerciseIds.join(',')}|${finished?.count}|${finished?.lastId}|${session.startedAt.getTime()}|${weighInsKey}`;
     if (context?.key !== key) {
       context = {
         key,
         // Before this session, so a past one is compared with what preceded it.
         previous: readPreviousPerformance(exerciseIds, id, session.startedAt),
-        records: readExerciseRecords(exerciseIds, id, session.startedAt),
+        records: readExerciseRecords(exerciseIds, id, session.startedAt, weighIns),
       };
     }
     const { previous, records } = context;
+    const bodyWeight = bodyWeightAt(weighIns, session.startedAt);
 
     const sessionTagList = db
       .select({ id: tags.id, name: tags.name })
@@ -259,6 +266,7 @@ function createSessionReader(id: number) {
         sets: sets.filter((set) => set.sessionExerciseId === item.id),
         previous: previous.get(exercise.id) ?? [],
         records: records.get(exercise.id) ?? {},
+        bodyWeight,
       })),
     };
   };
@@ -268,7 +276,14 @@ export function useSession(id: number) {
   return useLiveData(
     // Only the first reader is used: the store keeps it, with its cache, as long as `id`.
     createSessionReader(id),
-    ['workout_sessions', 'session_exercises', 'session_sets', 'session_tags', 'tags'],
+    [
+      'workout_sessions',
+      'session_exercises',
+      'session_sets',
+      'session_tags',
+      'tags',
+      'body_weights',
+    ],
     id,
   );
 }

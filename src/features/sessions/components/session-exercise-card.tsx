@@ -8,10 +8,16 @@ import { IconButton } from '@/components/ui/icon-button';
 import { SmallButton } from '@/components/ui/small-button';
 import { DragHandle } from '@/components/ui/sortable-list';
 import { Text } from '@/components/ui/text';
+import { usesBodyWeight } from '@/domain/body-weight';
 import { recordSetIds } from '@/domain/records';
 import { ExerciseThumbnail } from '@/features/exercises/components/exercise-thumbnail';
 import { RestPresets } from '@/features/programs/components/rest-presets';
-import { DEFAULT_REST_SECONDS, formatDuration, setBadges } from '@/features/programs/sets';
+import {
+  DEFAULT_REST_SECONDS,
+  formatDecimal,
+  formatDuration,
+  setBadges,
+} from '@/features/programs/sets';
 import { useThemeColors } from '@/lib/theme';
 
 import { isExerciseComplete, previousFor } from '../logic';
@@ -55,7 +61,9 @@ export const SessionExerciseCard = memo(function SessionExerciseCard({
   const badges = setBadges(sets.map((set) => set.type));
   // Validated sets only: an unvalidated one can already carry values typed then left alone.
   const records = recordSetIds(
-    sets.filter((set) => set.completedAt != null),
+    sets
+      .filter((set) => set.completedAt != null)
+      .map((set) => ({ ...set, bodyWeight: item.bodyWeight })),
     item.records,
     exercise.trackingType,
   );
@@ -194,6 +202,11 @@ export const SessionExerciseCard = memo(function SessionExerciseCard({
             onCompleted={handleSetCompleted}
           />
         ))}
+        {usesBodyWeight(exercise.trackingType) && item.bodyWeight != null ? (
+          <Text className="pt-1 text-xs text-muted">
+            Charge effective calculée avec {formatDecimal(item.bodyWeight)} kg de poids du corps
+          </Text>
+        ) : null}
       </View>
 
       <View className="flex-row gap-2">

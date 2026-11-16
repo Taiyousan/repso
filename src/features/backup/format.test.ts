@@ -92,6 +92,7 @@ const data: BackupData = {
   ],
   tags: [{ id: 15, name: 'Fatigué', color: null }],
   sessionTags: [{ sessionId: 9, tagId: 15 }],
+  bodyWeights: [{ id: 17, measuredAt: at, weight: 74.5 }],
 };
 
 const fileWith = (changes: object) => JSON.stringify({ ...JSON.parse(text()), ...changes });
@@ -118,6 +119,7 @@ describe('parseBackup', () => {
       sessionSets: [],
       tags: [],
       sessionTags: [],
+      bodyWeights: [],
     };
     expect(parseBackup(serializeBackup(empty, at))).toEqual({
       ok: true,
@@ -134,6 +136,12 @@ describe('parseBackup', () => {
 
   it('refuses a backup from a newer version', () => {
     expect(errorOf(fileWith({ version: 99 }))).toContain('mets l’application à jour');
+  });
+
+  it('reads a first-version backup, without body weights', () => {
+    const { bodyWeights: _bodyWeights, ...firstVersion } = data;
+    const result = parseBackup(fileWith({ version: 1, data: firstVersion }));
+    expect(result.ok && result.backup.data.bodyWeights).toEqual([]);
   });
 
   it('refuses a missing table', () => {

@@ -25,7 +25,7 @@ describe('recordKindsFor', () => {
   it('tracks weight, 1RM and volume on weighted exercises', () => {
     expect(recordKindsFor('weight_reps')).toEqual(['weight', 'oneRepMax', 'volume']);
     expect(recordKindsFor('bodyweight_reps')).toEqual(['reps']);
-    expect(recordKindsFor('assisted_reps')).toEqual(['assistance', 'reps']);
+    expect(recordKindsFor('assisted_reps')).toEqual(['load', 'assistance', 'reps']);
     expect(recordKindsFor('duration')).toEqual(['duration']);
   });
 });

@@ -12,7 +12,7 @@ outil de mesure d'audience. Tout ce que vous saisissez reste sur votre télépho
 
 ## Données enregistrées sur l'appareil
 
-Vos programmes, entraînements, séries, notes, tags et exercices personnalisés sont enregistrés dans une
+Vos programmes, entraînements, séries, notes, tags, pesées et exercices personnalisés sont enregistrés dans une
 base de données locale, sur votre téléphone uniquement. Le développeur n'y a pas accès.
 
 Ils sont effacés quand vous désinstallez l'application ou videz ses données dans les réglages

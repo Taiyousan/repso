@@ -1,6 +1,6 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { ScrollView, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Section } from '@/components/ui/card';
@@ -9,12 +9,14 @@ import { HeaderButton } from '@/components/ui/header-button';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Text } from '@/components/ui/text';
 import type { TrackingType } from '@/db/schema';
+import { usesBodyWeight } from '@/domain/body-weight';
 import {
   type ExerciseRecords,
   formatRecord,
   RECORD_LABELS,
   recordKindsFor,
 } from '@/domain/records';
+import { useBodyWeights } from '@/features/body-weight/data';
 import { ExerciseAnimation } from '@/features/exercises/components/exercise-animation';
 import { MuscleSummary } from '@/features/exercises/components/muscle-map';
 import {
@@ -40,6 +42,7 @@ export default function ExerciseDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { exercise } = useExercise(Number(id));
   const records = useExerciseRecords(Number(id));
+  const hasBodyWeight = useBodyWeights().length > 0;
   const insets = useSafeAreaInsets();
   const [tab, setTab] = useState<Tab>('overview');
 
@@ -96,6 +99,17 @@ export default function ExerciseDetailScreen() {
       {tab === 'overview' ? (
         <View className="gap-6">
           <Records trackingType={exercise.trackingType} records={records} />
+          {usesBodyWeight(exercise.trackingType) && !hasBodyWeight ? (
+            <Pressable
+              onPress={() => router.push('/body-weight')}
+              accessibilityRole="button"
+              className="rounded-2xl bg-surface-muted p-3 active:opacity-70">
+              <Text className="text-sm text-foreground">
+                Renseigne ton poids du corps pour suivre la charge effective de cet exercice.{' '}
+                <Text className="text-sm font-bold text-primary">Ajouter une pesée</Text>
+              </Text>
+            </Pressable>
+          ) : null}
           {exercise.primaryMuscles.length + exercise.secondaryMuscles.length > 0 ? (
             <Section title="Muscles">
               <MuscleSummary

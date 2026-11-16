@@ -5,6 +5,7 @@ import { db } from '@/db/client';
 import { useLiveData } from '@/db/live';
 import {
   appMeta,
+  bodyWeights,
   exercises,
   programs,
   sessionExercises,
@@ -81,6 +82,7 @@ export function readBackupData(): BackupData {
       .from(sessionTags)
       .all()
       .filter((tag) => sessionIds.has(tag.sessionId)),
+    bodyWeights: db.select().from(bodyWeights).all(),
   };
 }
 
@@ -103,6 +105,7 @@ export function restoreBackupData(data: BackupData): void {
     tx.delete(workoutSessions).run();
     tx.delete(tags).run();
     tx.delete(programs).run();
+    tx.delete(bodyWeights).run();
     tx.delete(exercises).where(eq(exercises.isCustom, true)).run();
 
     const installed = new Set(
@@ -148,6 +151,7 @@ export function restoreBackupData(data: BackupData): void {
     insertAll(tx, sessionSets, data.sessionSets);
     insertAll(tx, tags, data.tags);
     insertAll(tx, sessionTags, data.sessionTags);
+    insertAll(tx, bodyWeights, data.bodyWeights);
   });
 }
 

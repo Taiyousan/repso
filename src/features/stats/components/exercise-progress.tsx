@@ -23,7 +23,10 @@ type ExerciseProgressProps = { exerciseId: number; trackingType: TrackingType };
 /** Best value of each session on this exercise, as a line, with the change since the first one. */
 export function ExerciseProgress({ exerciseId, trackingType }: ExerciseProgressProps) {
   const sets = useExerciseProgressSets(exerciseId);
-  const kinds = chartedKinds(trackingType);
+  const charted = chartedKinds(trackingType);
+  // Kinds without a value stay hidden, like the effective load before any weigh-in.
+  const filled = charted.filter((kind) => progressSeries(sets, trackingType, kind).length > 0);
+  const kinds = filled.length > 0 ? filled : charted;
   const [chosenKind, setKind] = useState(kinds[0]);
   // The tracking type of a custom exercise can change under the chosen kind.
   const kind = kinds.includes(chosenKind) ? chosenKind : kinds[0];

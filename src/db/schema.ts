@@ -201,6 +201,21 @@ export const sessionTags = sqliteTable(
   (t) => [primaryKey({ columns: [t.sessionId, t.tagId] })],
 );
 
+// ---------------------------------------------------------------------------
+// Body weight
+// ---------------------------------------------------------------------------
+
+/** Weigh-ins: a workout uses the last one before it, so past workouts keep their body weight. */
+export const bodyWeights = sqliteTable(
+  'body_weights',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    measuredAt: integer('measured_at', { mode: 'timestamp_ms' }).notNull(),
+    weight: real('weight').notNull(),
+  },
+  (t) => [index('body_weights_measured_at_idx').on(t.measuredAt)],
+);
+
 export type Exercise = typeof exercises.$inferSelect;
 export type Program = typeof programs.$inferSelect;
 export type WorkoutTemplate = typeof workoutTemplates.$inferSelect;
@@ -209,3 +224,4 @@ export type WorkoutSession = typeof workoutSessions.$inferSelect;
 export type SessionExercise = typeof sessionExercises.$inferSelect;
 export type SessionSet = typeof sessionSets.$inferSelect;
 export type Tag = typeof tags.$inferSelect;
+export type BodyWeight = typeof bodyWeights.$inferSelect;

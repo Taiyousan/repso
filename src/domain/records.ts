@@ -1,5 +1,6 @@
 import type { SetType, TrackingType } from '@/db/schema';
 
+import { effectiveLoad } from './body-weight';
 import { estimateOneRepMax, formatVolume, isWorkingSet, setVolume } from './volume';
 
 /** Records tracked, each the best value ever reached on a working set. */
@@ -7,6 +8,7 @@ export const RECORD_KINDS = [
   'weight',
   'oneRepMax',
   'volume',
+  'load',
   'addedWeight',
   'assistance',
   'reps',
@@ -18,6 +20,7 @@ export const RECORD_LABELS: Record<RecordKind, string> = {
   weight: 'Charge max',
   oneRepMax: '1RM estimé',
   volume: 'Volume max',
+  load: 'Charge effective',
   addedWeight: 'Lest max',
   assistance: 'Assistance min',
   reps: 'Reps max',
@@ -27,8 +30,9 @@ export const RECORD_LABELS: Record<RecordKind, string> = {
 const KINDS_BY_TRACKING: Record<TrackingType, RecordKind[]> = {
   weight_reps: ['weight', 'oneRepMax', 'volume'],
   bodyweight_reps: ['reps'],
-  weighted_bodyweight: ['addedWeight', 'reps'],
-  assisted_reps: ['assistance', 'reps'],
+  // The effective load needs the body weight: without one, it never shows.
+  weighted_bodyweight: ['load', 'addedWeight', 'reps'],
+  assisted_reps: ['load', 'assistance', 'reps'],
   duration: ['duration'],
   distance: ['duration'],
 };
@@ -71,6 +75,8 @@ export type RecordSet = {
   weight: number | null;
   reps: number | null;
   durationSeconds: number | null;
+  /** Body weight on the day of the set, for the effective load of bodyweight exercises. */
+  bodyWeight?: number | null;
 };
 
 export type RecordEntry = { value: number; at: Date };
@@ -98,6 +104,9 @@ export function setRecordValues(
     } else if (set.weight) {
       values.addedWeight = set.weight;
     }
+    const load =
+      set.bodyWeight == null ? null : effectiveLoad(trackingType, set.weight, set.bodyWeight);
+    if (load != null) values.load = load;
     return values;
   }
   if (!set.weight || !set.reps) return {};
@@ -120,8 +129,9 @@ export function computeRecords(
       if (!isRecordValue(kind, value)) continue;
       const current = records[kind];
       // On a tie the oldest set keeps the record: it was reached first.
-      if (!current || beatsRecord(kind, value, current.value))
+      if (!current || beatsRecord(kind, value, current.value)) {
         records[kind] = { value, at: set.at };
+      }
     }
   }
   return records;
@@ -154,6 +164,8 @@ type RecordedExercise = {
   sets: RecordSet[];
   /** Records before this session. */
   records: ExerciseRecords;
+  /** Body weight on the day of the session. */
+  bodyWeight?: number | null;
 };
 
 /** Best new value of each kind beaten during the session, keyed by set. */
@@ -192,8 +204,9 @@ export function sessionNewRecords(exercises: RecordedExercise[]): NewRecord[] {
   // Keyed by exercise: the same one can be in a session twice, and holds a single record.
   const best = new Map<string, NewRecord>();
 
-  for (const { exercise, sets, records } of exercises) {
-    for (const [kind, entry] of bestNewValues(sets, records, exercise.trackingType)) {
+  for (const { exercise, sets, records, bodyWeight } of exercises) {
+    const weighed = sets.map((set) => ({ ...set, bodyWeight }));
+    for (const [kind, entry] of bestNewValues(weighed, records, exercise.trackingType)) {
       const key = `${exercise.id}-${kind}`;
       const current = best.get(key);
       if (!current || beatsRecord(kind, entry.value, current.value)) {
