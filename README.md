@@ -76,7 +76,8 @@ mettre à jour sans nouvelle version de l'app :
 
 Les apps installées lisent le manifest au plus une fois par jour à l'ouverture (ou via Réglages →
 « Mettre à jour la bibliothèque ») et ne téléchargent la bibliothèque que si sa version est plus
-récente. Un fichier invalide est ignoré en entier. Un nouveau type de suivi demande en revanche une
+récente. Un fichier invalide est ignoré en entier. Pour tester sans déployer, servir `site-dist/`
+depuis le PC et lancer Metro avec `EXPO_PUBLIC_LIBRARY_URL=http://<ip-du-pc>:8080/library/`. Un nouveau type de suivi demande en revanche une
 nouvelle version de l'app : les anciennes refusent alors la bibliothèque et gardent la leur.
 
 ## Import/export de programmes

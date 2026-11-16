@@ -7,8 +7,12 @@ import { appMeta } from '@/db/schema';
 import { installLibrary, readInstalledLibraryVersion } from './library';
 import { parseLibrary, parseLibraryManifest } from './library-format';
 
-/** Published by scripts/build-site.mjs. */
-const LIBRARY_URL = 'https://repso-app-android.vercel.app/library/';
+/**
+ * Published by scripts/build-site.mjs. EXPO_PUBLIC_LIBRARY_URL points a dev build to another copy,
+ * e.g. site-dist/ served from the computer (README).
+ */
+const LIBRARY_URL =
+  process.env.EXPO_PUBLIC_LIBRARY_URL ?? 'https://repso-app-android.vercel.app/library/';
 const CHECKED_AT_KEY = 'exercise_library_checked_at';
 const CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000;
 const TIMEOUT_MS = 15_000;
