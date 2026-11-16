@@ -1,0 +1,7 @@
+{
+  "extends": "astro/tsconfigs/strict",
+  "compilerOptions": {
+    // The app's modules imported by the pages use its alias.
+    "paths": { "@/*": ["../src/*"] }
+  }
+}

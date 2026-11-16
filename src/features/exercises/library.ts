@@ -5,6 +5,7 @@ import { useLiveData } from '@/db/live';
 import { appMeta, exercises } from '@/db/schema';
 
 import type { LibraryExercise } from './library-format';
+import { libraryImageUrl } from './library-images';
 import { isLocalImage, localImageFile, localImageName } from './local-images';
 
 /**
@@ -14,18 +15,10 @@ import { isLocalImage, localImageFile, localImageName } from './local-images';
 export const LIBRARY_VERSION = 6;
 const LIBRARY_VERSION_KEY = 'exercise_library_version';
 
-/** Same commit as scripts/build-exercise-library.mjs. Images are served by jsDelivr's CDN. */
-const IMAGE_BASE_URL =
-  'https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/';
-
-/**
- * An image is a photo kept on the phone, a full URL (exercises added outside free-exercise-db), or
- * a path in free-exercise-db.
- */
+/** An image is a photo kept on the phone or an image of the library. */
 export function exerciseImageUrl(path: string): string {
   if (isLocalImage(path)) return localImageFile(localImageName(path)).uri;
-  if (/^https?:\/\//.test(path)) return path;
-  return IMAGE_BASE_URL + path;
+  return libraryImageUrl(path);
 }
 
 /** Version of the library in the database, 0 before the first launch. */

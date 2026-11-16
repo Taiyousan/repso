@@ -25,15 +25,15 @@ npm start          # serveur de dev pour ce development build
 
 ## Scripts
 
-| Script                     | Rôle                                                                                   |
-| -------------------------- | -------------------------------------------------------------------------------------- |
-| `npm run check`            | Lint + typecheck + tests                                                               |
-| `npm run format`           | Formatage Prettier                                                                     |
-| `npm run db:generate`      | Génère une migration SQL après modification du schéma                                  |
-| `npm run build:dev`        | APK de développement sur EAS (`com.taiyoudev.repso.dev`)                               |
-| `npm run build:preview`    | APK de l'app réelle sur EAS (`com.taiyoudev.repso`)                                    |
-| `npm run build:production` | AAB signé pour le Play Store (`com.taiyoudev.repso`)                                   |
-| `npm run site:build`       | Pages web publiques (accueil, confidentialité) dans `site-dist/`, déployées par Vercel |
+| Script                     | Rôle                                                            |
+| -------------------------- | --------------------------------------------------------------- |
+| `npm run check`            | Lint + typecheck + tests                                        |
+| `npm run format`           | Formatage Prettier                                              |
+| `npm run db:generate`      | Génère une migration SQL après modification du schéma           |
+| `npm run build:dev`        | APK de développement sur EAS (`com.taiyoudev.repso.dev`)        |
+| `npm run build:preview`    | APK de l'app réelle sur EAS (`com.taiyoudev.repso`)             |
+| `npm run build:production` | AAB signé pour le Play Store (`com.taiyoudev.repso`)            |
+| `npm run site:build`       | Site web (`site/`, Astro) dans `site/dist/`, déployé par Vercel |
 
 ## Structure
 
@@ -48,6 +48,7 @@ src/
   lib/          Utilitaires (dates, texte, graphiques, thème)
   global.css    Design tokens (thème clair)
 modules/        Modules natifs locaux (notification de minuteur, enregistrement de fichier)
+site/           Site web public (Astro) : téléchargement, catalogue d'exercices, confidentialité
 ```
 
 ## Base de données
@@ -74,10 +75,15 @@ mettre à jour sans nouvelle version de l'app :
 2. Incrémenter `LIBRARY_VERSION` dans `src/features/exercises/library.ts`.
 3. Pousser sur `main` : Vercel publie `/library/manifest.json` et `/library/v<version>.json`.
 
+Le site expose aussi la bibliothèque à tout le monde : une page par exercice (`/exercices/<slug>/`),
+une liste avec recherche et filtres (`/exercices/`), le JSON à une adresse fixe
+(`/library/latest.json`, lisible depuis un autre site) et sa description pour les IA (`/llms.txt`).
+
 Les apps installées lisent le manifest au plus une fois par jour à l'ouverture (ou via Réglages →
 « Mettre à jour la bibliothèque ») et ne téléchargent la bibliothèque que si sa version est plus
-récente. Un fichier invalide est ignoré en entier. Pour tester sans déployer, servir `site-dist/`
-depuis le PC et lancer Metro avec `EXPO_PUBLIC_LIBRARY_URL=http://<ip-du-pc>:8080/library/`. Un nouveau type de suivi demande en revanche une
+récente. Un fichier invalide est ignoré en entier. Pour tester sans déployer, servir le site depuis le PC
+(`npm run site:build`, puis `npm run preview --prefix site -- --host`) et lancer Metro avec
+`EXPO_PUBLIC_LIBRARY_URL=http://<ip-du-pc>:4321/library/`. Un nouveau type de suivi demande en revanche une
 nouvelle version de l'app : les anciennes refusent alors la bibliothèque et gardent la leur.
 
 ## Import/export de programmes

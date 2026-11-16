@@ -8,7 +8,7 @@ import {
 
 /**
  * The exercise library, bundled in the app (src/data/exercise-library.json) and published by the
- * site (scripts/build-site.mjs) so installed apps get its updates without a new build:
+ * site (site/src/pages/library/) so installed apps get its updates without a new build:
  * - /library/manifest.json: { format, version, url } — a few bytes, read first
  * - /library/v<version>.json: the library itself, downloaded only when its version is newer
  */

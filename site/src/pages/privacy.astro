@@ -1,0 +1,25 @@
+---
+// Rendered from PRIVACY.md, so the published policy never drifts from the repository.
+import { Content } from '../../../PRIVACY.md';
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+  title="Politique de confidentialité — Repso"
+  description="Repso ne collecte aucune donnée personnelle : tout reste sur votre téléphone.">
+  <article class="prose">
+    <Content />
+  </article>
+</Layout>
+
+<style>
+  .prose :global(h1) {
+    font-size: 32px;
+    line-height: 1.1;
+    margin: 36px 0 8px;
+  }
+  .prose :global(h2) {
+    font-size: 20px;
+    margin: 32px 0 8px;
+  }
+</style>

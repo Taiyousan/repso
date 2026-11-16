@@ -1,0 +1,175 @@
+---
+import type { GetStaticPaths } from 'astro';
+
+import {
+  categoryLabel,
+  equipmentLabel,
+  levelLabel,
+  mechanicLabel,
+  muscleLabel,
+  TRACKING_TYPE_DETAILS,
+} from '../../../../src/features/exercises/labels';
+import type { LibraryExercise } from '../../../../src/features/exercises/library-format';
+import { libraryImageUrl } from '../../../../src/features/exercises/library-images';
+import Layout from '../../layouts/Layout.astro';
+import { library } from '../../library';
+
+export const getStaticPaths = (() =>
+  library.map((exercise) => ({
+    params: { slug: exercise.slug },
+    props: { exercise },
+  }))) satisfies GetStaticPaths;
+
+type Props = { exercise: LibraryExercise };
+
+const { exercise } = Astro.props;
+const images = exercise.images.map(libraryImageUrl);
+const tracking = TRACKING_TYPE_DETAILS[exercise.trackingType];
+const facts = [
+  ['Muscles principaux', exercise.primaryMuscles.map(muscleLabel).join(', ')],
+  ['Muscles secondaires', exercise.secondaryMuscles.map(muscleLabel).join(', ')],
+  ['Équipement', exercise.equipment && equipmentLabel(exercise.equipment)],
+  ['Niveau', exercise.level && levelLabel(exercise.level)],
+  ['Catégorie', exercise.category && categoryLabel(exercise.category)],
+  ['Type', exercise.mechanic && mechanicLabel(exercise.mechanic)],
+  ['Suivi dans l’app', `${tracking.label} (${tracking.set})`],
+].filter(([, value]) => value);
+const description = `${exercise.name} : muscles travaillés, équipement et consignes d’exécution.`;
+---
+
+<Layout title={`${exercise.name} — Repso`} description={description} image={images[0]}>
+  <a class="back" href="/exercices/">← Exercices</a>
+  <h1 class="page-title">{exercise.name}</h1>
+  {
+    exercise.nameEn && exercise.nameEn !== exercise.name && (
+      <p class="name-en" lang="en">
+        {exercise.nameEn}
+      </p>
+    )
+  }
+
+  {
+    images.length > 0 ? (
+      <div class:list={['frames', { animated: images.length >= 2 }]}>
+        {images.slice(0, 2).map((src, index) => (
+          <img src={src} alt={index === 0 ? `${exercise.name}, position de départ` : ''} />
+        ))}
+      </div>
+    ) : (
+      <div class="frames empty">Pas d’illustration</div>
+    )
+  }
+
+  <dl class="card facts">
+    {
+      facts.map(([term, value]) => (
+        <div>
+          <dt>{term}</dt>
+          <dd>{value}</dd>
+        </div>
+      ))
+    }
+  </dl>
+
+  {
+    exercise.instructions.length > 0 && (
+      <>
+        <h2>Consignes</h2>
+        <ol class="card steps" lang={exercise.instructionsLanguage}>
+          {exercise.instructions.map((step) => (
+            <li>{step}</li>
+          ))}
+        </ol>
+      </>
+    )
+  }
+
+  <p class="note">
+    Identifiant : <code>{exercise.slug}</code>, pour écrire un programme à importer dans l’app.
+  </p>
+</Layout>
+
+<style>
+  .back {
+    display: inline-block;
+    margin-top: 24px;
+    font-size: 14px;
+    text-decoration: none;
+  }
+  .page-title {
+    margin-top: 8px;
+  }
+  .name-en {
+    color: var(--muted);
+    margin: 0 0 16px;
+  }
+  /* free-exercise-db gives a start and an end position: alternating them animates the movement,
+     as in the app. */
+  .frames {
+    position: relative;
+    aspect-ratio: 3 / 2;
+    margin: 16px 0 0;
+    background: #fff;
+    border: 1px solid var(--outline);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .frames img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #fff;
+  }
+  .animated img + img {
+    animation: swap 1.8s steps(1) infinite;
+  }
+  @keyframes swap {
+    from {
+      opacity: 0;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .animated img + img {
+      animation: none;
+      opacity: 0;
+    }
+  }
+  .frames.empty {
+    display: grid;
+    place-items: center;
+    color: var(--muted);
+    background: var(--surface);
+  }
+  .facts {
+    margin-top: 16px;
+  }
+  .facts div {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px 16px;
+  }
+  .facts div + div {
+    border-top: 1px solid var(--border);
+  }
+  dt {
+    color: var(--muted);
+  }
+  dd {
+    margin: 0;
+    font-weight: 800;
+    text-align: right;
+  }
+  code {
+    font-size: 13px;
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    border-radius: 6px;
+    padding: 1px 5px;
+  }
+</style>

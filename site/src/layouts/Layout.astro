@@ -1,0 +1,56 @@
+---
+import favicon from '../../../assets/images/favicon.png?url';
+import featureGraphic from '../../../store/graphics/feature-graphic.png?url';
+import icon from '../../../store/graphics/icon-512.png?url';
+import Brand from '../components/Brand.astro';
+import { PORTFOLIO_URL } from '../config';
+import baloo from '../fonts/Baloo2_800ExtraBold.ttf?url';
+import '../styles/site.css';
+
+type Props = {
+  title: string;
+  description: string;
+  /** Shown when the page is shared, the app's banner by default. */
+  image?: string;
+};
+
+const { title, description, image = featureGraphic } = Astro.props;
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#2563eb" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={new URL(image, Astro.site)} />
+    <link rel="icon" href={favicon} />
+    <link rel="apple-touch-icon" href={icon} />
+    <link rel="preload" href={baloo} as="font" type="font/ttf" crossorigin />
+  </head>
+  <body>
+    {
+      Astro.slots.has('band') ? (
+        <slot name="band" />
+      ) : (
+        <header class="band small">
+          <div class="wrap">
+            <Brand />
+          </div>
+        </header>
+      )
+    }
+    <main class="wrap">
+      <slot />
+    </main>
+    <footer class="wrap">
+      <a href="/exercices/">Exercices</a><a href="/privacy/">Confidentialité</a><a
+        href={PORTFOLIO_URL}>Portfolio</a
+      >
+    </footer>
+  </body>
+</html>

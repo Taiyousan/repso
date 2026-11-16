@@ -1,0 +1,204 @@
+---
+import { EQUIPMENT, equipmentLabel, MUSCLES, muscleLabel } from '../../../../src/features/exercises/labels';
+import { libraryImageUrl } from '../../../../src/features/exercises/library-images';
+import Layout from '../../layouts/Layout.astro';
+import { sortedLibrary } from '../../library';
+import { searchText } from '../../search';
+---
+
+<Layout
+  title="Exercices — Repso"
+  description={`Les ${sortedLibrary.length} exercices de Repso, en français, avec illustrations et consignes d’exécution.`}>
+  <h1 class="page-title">Exercices</h1>
+  <p class="intro">
+    Les {sortedLibrary.length} exercices de l’app, avec illustrations et consignes d’exécution.
+  </p>
+
+  <form class="filters" role="search">
+    <input
+      type="search"
+      name="q"
+      placeholder="Rechercher un exercice"
+      aria-label="Rechercher un exercice"
+      autocomplete="off"
+    />
+    <select name="muscle" aria-label="Muscle">
+      <option value="">Tous les muscles</option>
+      {MUSCLES.map((muscle) => <option value={muscle}>{muscleLabel(muscle)}</option>)}
+    </select>
+    <select name="equipment" aria-label="Équipement">
+      <option value="">Tout l’équipement</option>
+      {EQUIPMENT.map((equipment) => <option value={equipment}>{equipmentLabel(equipment)}</option>)}
+    </select>
+  </form>
+  <p class="count" aria-live="polite">{sortedLibrary.length} exercices</p>
+
+  <ul class="card exercises">
+    {
+      sortedLibrary.map((exercise) => (
+        <li
+          data-search={searchText(`${exercise.name} ${exercise.nameEn ?? ''}`)}
+          data-muscles={exercise.primaryMuscles.join('|')}
+          data-equipment={exercise.equipment ?? ''}>
+          <a href={`/exercices/${exercise.slug}/`}>
+            {exercise.images[0] ? (
+              <img src={libraryImageUrl(exercise.images[0])} alt="" loading="lazy" decoding="async" />
+            ) : (
+              <span class="no-image" />
+            )}
+            <span>
+              <strong>{exercise.name}</strong>
+              <small>
+                {[
+                  exercise.primaryMuscles.map(muscleLabel).join(', '),
+                  exercise.equipment && equipmentLabel(exercise.equipment),
+                ]
+                  .filter(Boolean)
+                  .join(' · ')}
+              </small>
+            </span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+  <p class="empty" hidden>Aucun exercice ne correspond à votre recherche.</p>
+  <p class="note">
+    Illustrations et consignes d’origine : <a href="https://github.com/yuhonas/free-exercise-db"
+      >free-exercise-db</a
+    > (domaine public). Le catalogue est aussi disponible <a href="/library/latest.json">en JSON</a>.
+  </p>
+</Layout>
+
+<script>
+  import { searchText } from '../../search';
+
+  const form = document.querySelector<HTMLFormElement>('.filters')!;
+  const items = [...document.querySelectorAll<HTMLLIElement>('.exercises > li')];
+  const count = document.querySelector('.count')!;
+  const list = document.querySelector<HTMLElement>('.exercises')!;
+  const empty = document.querySelector<HTMLElement>('.empty')!;
+
+  // The filters live in the address, so a search can be shared and survives going back.
+  const params = new URLSearchParams(location.search);
+  for (const name of ['q', 'muscle', 'equipment']) {
+    const field = form.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement;
+    field.value = params.get(name) ?? '';
+  }
+
+  function filter() {
+    const data = new FormData(form);
+    const query = searchText(String(data.get('q')).trim());
+    const muscle = String(data.get('muscle'));
+    const equipment = String(data.get('equipment'));
+
+    let shown = 0;
+    for (const item of items) {
+      const match =
+        item.dataset.search!.includes(query) &&
+        (!muscle || item.dataset.muscles!.split('|').includes(muscle)) &&
+        (!equipment || item.dataset.equipment === equipment);
+      item.hidden = !match;
+      if (match) shown += 1;
+    }
+    count.textContent = `${shown} exercice${shown > 1 ? 's' : ''}`;
+    list.hidden = shown === 0;
+    empty.hidden = shown > 0;
+
+    const next = new URLSearchParams();
+    for (const [name, value] of data) if (String(value).trim()) next.set(name, String(value).trim());
+    const search = next.size > 0 ? `?${next}` : '';
+    history.replaceState(null, '', location.pathname + search);
+  }
+
+  form.addEventListener('input', filter);
+  form.addEventListener('submit', (event) => event.preventDefault());
+  if (params.size > 0) filter();
+</script>
+
+<style>
+  .intro {
+    color: var(--muted);
+    margin: 0 0 20px;
+  }
+  .filters {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .filters input {
+    grid-column: 1 / -1;
+  }
+  input,
+  select {
+    min-width: 0;
+    font: inherit;
+    color: inherit;
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    border-radius: 12px;
+    padding: 10px 12px;
+  }
+  input:focus-visible,
+  select:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: -1px;
+  }
+  .count {
+    color: var(--muted);
+    font-size: 14px;
+    margin: 16px 4px 8px;
+  }
+  .exercises > li {
+    padding: 0;
+  }
+  .exercises > li[hidden] {
+    display: none;
+  }
+  /* A hidden row leaves its border to the next shown one. */
+  .exercises > li:not([hidden]) ~ li:not([hidden]) {
+    border-top: 1px solid var(--border);
+  }
+  .exercises > li + li {
+    border-top: none;
+  }
+  .exercises a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px 10px 10px;
+    color: inherit;
+    font-weight: 400;
+    text-decoration: none;
+  }
+  .exercises a:hover strong {
+    color: var(--primary);
+  }
+  img,
+  .no-image {
+    flex: none;
+    width: 72px;
+    height: 48px;
+    border-radius: 8px;
+    background: #fff;
+    border: 1px solid var(--border);
+    object-fit: contain;
+  }
+  .no-image {
+    background: var(--background);
+  }
+  strong,
+  small {
+    display: block;
+  }
+  small {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  .empty {
+    color: var(--muted);
+    text-align: center;
+    margin: 32px 0;
+  }
+</style>

@@ -1,0 +1,140 @@
+---
+import Brand from '../components/Brand.astro';
+import { APK_URL, APP_VERSION } from '../config';
+import Layout from '../layouts/Layout.astro';
+import { library } from '../library';
+
+const features = [
+  [
+    'Programmes et séances',
+    'Créez les vôtres ou partez d’un programme suggéré. Pour chaque exercice : ordre, repos et objectif.',
+  ],
+  [
+    'En salle',
+    'Vos séries de la dernière fois sont déjà là. Minuteur de repos avec notification, même écran éteint.',
+  ],
+  [
+    'Progrès',
+    'Records personnels, récapitulatif après chaque entraînement, calendrier, volume et séries par muscle.',
+  ],
+  [
+    `Plus de ${Math.floor(library.length / 10) * 10} exercices`,
+    'En français, avec illustrations et consignes d’exécution. Vous pouvez aussi créer les vôtres.',
+    { href: '/exercices/', label: 'Parcourir les exercices' },
+  ],
+  [
+    'Vos données restent chez vous',
+    'Aucun compte, aucun serveur, aucune publicité, aucun traqueur. Sauvegarde dans un fichier quand vous voulez.',
+  ],
+] as const;
+
+const steps = [
+  'Depuis votre téléphone Android, téléchargez le fichier <strong>repso.apk</strong>.',
+  'Ouvrez-le. Android vous demande d’autoriser votre navigateur à installer des applications : acceptez.',
+  'Installez, c’est prêt. Pour mettre à jour, installez la nouvelle version par-dessus : vos données sont conservées.',
+];
+---
+
+<Layout
+  title="Repso — carnet de musculation"
+  description="Carnet d’entraînement de musculation pour Android : programmes, séances, records et statistiques. Sans compte et sans publicité.">
+  <header class="band" slot="band">
+    <div class="wrap">
+      <Brand />
+      <h1>Votre carnet de musculation</h1>
+      <p class="lead">
+        Programmes, séances, records et statistiques. Sans compte, sans publicité : tout reste sur
+        votre téléphone.
+      </p>
+      <a class="download" href={APK_URL}>
+        <svg
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.6"
+          stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"></path>
+        </svg>Télécharger pour Android
+      </a>
+      <p class="meta">Gratuit · version {APP_VERSION} · bientôt sur le Play Store</p>
+    </div>
+  </header>
+
+  <h2>Ce que fait Repso</h2>
+  <ul class="card">
+    {
+      features.map(([name, text, link]) => (
+        <li>
+          <strong>{name}</strong>
+          <p>
+            {text}
+            {link && (
+              <>
+                {' '}
+                <a href={link.href}>{link.label}</a>
+              </>
+            )}
+          </p>
+        </li>
+      ))
+    }
+  </ul>
+  <h2>Installer</h2>
+  <ol class="card steps">
+    {
+      steps.map((step) => (
+        <li>
+          <p set:html={step} />
+        </li>
+      ))
+    }
+  </ol>
+  <p class="note">
+    L’application n’est pas encore sur le Play Store, d’où ce fichier à installer vous-même.
+  </p>
+</Layout>
+
+<style>
+  .band h1 {
+    font-size: clamp(36px, 9vw, 54px);
+    line-height: 1.02;
+    margin: 44px 0 14px;
+  }
+  .lead {
+    color: var(--primary-soft);
+    font-size: 18px;
+    margin: 0 0 28px;
+    max-width: 32em;
+  }
+  .download {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 24px;
+    background: #fff;
+    color: var(--primary);
+    border-radius: 14px;
+    text-decoration: none;
+    font-size: 17px;
+    box-shadow: 0 4px 0 var(--primary-edge);
+  }
+  .download:active {
+    transform: translateY(4px);
+    box-shadow: none;
+  }
+  .download svg {
+    width: 22px;
+    height: 22px;
+  }
+  .meta {
+    color: var(--primary-soft);
+    font-size: 14px;
+    margin: 16px 0 0;
+  }
+  .steps p {
+    margin: 0;
+    color: var(--foreground);
+  }
+</style>

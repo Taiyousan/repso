@@ -8,8 +8,8 @@ import { installLibrary, readInstalledLibraryVersion } from './library';
 import { parseLibrary, parseLibraryManifest } from './library-format';
 
 /**
- * Published by scripts/build-site.mjs. EXPO_PUBLIC_LIBRARY_URL points a dev build to another copy,
- * e.g. site-dist/ served from the computer (README).
+ * Published by the site (site/src/pages/library/). EXPO_PUBLIC_LIBRARY_URL points a dev build to another copy,
+ * e.g. site/dist/ served from the computer (README).
  */
 const LIBRARY_URL =
   process.env.EXPO_PUBLIC_LIBRARY_URL ?? 'https://repso-app-android.vercel.app/library/';
