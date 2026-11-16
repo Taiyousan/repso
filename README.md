@@ -79,6 +79,12 @@ Le site expose aussi la bibliothèque à tout le monde : une page par exercice (
 une liste avec recherche et filtres (`/exercices/`), le JSON à une adresse fixe
 (`/library/latest.json`, lisible depuis un autre site) et sa description pour les IA (`/llms.txt`).
 
+Pour donner ses propres photos à un exercice, les déposer dans `src/data/exercise-images/<slug>/`
+(`0.jpg`, `1.jpg`… : position de départ puis d'arrivée, moins de 500 ko chacune), puis suivre les
+étapes ci-dessus. Elles remplacent les images de l'exercice : le site les publie sous un nom qui
+contient une empreinte de leur contenu (`/exercise-images/<slug>/0.<empreinte>.jpg`), si bien qu'une
+photo modifiée change d'adresse et qu'aucun téléphone ne garde l'ancienne en cache.
+
 Les apps installées lisent le manifest au plus une fois par jour à l'ouverture (ou via Réglages →
 « Mettre à jour la bibliothèque ») et ne téléchargent la bibliothèque que si sa version est plus
 récente. Un fichier invalide est ignoré en entier. Pour tester sans déployer, servir le site depuis le PC

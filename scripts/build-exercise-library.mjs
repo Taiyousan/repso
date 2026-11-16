@@ -8,14 +8,19 @@
  * - src/data/exercise-instructions.fr.json  { slug: steps[] }, translated exercises only
  * - src/data/exercise-essentials.json       [slug], exercises shown by default
  * - src/data/exercise-extras.json           complete exercises missing from free-exercise-db
+ * - src/data/exercise-images/<slug>/        photos replacing the images of an exercise
  *
- * Images of an extra exercise are paths in free-exercise-db, or full URLs.
+ * Images of an extra exercise are paths in free-exercise-db, or full URLs. Photos of
+ * exercise-images/ become URLs of the site, which publishes them (scripts/exercise-images.mjs).
  *
  * The source is pinned to a commit so builds are reproducible. After any change here or in
  * those files, run `npm run library:build` and bump LIBRARY_VERSION in
  * src/features/exercises/library.ts so installed apps re-import the library.
  */
 import { readFile, writeFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+
+import { EXERCISE_IMAGES_URL, readExerciseImages } from './exercise-images.mjs';
 
 const SOURCE_COMMIT = 'f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5';
 const SOURCE_URL = `https://raw.githubusercontent.com/yuhonas/free-exercise-db/${SOURCE_COMMIT}/dist/exercises.json`;
@@ -113,6 +118,17 @@ const library = source.map((exercise) => {
   };
 });
 library.push(...extras);
+
+const photos = readExerciseImages(fileURLToPath(new URL('exercise-images/', DATA_DIR)));
+assertKnownSlugs(
+  'exercise-images/',
+  [...photos.keys()],
+  new Set(library.map((exercise) => exercise.slug)),
+);
+for (const exercise of library) {
+  const frames = photos.get(exercise.slug);
+  if (frames) exercise.images = frames.map(({ file }) => EXERCISE_IMAGES_URL + file);
+}
 
 library.sort((a, b) => a.name.localeCompare(b.name, 'fr'));
 await writeFile(OUTPUT, JSON.stringify(library) + '\n');
