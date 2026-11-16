@@ -54,6 +54,7 @@ type FieldSpec =
   | 'string'
   | 'string?'
   | 'boolean'
+  | 'boolean?'
   | 'date'
   | 'date?'
   | 'strings'
@@ -77,6 +78,8 @@ const TABLES: Record<keyof BackupData, Record<string, FieldSpec>> = {
     trackingType: TRACKING_TYPES,
     isEssential: 'boolean',
     isCustom: 'boolean',
+    // Added in version 2: null in older backups, read as false.
+    isHidden: 'boolean?',
     createdAt: 'date',
   },
   programs: {
@@ -237,6 +240,7 @@ export function parseBackup(text: string): BackupParseResult {
     const orphan = data[table].findIndex((row) => row[field] !== null && !known.has(row[field]));
     if (orphan !== -1) return damaged(`${table}, ligne ${orphan + 1}, ${field}`);
   }
+  for (const exercise of data.exercises) exercise.isHidden ??= false;
   const badImage = data.exerciseImages.findIndex((row) => !IMAGE_NAME.test(row.name as string));
   if (badImage !== -1) return damaged(`exerciseImages, ligne ${badImage + 1}, name`);
 

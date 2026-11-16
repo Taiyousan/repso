@@ -17,8 +17,11 @@ function sortByName<T extends { name: string }>(items: T[]): T[] {
     .map(({ item }) => item);
 }
 
+/** The library: every exercise but the hidden ones. */
 export function useExerciseList() {
-  const { data, ...rest } = useLiveQuery(db.select().from(exercises));
+  const { data, ...rest } = useLiveQuery(
+    db.select().from(exercises).where(eq(exercises.isHidden, false)),
+  );
   const sorted = useMemo(() => sortByName(data), [data]);
   return { data: sorted, ...rest };
 }

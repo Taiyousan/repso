@@ -61,6 +61,8 @@ export const exercises = sqliteTable(
     /** Common exercises, shown by default in the library. */
     isEssential: integer('is_essential', { mode: 'boolean' }).notNull().default(false),
     isCustom: integer('is_custom', { mode: 'boolean' }).notNull().default(false),
+    /** Left out of the library, still shown where it was used (programs, history). */
+    isHidden: integer('is_hidden', { mode: 'boolean' }).notNull().default(false),
     createdAt: createdAt(),
   },
   (t) => [index('exercises_name_idx').on(t.name)],

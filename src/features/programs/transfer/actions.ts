@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { router } from 'expo-router';
 import { Alert } from 'react-native';
 
@@ -55,7 +55,7 @@ export function formatGuideFile(): ExportFile {
   const custom = db
     .select({ slug: exercises.slug, name: exercises.name })
     .from(exercises)
-    .where(eq(exercises.isCustom, true))
+    .where(and(eq(exercises.isCustom, true), eq(exercises.isHidden, false)))
     .all()
     .map((exercise) => ({ exercise, key: normalizeText(exercise.name) }))
     .sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0))

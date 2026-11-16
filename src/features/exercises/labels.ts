@@ -94,13 +94,26 @@ const MECHANIC_LABELS: Record<string, string> = {
   isolation: 'Isolation',
 };
 
-export const TRACKING_TYPE_LABELS: Record<TrackingType, string> = {
-  weight_reps: 'Poids × reps',
-  bodyweight_reps: 'Poids du corps',
-  weighted_bodyweight: 'Poids du corps + lest',
-  assisted_reps: 'Poids du corps assisté',
-  duration: 'Durée',
-  distance: 'Distance',
+/** How a set is logged: name, typical exercises, and a set as the workout shows it. */
+export const TRACKING_TYPE_DETAILS: Record<
+  TrackingType,
+  { label: string; examples: string; set: string }
+> = {
+  weight_reps: { label: 'Charge × reps', examples: 'Barre, haltères, machine', set: '80 kg × 8' },
+  bodyweight_reps: { label: 'Poids du corps', examples: 'Pompes, crunchs, fentes', set: '× 12' },
+  weighted_bodyweight: {
+    label: 'Poids du corps + lest',
+    examples: 'Tractions, dips, lest facultatif',
+    set: '+10 kg × 6',
+  },
+  assisted_reps: {
+    label: 'Poids du corps assisté',
+    examples: 'Machine ou élastique qui aide',
+    set: '−20 kg × 8',
+  },
+  duration: { label: 'Durée', examples: 'Gainage, étirements, cardio', set: '45 s' },
+  // Logged as a duration so far: no longer offered, kept for the exercises that use it.
+  distance: { label: 'Distance (durée)', examples: 'Temps sur une distance', set: '45 s' },
 };
 
 export const muscleLabel = (muscle: string) => MUSCLE_LABELS[muscle as Muscle] ?? muscle;

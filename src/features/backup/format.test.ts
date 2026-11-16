@@ -27,6 +27,7 @@ const data: BackupData = {
       trackingType: 'weight_reps',
       isEssential: true,
       isCustom: false,
+      isHidden: false,
       createdAt: at,
     },
   ],
@@ -145,6 +146,12 @@ describe('parseBackup', () => {
     const result = parseBackup(fileWith({ version: 1, data: firstVersion }));
     expect(result.ok && result.backup.data.bodyWeights).toEqual([]);
     expect(result.ok && result.backup.data.exerciseImages).toEqual([]);
+  });
+
+  it('shows the exercises of a backup made before they could be hidden', () => {
+    const exercises = data.exercises.map(({ isHidden: _isHidden, ...exercise }) => exercise);
+    const result = parseBackup(fileWith({ data: { ...data, exercises } }));
+    expect(result.ok && result.backup.data.exercises[0].isHidden).toBe(false);
   });
 
   it('refuses a photo name that could write outside its folder', () => {

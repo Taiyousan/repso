@@ -92,6 +92,11 @@ export default function ExerciseDetailScreen() {
         {details.length > 0 ? (
           <Text className="text-sm font-semibold text-muted">{details.join(' · ')}</Text>
         ) : null}
+        {exercise.isHidden ? (
+          <Text className="text-sm font-semibold text-muted">
+            Masqué de la bibliothèque · Modifier pour le remettre
+          </Text>
+        ) : null}
       </View>
 
       <SegmentedControl options={TABS} value={tab} onChange={setTab} />

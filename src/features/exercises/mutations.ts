@@ -40,6 +40,14 @@ export function updateCustomExercise(id: number, input: CustomExerciseInput): vo
     .run();
 }
 
+/** A hidden exercise leaves the library, but stays in the programs and workouts using it. */
+export function setExerciseHidden(id: number, hidden: boolean): void {
+  db.update(exercises)
+    .set({ isHidden: hidden })
+    .where(and(eq(exercises.id, id), eq(exercises.isCustom, true)))
+    .run();
+}
+
 /** Number of programs and sessions referencing the exercise (which prevent its deletion). */
 export function countExerciseUsages(id: number): number {
   const inTemplates = db
