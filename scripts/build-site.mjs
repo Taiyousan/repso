@@ -1,6 +1,7 @@
 /**
- * Builds the public web pages of the app into site-dist/: a home page to download the app and the
- * privacy policy, converted from PRIVACY.md so the published policy never drifts from the repository.
+ * Builds the public web pages of the app into site-dist/: a home page to download the app, the
+ * privacy policy, converted from PRIVACY.md so the published policy never drifts from the repository,
+ * and the exercise library that installed apps download (library/).
  * Both follow the app's look (tokens of src/global.css, Baloo 2 + Nunito served from site/fonts/).
  * Run by Vercel on deploy (vercel.json), or locally with `npm run site:build`.
  */
@@ -237,4 +238,31 @@ ${markdownToHtml(readFileSync(join(root, 'PRIVACY.md'), 'utf8'))}
 </article>`,
   }),
 );
+
+/**
+ * The exercise library, so installed apps get its updates without a new build (format in
+ * src/features/exercises/library-format.ts). Its version is the app's LIBRARY_VERSION: bump it
+ * with any change of src/data/exercise-library.json, then deploy.
+ */
+const libraryVersion = Number(
+  /LIBRARY_VERSION = (\d+);/.exec(
+    readFileSync(join(root, 'src/features/exercises/library.ts'), 'utf8'),
+  )?.[1],
+);
+if (!Number.isInteger(libraryVersion)) throw new Error('LIBRARY_VERSION not found');
+mkdirSync(join(out, 'library'), { recursive: true });
+// Minified: the repository keeps it readable, the app downloads it.
+writeFileSync(
+  join(out, `library/v${libraryVersion}.json`),
+  JSON.stringify(JSON.parse(readFileSync(join(root, 'src/data/exercise-library.json'), 'utf8'))),
+);
+writeFileSync(
+  join(out, 'library/manifest.json'),
+  JSON.stringify({
+    format: 'repso.library',
+    version: libraryVersion,
+    url: `v${libraryVersion}.json`,
+  }),
+);
+
 console.log(`Site written to ${out}`);

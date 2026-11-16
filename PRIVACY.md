@@ -27,6 +27,14 @@ téléphone et des informations techniques sur la requête (voir sa
 [politique de confidentialité](https://www.jsdelivr.com/terms/privacy-policy)). Aucune
 donnée d'entraînement n'est envoyée.
 
+Au plus une fois par jour, à l'ouverture, et quand vous touchez « Mettre à jour la bibliothèque »,
+l'application télécharge la liste des exercices depuis le site de Repso
+([repso-app-android.vercel.app](https://repso-app-android.vercel.app)), hébergé par
+[Vercel](https://vercel.com). C'est un simple téléchargement de fichier : Vercel reçoit l'adresse IP
+de votre téléphone et des informations techniques sur la requête (voir sa
+[politique de confidentialité](https://vercel.com/legal/privacy-policy)), mais aucune donnée
+personnelle ni d'entraînement n'est envoyée.
+
 L'application n'effectue aucune autre connexion. Les liens de l'écran « Licences » s'ouvrent dans
 votre navigateur.
 
@@ -53,7 +61,7 @@ réglages d'Android.
 - **Vibreur** : vibrer à la fin du repos.
 - **Appareil photo** (facultative) : prendre en photo un exercice personnalisé. La photo reste sur le
   téléphone, dans les données de l'application.
-- **Internet** : télécharger les illustrations des exercices.
+- **Internet** : télécharger les illustrations et les mises à jour de la bibliothèque d'exercices.
 
 ## Enfants
 

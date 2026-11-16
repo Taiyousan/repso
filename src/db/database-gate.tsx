@@ -6,6 +6,7 @@ import { View } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { seedExerciseLibrary } from '@/features/exercises/library';
 import { pruneExerciseImages } from '@/features/exercises/local-images';
+import { updateExerciseLibraryInBackground } from '@/features/exercises/remote-library';
 import { discardDraftWorkoutTemplates } from '@/features/programs/mutations';
 import { tidyFinishedSessions } from '@/features/sessions/mutations';
 
@@ -15,7 +16,7 @@ import migrations from './migrations/migrations';
 /**
  * Runs pending migrations, imports the exercise library, drops abandoned drafts, tidies workouts
  * left in the editor and deletes unused exercise photos, keeping the splash screen up until the
- * database is ready.
+ * database is ready. Then looks for a newer exercise library on the site.
  */
 export function DatabaseGate({ children }: PropsWithChildren) {
   const migration = useMigrations(db, migrations);
@@ -33,7 +34,11 @@ export function DatabaseGate({ children }: PropsWithChildren) {
         pruneExerciseImages();
       })
       .then(
-        () => setSeeded(true),
+        () => {
+          setSeeded(true);
+          // Not awaited: the app never waits for the network.
+          updateExerciseLibraryInBackground();
+        },
         (e: unknown) => setSeedError(e instanceof Error ? e : new Error(String(e))),
       );
   }, [migration.success]);

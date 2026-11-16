@@ -9,13 +9,15 @@ import { ListRow } from '@/components/ui/list-row';
 import { Text } from '@/components/ui/text';
 import { BackupCard } from '@/features/backup/components/backup-card';
 import { useBodyWeights } from '@/features/body-weight/data';
-import { LIBRARY_VERSION } from '@/features/exercises/library';
+import { LibraryUpdateCard } from '@/features/exercises/components/library-update-card';
+import { useInstalledLibraryVersion } from '@/features/exercises/library';
 import { formatDecimal } from '@/features/programs/sets';
 import { NotificationStatusCard } from '@/features/sessions/components/notification-status-card';
 
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const latest = useBodyWeights().at(0);
+  const libraryVersion = useInstalledLibraryVersion();
 
   return (
     <ScrollView
@@ -35,6 +37,7 @@ export default function SettingsScreen() {
 
       <Section title="Données">
         <BackupCard />
+        <LibraryUpdateCard />
       </Section>
 
       <Section title="Notifications">
@@ -46,7 +49,7 @@ export default function SettingsScreen() {
           <ListRow title="Licences" onPress={() => router.push('/licenses')} flat />
         </ListGroup>
         <Text className="text-sm text-muted">
-          Version {Constants.expoConfig?.version ?? '?'} · Bibliothèque v{LIBRARY_VERSION}
+          Version {Constants.expoConfig?.version ?? '?'} · Bibliothèque v{libraryVersion}
         </Text>
       </Section>
     </ScrollView>

@@ -112,6 +112,8 @@ Toutes les fonctionnalités sont disponibles sans restriction (pas de compte ni 
   exporte lui-même : ce n'est ni une collecte ni un partage au sens de Google.
 - Les illustrations sont téléchargées depuis le CDN jsDelivr. C'est un simple chargement de
   contenu : aucune donnée utilisateur n'est envoyée.
+- La bibliothèque d'exercices est mise à jour depuis le site Repso (fichiers statiques, sans
+  donnée utilisateur). Les photos d'exercices perso et le poids du corps restent sur le téléphone.
 - Chiffrement en transit, demande de suppression : sans objet, puisque rien n'est collecté.
 
 ### Applications de santé
@@ -127,6 +129,8 @@ remise en forme » (suivi d'entraînements). Pas de Santé Connect, pas de fonct
 - Identifiant publicitaire : non utilisé (pas de SDK publicitaire ni d'analyse).
 - Autorisation d'alarmes exactes : `SCHEDULE_EXACT_ALARM` seulement, accordée par l'utilisateur. Elle
   n'exige pas de déclaration, contrairement à `USE_EXACT_ALARM`, retirée exprès.
+- Appareil photo (`CAMERA`) : demandé seulement quand l'utilisateur prend en photo un exercice
+  perso. Le micro (`RECORD_AUDIO`) est retiré exprès.
 
 ## Publication
 

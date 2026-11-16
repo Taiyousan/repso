@@ -1,22 +1,22 @@
 import { eq, sql } from 'drizzle-orm';
 
 import { db } from '@/db/client';
-import { appMeta, type ContentLanguage, exercises, type TrackingType } from '@/db/schema';
+import { useLiveData } from '@/db/live';
+import { appMeta, exercises } from '@/db/schema';
 
+import type { LibraryExercise } from './library-format';
 import { isLocalImage, localImageFile, localImageName } from './local-images';
 
-/** Bump when src/data/exercise-library.json changes, so installed apps re-import it. */
+/**
+ * Bump when src/data/exercise-library.json changes: installed apps re-import it, from the site
+ * once it is deployed (remote-library.ts), from the app itself after an update.
+ */
 export const LIBRARY_VERSION = 6;
 const LIBRARY_VERSION_KEY = 'exercise_library_version';
 
 /** Same commit as scripts/build-exercise-library.mjs. Images are served by jsDelivr's CDN. */
 const IMAGE_BASE_URL =
   'https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/';
-
-type LibraryExercise = Omit<typeof exercises.$inferInsert, 'id' | 'isCustom' | 'createdAt'> & {
-  trackingType: TrackingType;
-  instructionsLanguage: ContentLanguage;
-};
 
 /**
  * An image is a photo kept on the phone, a full URL (exercises added outside free-exercise-db), or
@@ -28,18 +28,34 @@ export function exerciseImageUrl(path: string): string {
   return IMAGE_BASE_URL + path;
 }
 
+/** Version of the library in the database, 0 before the first launch. */
+export function readInstalledLibraryVersion(): number {
+  const installed = db.select().from(appMeta).where(eq(appMeta.key, LIBRARY_VERSION_KEY)).get();
+  return Number(installed?.value ?? 0);
+}
+
+export function useInstalledLibraryVersion(): number {
+  return useLiveData(readInstalledLibraryVersion, ['app_meta'], 'library-version');
+}
+
 /**
- * Imports the bundled library on first launch, and upserts it (by slug) when LIBRARY_VERSION
- * changes. Custom exercises use a `custom-` slug prefix and are never touched.
+ * Imports the bundled library on first launch, and when the app brings a newer one than the
+ * installed library (which can also come from the site).
  */
 export function seedExerciseLibrary(): void {
-  const installed = db.select().from(appMeta).where(eq(appMeta.key, LIBRARY_VERSION_KEY)).get();
-  if (installed?.value === String(LIBRARY_VERSION)) return;
+  if (readInstalledLibraryVersion() >= LIBRARY_VERSION) return;
 
   // Required here rather than imported: ~1 MB of JSON that would otherwise be evaluated at every
   // launch, while it only serves on the first one and after an update of the library.
-  const library = require('@/data/exercise-library.json') as LibraryExercise[];
+  installLibrary(require('@/data/exercise-library.json') as LibraryExercise[], LIBRARY_VERSION);
+}
 
+/**
+ * Upserts the library by slug and records its version, in one transaction. Custom exercises use a
+ * `custom-` slug prefix and are never touched; exercises dropped from the library stay, as
+ * programs and workouts may use them.
+ */
+export function installLibrary(library: LibraryExercise[], version: number): void {
   db.transaction((tx) => {
     const CHUNK_SIZE = 100;
     for (let i = 0; i < library.length; i += CHUNK_SIZE) {
@@ -68,8 +84,8 @@ export function seedExerciseLibrary(): void {
     }
 
     tx.insert(appMeta)
-      .values({ key: LIBRARY_VERSION_KEY, value: String(LIBRARY_VERSION) })
-      .onConflictDoUpdate({ target: appMeta.key, set: { value: String(LIBRARY_VERSION) } })
+      .values({ key: LIBRARY_VERSION_KEY, value: String(version) })
+      .onConflictDoUpdate({ target: appMeta.key, set: { value: String(version) } })
       .run();
   });
 }

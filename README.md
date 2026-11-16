@@ -63,6 +63,22 @@ Les migrations sont appliquées automatiquement au démarrage de l'app.
 Principe clé : un **entraînement** est une copie d'une **séance** de programme. Il peut être modifié
 librement en cours de route, puis les changements peuvent être reportés (ou non) dans la séance.
 
+## Bibliothèque d'exercices
+
+`src/data/exercise-library.json` est généré par `npm run library:build` depuis free-exercise-db, les
+traductions de `src/data/` et les exercices ajoutés à la main (`src/data/exercise-extras.json`).
+L'app embarque cette bibliothèque, qui marche hors ligne, et la récupère aussi sur le site, pour la
+mettre à jour sans nouvelle version de l'app :
+
+1. Modifier les fichiers de `src/data/`, puis `npm run library:build`.
+2. Incrémenter `LIBRARY_VERSION` dans `src/features/exercises/library.ts`.
+3. Pousser sur `main` : Vercel publie `/library/manifest.json` et `/library/v<version>.json`.
+
+Les apps installées lisent le manifest au plus une fois par jour à l'ouverture (ou via Réglages →
+« Mettre à jour la bibliothèque ») et ne téléchargent la bibliothèque que si sa version est plus
+récente. Un fichier invalide est ignoré en entier. Un nouveau type de suivi demande en revanche une
+nouvelle version de l'app : les anciennes refusent alors la bibliothèque et gardent la leur.
+
 ## Import/export de programmes
 
 L'onglet Programmes permet d'importer un fichier de programme `.json`, d'exporter un programme (aussi
