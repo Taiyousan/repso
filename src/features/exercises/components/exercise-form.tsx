@@ -1,17 +1,22 @@
 import { useState } from 'react';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/ui/button';
 import { Chip } from '@/components/ui/chip';
+import { Icon } from '@/components/ui/icon';
 import { KeyboardScrollView } from '@/components/ui/keyboard-scroll-view';
+import { SmallButton } from '@/components/ui/small-button';
 import { Text } from '@/components/ui/text';
 import { TextField } from '@/components/ui/text-field';
 import { TRACKING_TYPES } from '@/db/schema';
 import { useThemeColors } from '@/lib/theme';
 
 import { EQUIPMENT, equipmentLabel, MUSCLES, muscleLabel, TRACKING_TYPE_LABELS } from '../labels';
+import { MAX_EXERCISE_IMAGES } from '../local-images';
 import type { CustomExerciseInput } from '../mutations';
+import { addExerciseImage } from '../pick-image';
+import { ExerciseThumbnail } from './exercise-thumbnail';
 
 type ExerciseFormProps = {
   initialValue?: CustomExerciseInput;
@@ -27,6 +32,7 @@ const EMPTY: CustomExerciseInput = {
   equipment: null,
   trackingType: 'weight_reps',
   instructions: [],
+  images: [],
 };
 
 function toggle(list: string[], value: string): string[] {
@@ -47,6 +53,8 @@ export function ExerciseForm({
   const [equipment, setEquipment] = useState(initialValue.equipment);
   const [trackingType, setTrackingType] = useState(initialValue.trackingType);
   const [instructions, setInstructions] = useState(initialValue.instructions.join('\n'));
+  const [images, setImages] = useState(initialValue.images);
+  const [addingImage, setAddingImage] = useState(false);
 
   const isValid = name.trim().length > 0 && primaryMuscles.length > 0;
 
@@ -63,7 +71,15 @@ export function ExerciseForm({
         .split('\n')
         .map((line) => line.trim())
         .filter(Boolean),
+      images,
     });
+  };
+
+  const addImage = async (source: 'camera' | 'library') => {
+    setAddingImage(true);
+    const image = await addExerciseImage(source);
+    setAddingImage(false);
+    if (image) setImages((list) => [...list, image].slice(0, MAX_EXERCISE_IMAGES));
   };
 
   return (
@@ -77,6 +93,37 @@ export function ExerciseForm({
         placeholder="Ex. Développé couché prise serrée"
         autoFocus={!initialValue.name}
       />
+
+      <Section title="Photos" hint="2 max, début et fin du mouvement">
+        {images.map((image, index) => (
+          <View key={image}>
+            <ExerciseThumbnail images={[image]} name={name} size={72} />
+            <Pressable
+              onPress={() => setImages((list) => list.filter((item) => item !== image))}
+              accessibilityRole="button"
+              accessibilityLabel={`Retirer la photo ${index + 1}`}
+              hitSlop={12}
+              style={{ position: 'absolute', top: 4, right: 4, width: 24, height: 24 }}
+              className="items-center justify-center rounded-full bg-surface active:opacity-70">
+              <Icon name={{ ios: 'xmark', android: 'close' }} size={14} color={colors.foreground} />
+            </Pressable>
+          </View>
+        ))}
+        {images.length < MAX_EXERCISE_IMAGES ? (
+          <View className="justify-center gap-2">
+            <SmallButton
+              label="Galerie"
+              onPress={() => addImage('library')}
+              disabled={addingImage}
+            />
+            <SmallButton
+              label="Appareil photo"
+              onPress={() => addImage('camera')}
+              disabled={addingImage}
+            />
+          </View>
+        ) : null}
+      </Section>
 
       <Section title="Muscles principaux" hint="Au moins un">
         {MUSCLES.map((muscle) => (

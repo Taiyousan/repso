@@ -16,6 +16,7 @@ import {
   workoutSessions,
   workoutTemplates,
 } from '@/db/schema';
+import { readLocalImages, writeLocalImages } from '@/features/exercises/local-images';
 
 import type { BackupData } from './format';
 
@@ -55,11 +56,12 @@ export function readBackupData(): BackupData {
   const performedIds = new Set(performed.map((item) => item.id));
 
   const used = new Set([...items, ...performed].map((item) => item.exerciseId));
+  const kept = allExercises.flatMap(({ id, ...exercise }) =>
+    exercise.isCustom || used.has(id) ? [exercise] : [],
+  );
 
   return {
-    exercises: allExercises.flatMap(({ id, ...exercise }) =>
-      exercise.isCustom || used.has(id) ? [exercise] : [],
-    ),
+    exercises: kept,
     programs: db.select().from(programs).all(),
     workoutTemplates: templates,
     templateExercises: items.map(({ exerciseId, ...item }) => ({
@@ -83,6 +85,7 @@ export function readBackupData(): BackupData {
       .all()
       .filter((tag) => sessionIds.has(tag.sessionId)),
     bodyWeights: db.select().from(bodyWeights).all(),
+    exerciseImages: readLocalImages(kept.flatMap((exercise) => exercise.images)),
   };
 }
 
@@ -97,9 +100,11 @@ function insertAll<T extends SQLiteTable>(tx: Transaction, table: T, rows: T['$i
 
 /**
  * Replaces all the user's data with the backup. A single transaction: on any error, nothing
- * changes. The caller makes sure no workout is running, as it would be deleted too.
+ * changes. The caller makes sure no workout is running, as it would be deleted too. Photos are
+ * written first: if the transaction fails, the ones nothing uses go at the next launch.
  */
 export function restoreBackupData(data: BackupData): void {
+  writeLocalImages(data.exerciseImages);
   db.transaction((tx) => {
     // Cascades to everything below them, and frees the exercises.
     tx.delete(workoutSessions).run();

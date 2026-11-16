@@ -1,6 +1,6 @@
 # Politique de confidentialité — Repso
 
-Dernière mise à jour : 5 novembre 2026
+Dernière mise à jour : 16 novembre 2026
 
 Repso est une application Android de suivi d'entraînement développée par Shams Benhamou à
 titre personnel. Contact : [taiyoudev@gmail.com](mailto:taiyoudev@gmail.com).
@@ -12,8 +12,8 @@ outil de mesure d'audience. Tout ce que vous saisissez reste sur votre télépho
 
 ## Données enregistrées sur l'appareil
 
-Vos programmes, entraînements, séries, notes, tags, pesées et exercices personnalisés sont enregistrés dans une
-base de données locale, sur votre téléphone uniquement. Le développeur n'y a pas accès.
+Vos programmes, entraînements, séries, notes, tags, pesées et exercices personnalisés (et leurs photos)
+sont enregistrés sur votre téléphone uniquement. Le développeur n'y a pas accès.
 
 Ils sont effacés quand vous désinstallez l'application ou videz ses données dans les réglages
 d'Android.
@@ -51,6 +51,8 @@ réglages d'Android.
 - **Alarmes exactes** (facultative) : que l'alerte de fin de repos arrive à la seconde près, même
   écran éteint.
 - **Vibreur** : vibrer à la fin du repos.
+- **Appareil photo** (facultative) : prendre en photo un exercice personnalisé. La photo reste sur le
+  téléphone, dans les données de l'application.
 - **Internet** : télécharger les illustrations des exercices.
 
 ## Enfants

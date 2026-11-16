@@ -36,7 +36,12 @@ export type BackupData = {
   tags: Tag[];
   sessionTags: { sessionId: number; tagId: number }[];
   bodyWeights: BodyWeight[];
+  /** Photos of custom exercises ("local:<name>" in their images), as base64 JPEG. */
+  exerciseImages: { name: string; base64: string }[];
 };
+
+/** Names given to photos by pick-image.ts: a backup can't write anywhere else. */
+const IMAGE_NAME = /^[a-z0-9-]+\.jpg$/;
 
 export type Backup = { exportedAt: Date; data: BackupData };
 
@@ -131,10 +136,14 @@ const TABLES: Record<keyof BackupData, Record<string, FieldSpec>> = {
   tags: { id: 'number', name: 'string', color: 'string?' },
   sessionTags: { sessionId: 'number', tagId: 'number' },
   bodyWeights: { id: 'number', measuredAt: 'date', weight: 'number' },
+  exerciseImages: { name: 'string', base64: 'string' },
 };
 
 /** Tables added after the first version: older backups don't have them. */
-const ADDED_IN_VERSION: Partial<Record<keyof BackupData, number>> = { bodyWeights: 2 };
+const ADDED_IN_VERSION: Partial<Record<keyof BackupData, number>> = {
+  bodyWeights: 2,
+  exerciseImages: 2,
+};
 
 /** Table, field, referenced table, referenced field. */
 const REFERENCES: [keyof BackupData, string, keyof BackupData, string][] = [
@@ -228,6 +237,8 @@ export function parseBackup(text: string): BackupParseResult {
     const orphan = data[table].findIndex((row) => row[field] !== null && !known.has(row[field]));
     if (orphan !== -1) return damaged(`${table}, ligne ${orphan + 1}, ${field}`);
   }
+  const badImage = data.exerciseImages.findIndex((row) => !IMAGE_NAME.test(row.name as string));
+  if (badImage !== -1) return damaged(`exerciseImages, ligne ${badImage + 1}, name`);
 
   return {
     ok: true,

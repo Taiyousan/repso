@@ -93,6 +93,7 @@ const data: BackupData = {
   tags: [{ id: 15, name: 'Fatigué', color: null }],
   sessionTags: [{ sessionId: 9, tagId: 15 }],
   bodyWeights: [{ id: 17, measuredAt: at, weight: 74.5 }],
+  exerciseImages: [{ name: 'mhx2k1-ab12cd.jpg', base64: '/9j/4AAQ' }],
 };
 
 const fileWith = (changes: object) => JSON.stringify({ ...JSON.parse(text()), ...changes });
@@ -120,6 +121,7 @@ describe('parseBackup', () => {
       tags: [],
       sessionTags: [],
       bodyWeights: [],
+      exerciseImages: [],
     };
     expect(parseBackup(serializeBackup(empty, at))).toEqual({
       ok: true,
@@ -138,10 +140,16 @@ describe('parseBackup', () => {
     expect(errorOf(fileWith({ version: 99 }))).toContain('mets l’application à jour');
   });
 
-  it('reads a first-version backup, without body weights', () => {
-    const { bodyWeights: _bodyWeights, ...firstVersion } = data;
+  it('reads a first-version backup, without body weights or photos', () => {
+    const { bodyWeights: _bodyWeights, exerciseImages: _images, ...firstVersion } = data;
     const result = parseBackup(fileWith({ version: 1, data: firstVersion }));
     expect(result.ok && result.backup.data.bodyWeights).toEqual([]);
+    expect(result.ok && result.backup.data.exerciseImages).toEqual([]);
+  });
+
+  it('refuses a photo name that could write outside its folder', () => {
+    const exerciseImages = [{ name: '../repso.db', base64: '' }];
+    expect(errorOf(fileWith({ data: { ...data, exerciseImages } }))).toContain('exerciseImages');
   });
 
   it('refuses a missing table', () => {

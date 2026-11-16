@@ -3,6 +3,8 @@ import { eq, sql } from 'drizzle-orm';
 import { db } from '@/db/client';
 import { appMeta, type ContentLanguage, exercises, type TrackingType } from '@/db/schema';
 
+import { isLocalImage, localImageFile, localImageName } from './local-images';
+
 /** Bump when src/data/exercise-library.json changes, so installed apps re-import it. */
 export const LIBRARY_VERSION = 6;
 const LIBRARY_VERSION_KEY = 'exercise_library_version';
@@ -16,7 +18,13 @@ type LibraryExercise = Omit<typeof exercises.$inferInsert, 'id' | 'isCustom' | '
   instructionsLanguage: ContentLanguage;
 };
 
+/**
+ * An image is a photo kept on the phone, a full URL (exercises added outside free-exercise-db), or
+ * a path in free-exercise-db.
+ */
 export function exerciseImageUrl(path: string): string {
+  if (isLocalImage(path)) return localImageFile(localImageName(path)).uri;
+  if (/^https?:\/\//.test(path)) return path;
   return IMAGE_BASE_URL + path;
 }
 

@@ -48,6 +48,13 @@
       ],
       "expo-sharing",
       [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Repso utilise l’appareil photo pour illustrer tes exercices personnalisés.",
+          "microphonePermission": false
+        }
+      ],
+      [
         "expo-font",
         {
           "android": {

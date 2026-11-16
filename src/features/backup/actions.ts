@@ -33,7 +33,7 @@ export function backupExportFile(): ExportFile | null {
     const content = serializeCurrentData();
     return {
       title: 'Sauvegarder mes données',
-      description: `Programmes, historique, tags et exercices personnalisés. Garde ce fichier ailleurs que sur ce téléphone (Drive, mail…).${
+      description: `Programmes, historique, pesées, tags et exercices personnalisés avec leurs photos. Garde ce fichier ailleurs que sur ce téléphone (Drive, mail…).${
         readActiveSession() ? ' L’entraînement en cours n’est pas inclus.' : ''
       }`,
       name: `repso-sauvegarde-${new Date().toISOString().slice(0, 10)}.json`,

@@ -11,6 +11,8 @@ export type CustomExerciseInput = {
   equipment: string | null;
   trackingType: TrackingType;
   instructions: string[];
+  /** Photos, see local-images.ts. */
+  images: string[];
 };
 
 /**
@@ -25,7 +27,7 @@ export function customExerciseSlug(name: string, index = 0): string {
 export function createCustomExercise(input: CustomExerciseInput): number {
   const created = db
     .insert(exercises)
-    .values({ ...input, slug: customExerciseSlug(input.name), images: [], isCustom: true })
+    .values({ ...input, slug: customExerciseSlug(input.name), isCustom: true })
     .returning({ id: exercises.id })
     .get();
   return created.id;
