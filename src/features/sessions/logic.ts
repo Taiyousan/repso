@@ -26,15 +26,32 @@ export function previousFor(previous: SetPerformance[], index: number): SetPerfo
   return previous[index] ?? previous.at(-1) ?? null;
 }
 
-/** "80 × 8", "× 12" (bodyweight), "45 s" */
+/** Exercises logged with a weight field: a load, an added load or an assistance. */
+export function hasWeightField(trackingType: TrackingType): boolean {
+  return (
+    trackingType === 'weight_reps' ||
+    trackingType === 'weighted_bodyweight' ||
+    trackingType === 'assisted_reps'
+  );
+}
+
+const WEIGHT_SIGNS: Partial<Record<TrackingType, string>> = {
+  weighted_bodyweight: '+',
+  assisted_reps: '−',
+};
+
+/** "80 × 8", "× 12" (bodyweight), "+10 × 6" (added load), "−20 × 8" (assistance), "45 s" */
 export function formatPerformance(set: SetPerformance | null, trackingType: TrackingType): string {
   if (!set) return '—';
   if (trackingType === 'duration' || trackingType === 'distance') {
     return set.durationSeconds == null ? '—' : `${set.durationSeconds} s`;
   }
   const reps = set.reps == null ? '?' : String(set.reps);
-  if (trackingType === 'bodyweight_reps' || set.weight == null) return `× ${reps}`;
-  return `${formatDecimal(set.weight)} × ${reps}`;
+  if (!hasWeightField(trackingType) || set.weight == null) return `× ${reps}`;
+  const sign = WEIGHT_SIGNS[trackingType];
+  // Without added load or assistance, it's a plain bodyweight set.
+  if (sign && set.weight === 0) return `× ${reps}`;
+  return `${sign ?? ''}${formatDecimal(set.weight)} × ${reps}`;
 }
 
 export type SetInput = { weight: string; reps: string; duration: string };
@@ -55,8 +72,9 @@ export function resolveSetValues(
     };
   }
   return {
-    weight:
-      trackingType === 'weight_reps' ? pick(parseDecimal(input.weight), placeholder?.weight) : null,
+    weight: hasWeightField(trackingType)
+      ? pick(parseDecimal(input.weight), placeholder?.weight)
+      : null,
     reps: pick(parseInteger(input.reps), placeholder?.reps),
     durationSeconds: null,
   };
@@ -91,13 +109,17 @@ export function isExerciseComplete(sets: { completedAt: Date | null }[]): boolea
   return sets.length > 0 && sets.every((set) => set.completedAt != null);
 }
 
-/** Positive when `a` beats `b`: heavier (then more reps), more reps, or longer. */
+/**
+ * Positive when `a` beats `b`: heavier (then more reps), less assisted (then more reps), more reps,
+ * or longer.
+ */
 export function compareSets(a: SetPerformance, b: SetPerformance, trackingType: TrackingType) {
   const score = (set: SetPerformance): [number, number] => {
     if (trackingType === 'duration' || trackingType === 'distance') {
       return [set.durationSeconds ?? 0, 0];
     }
     if (trackingType === 'bodyweight_reps') return [set.reps ?? 0, 0];
+    if (trackingType === 'assisted_reps') return [-(set.weight ?? 0), set.reps ?? 0];
     return [set.weight ?? 0, set.reps ?? 0];
   };
   const [a1, a2] = score(a);

@@ -107,14 +107,33 @@ describe('sessionTotals', () => {
   it('counts working sets only', () => {
     const totals = sessionTotals(new Date(0), new Date(3_000_000), [
       {
+        exercise: { trackingType: 'weight_reps' },
         sets: [
           { type: 'warmup', weight: 40, reps: 10 },
           { type: 'normal', weight: 80, reps: 8 },
         ],
       },
-      { sets: [{ type: 'normal', weight: null, reps: 12 }] },
+      {
+        exercise: { trackingType: 'bodyweight_reps' },
+        sets: [{ type: 'normal', weight: null, reps: 12 }],
+      },
     ]);
     expect(totals).toEqual({ durationMs: 3_000_000, volume: 640, setCount: 2 });
+  });
+
+  it('counts an added load but never an assistance as volume', () => {
+    const totals = sessionTotals(new Date(0), new Date(0), [
+      {
+        exercise: { trackingType: 'weighted_bodyweight' },
+        sets: [{ type: 'normal', weight: 10, reps: 5 }],
+      },
+      {
+        exercise: { trackingType: 'assisted_reps' },
+        sets: [{ type: 'normal', weight: 20, reps: 8 }],
+      },
+    ]);
+    expect(totals.volume).toBe(50);
+    expect(totals.setCount).toBe(2);
   });
 });
 

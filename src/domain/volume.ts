@@ -1,4 +1,4 @@
-import type { SetType } from '@/db/schema';
+import type { SetType, TrackingType } from '@/db/schema';
 
 export type LoggedSet = {
   type: SetType;
@@ -10,6 +10,18 @@ export type LoggedSet = {
 export function isWorkingSet(set: Pick<LoggedSet, 'type'>): boolean {
   return set.type !== 'warmup';
 }
+
+/**
+ * Exercises whose `weight` is a load lifted, which counts towards volume. An assistance takes
+ * weight off instead: it never does.
+ */
+export const VOLUME_TRACKING_TYPES: readonly TrackingType[] = [
+  'weight_reps',
+  'weighted_bodyweight',
+];
+
+export const countsVolume = (trackingType: TrackingType) =>
+  VOLUME_TRACKING_TYPES.includes(trackingType);
 
 /** Volume of a single set (weight × reps), 0 when incomplete. */
 export function setVolume({ weight, reps }: LoggedSet): number {

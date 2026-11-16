@@ -7,6 +7,9 @@
  * - src/data/exercise-names.fr.json         { slug: name }, every exercise
  * - src/data/exercise-instructions.fr.json  { slug: steps[] }, translated exercises only
  * - src/data/exercise-essentials.json       [slug], exercises shown by default
+ * - src/data/exercise-extras.json           complete exercises missing from free-exercise-db
+ *
+ * Images of an extra exercise are paths in free-exercise-db, or full URLs.
  *
  * The source is pinned to a commit so builds are reproducible. After any change here or in
  * those files, run `npm run library:build` and bump LIBRARY_VERSION in
@@ -29,7 +32,26 @@ function toSlug(id) {
     .replace(/^-|-$/g, '');
 }
 
-function trackingTypeOf(exercise) {
+/**
+ * free-exercise-db has no equipment for "your body, plus a load or an assistance": those are
+ * listed by hand. A belt, a vest or a band then goes in the weight field.
+ */
+const TRACKING_OVERRIDES = {
+  'band-assisted-pull-up': 'assisted_reps',
+  'weighted-pull-ups': 'weighted_bodyweight',
+  'weighted-bench-dip': 'weighted_bodyweight',
+  'dips-chest-version': 'weighted_bodyweight',
+  'parallel-bar-dip': 'weighted_bodyweight',
+  'ring-dips': 'weighted_bodyweight',
+  'muscle-up': 'weighted_bodyweight',
+  'one-arm-chin-up': 'weighted_bodyweight',
+  'mixed-grip-chin': 'weighted_bodyweight',
+  'side-to-side-chins': 'weighted_bodyweight',
+  'gironda-sternum-chins': 'weighted_bodyweight',
+};
+
+function trackingTypeOf(exercise, slug) {
+  if (TRACKING_OVERRIDES[slug]) return TRACKING_OVERRIDES[slug];
   if (exercise.category === 'stretching' || exercise.category === 'cardio') return 'duration';
   const bodyweight = exercise.equipment === 'body only' || exercise.equipment == null;
   if (exercise.force === 'static' && bodyweight) return 'duration';
@@ -47,10 +69,11 @@ const response = await fetch(SOURCE_URL);
 if (!response.ok) throw new Error(`Download failed: ${response.status}`);
 const source = await response.json();
 
-const [frenchNames, frenchInstructions, essentials] = await Promise.all([
+const [frenchNames, frenchInstructions, essentials, extras] = await Promise.all([
   readJson('exercise-names.fr.json'),
   readJson('exercise-instructions.fr.json'),
   readJson('exercise-essentials.json'),
+  readJson('exercise-extras.json'),
 ]);
 
 const slugs = new Set(source.map((exercise) => toSlug(exercise.id)));
@@ -58,6 +81,13 @@ if (slugs.size !== source.length) throw new Error('Duplicate slugs after convers
 assertKnownSlugs('exercise-names.fr.json', Object.keys(frenchNames), slugs);
 assertKnownSlugs('exercise-instructions.fr.json', Object.keys(frenchInstructions), slugs);
 assertKnownSlugs('exercise-essentials.json', essentials, slugs);
+assertKnownSlugs('TRACKING_OVERRIDES', Object.keys(TRACKING_OVERRIDES), slugs);
+const takenSlugs = extras.filter(
+  (extra) => slugs.has(extra.slug) || extra.slug.startsWith('custom-'),
+);
+if (takenSlugs.length > 0) {
+  throw new Error(`exercise-extras.json: slugs already used ${takenSlugs.map((e) => e.slug)}`);
+}
 
 const essentialSlugs = new Set(essentials);
 
@@ -78,10 +108,11 @@ const library = source.map((exercise) => {
     instructions: translatedInstructions ?? exercise.instructions,
     instructionsLanguage: translatedInstructions ? 'fr' : 'en',
     images: exercise.images,
-    trackingType: trackingTypeOf(exercise),
+    trackingType: trackingTypeOf(exercise, slug),
     isEssential: essentialSlugs.has(slug),
   };
 });
+library.push(...extras);
 
 library.sort((a, b) => a.name.localeCompare(b.name, 'fr'));
 await writeFile(OUTPUT, JSON.stringify(library) + '\n');

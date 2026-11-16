@@ -27,6 +27,8 @@ import { SessionSetRow } from './session-set-row';
 const VALUE_COLUMNS = {
   weight_reps: ['Kg', 'Reps'],
   bodyweight_reps: ['Reps'],
+  weighted_bodyweight: ['Lest kg', 'Reps'],
+  assisted_reps: ['Aide kg', 'Reps'],
   duration: ['Secondes'],
   distance: ['Secondes'],
 } as const;

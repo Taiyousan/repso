@@ -1,6 +1,12 @@
 import type { TrackingType } from '@/db/schema';
 
-import { type RecordKind, type RecordSet, setRecordValues } from './records';
+import {
+  beatsRecord,
+  isRecordValue,
+  type RecordKind,
+  type RecordSet,
+  setRecordValues,
+} from './records';
 
 // ---------------------------------------------------------------------------
 // Calendar weeks (Monday to Sunday, local time)
@@ -186,10 +192,10 @@ export function progressSeries(
 
   for (const set of sets) {
     const value = setRecordValues(set, trackingType)[kind];
-    if (value == null || value <= 0) continue;
+    if (!isRecordValue(kind, value)) continue;
     const point = bySession.get(set.sessionId);
     if (point) {
-      point.value = Math.max(point.value, value);
+      if (beatsRecord(kind, value, point.value)) point.value = value;
     } else {
       const created = { sessionId: set.sessionId, at: set.at, value };
       bySession.set(set.sessionId, created);

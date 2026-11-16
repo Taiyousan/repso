@@ -80,7 +80,14 @@
           ]
         },
         "trackingType": {
-          "enum": ["weight_reps", "bodyweight_reps", "duration", "distance"],
+          "enum": [
+            "weight_reps",
+            "bodyweight_reps",
+            "weighted_bodyweight",
+            "assisted_reps",
+            "duration",
+            "distance"
+          ],
           "default": "weight_reps"
         }
       }

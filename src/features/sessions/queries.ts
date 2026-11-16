@@ -29,6 +29,7 @@ import {
   workoutTemplates,
 } from '@/db/schema';
 import { computeRecords, type ExerciseRecords } from '@/domain/records';
+import { VOLUME_TRACKING_TYPES } from '@/domain/volume';
 import { mainMuscles } from '@/features/programs/sets';
 
 import type { SetPerformance } from './logic';
@@ -410,6 +411,7 @@ export function useWorkoutHistory(templateId: number, exerciseIds: number[]) {
 /** Finished sessions with their totals (working sets only, as in recap.ts), newest first. */
 function readSessionSummaries(where?: SQL, limit?: number) {
   const working = sql`${sessionSets.type} != 'warmup'`;
+  const lifted = inArray(exercises.trackingType, [...VOLUME_TRACKING_TYPES]);
   const query = db
     .select({
       id: workoutSessions.id,
@@ -418,10 +420,12 @@ function readSessionSummaries(where?: SQL, limit?: number) {
       endedAt: workoutSessions.endedAt,
       perceivedEffort: workoutSessions.perceivedEffort,
       setCount: sql<number>`count(case when ${working} then 1 end)`,
-      volume: sql<number>`coalesce(sum(case when ${working} then ${sessionSets.weight} * ${sessionSets.reps} end), 0)`,
+      // Same volume as recap.ts.
+      volume: sql<number>`coalesce(sum(case when ${working} and ${lifted} then ${sessionSets.weight} * ${sessionSets.reps} end), 0)`,
     })
     .from(workoutSessions)
     .leftJoin(sessionExercises, eq(sessionExercises.sessionId, workoutSessions.id))
+    .leftJoin(exercises, eq(exercises.id, sessionExercises.exerciseId))
     .leftJoin(sessionSets, eq(sessionSets.sessionExerciseId, sessionExercises.id))
     .where(and(isNotNull(workoutSessions.endedAt), where))
     .groupBy(workoutSessions.id)

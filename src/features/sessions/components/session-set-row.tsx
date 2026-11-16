@@ -18,6 +18,7 @@ import { FONTS, useThemeColors } from '@/lib/theme';
 import {
   canComplete,
   formatPerformance,
+  hasWeightField,
   resolveSetValues,
   type SetInput,
   type SetPerformance,
@@ -34,6 +35,11 @@ const BADGE_STYLES: Record<SetType, { container: string; label: string }> = {
 };
 
 const DEFAULT_TIMED_SET_SECONDS = 30;
+
+const WEIGHT_LABELS: Partial<Record<TrackingType, string>> = {
+  weighted_bodyweight: 'Lest en kilos',
+  assisted_reps: 'Assistance en kilos',
+};
 
 type SessionSetRowProps = {
   set: SessionSet;
@@ -182,14 +188,14 @@ export function SessionSetRow({
         </>
       ) : (
         <>
-          {trackingType === 'weight_reps' ? (
+          {hasWeightField(trackingType) ? (
             <NumberInput
               value={locked ? formatDecimal(set.weight) : input.weight}
               onChangeText={change('weight')}
               onEndEditing={saveTyped}
               placeholder={formatDecimal(previous?.weight ?? null) || 'kg'}
               keyboardType="decimal-pad"
-              accessibilityLabel="Poids en kilos"
+              accessibilityLabel={WEIGHT_LABELS[trackingType] ?? 'Poids en kilos'}
               editable={!locked}
               done={done}
             />

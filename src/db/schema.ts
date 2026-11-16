@@ -4,8 +4,18 @@ import { index, integer, primaryKey, real, sqliteTable, text } from 'drizzle-orm
 export const SET_TYPES = ['warmup', 'normal', 'dropset', 'failure'] as const;
 export type SetType = (typeof SET_TYPES)[number];
 
-/** How sets of an exercise are logged. */
-export const TRACKING_TYPES = ['weight_reps', 'bodyweight_reps', 'duration', 'distance'] as const;
+/**
+ * How sets of an exercise are logged. The `weight` of a set is the load for `weight_reps`, the
+ * added load for `weighted_bodyweight` and the assistance (machine, band) for `assisted_reps`.
+ */
+export const TRACKING_TYPES = [
+  'weight_reps',
+  'bodyweight_reps',
+  'weighted_bodyweight',
+  'assisted_reps',
+  'duration',
+  'distance',
+] as const;
 export type TrackingType = (typeof TRACKING_TYPES)[number];
 
 export const CONTENT_LANGUAGES = ['fr', 'en'] as const;

@@ -5552,7 +5552,7 @@
     ],
     "instructionsLanguage": "fr",
     "images": ["Dips_-_Chest_Version/0.jpg", "Dips_-_Chest_Version/1.jpg"],
-    "trackingType": "weight_reps",
+    "trackingType": "weighted_bodyweight",
     "isEssential": true
   },
   {
@@ -5598,6 +5598,28 @@
     "isEssential": true
   },
   {
+    "slug": "machine-assisted-dip",
+    "name": "Dips assistés à la machine",
+    "nameEn": "Machine Assisted Dip",
+    "primaryMuscles": ["triceps"],
+    "secondaryMuscles": ["chest", "shoulders"],
+    "equipment": "machine",
+    "category": "strength",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "compound",
+    "instructions": [
+      "Règle le contrepoids : plus il est lourd, plus la machine t’aide.",
+      "Pose les genoux sur le coussin et saisis les barres parallèles, bras tendus, corps droit.",
+      "Descends lentement en gardant les coudes près du corps, jusqu’à former un angle de 90 degrés aux coudes.",
+      "Remonte en poussant sur les mains jusqu’à la position de départ."
+    ],
+    "instructionsLanguage": "fr",
+    "images": ["Dips_-_Triceps_Version/0.jpg", "Dips_-_Triceps_Version/1.jpg"],
+    "trackingType": "assisted_reps",
+    "isEssential": true
+  },
+  {
     "slug": "ring-dips",
     "name": "Dips aux anneaux",
     "nameEn": "Ring Dips",
@@ -5616,7 +5638,7 @@
     ],
     "instructionsLanguage": "fr",
     "images": ["Ring_Dips/0.jpg", "Ring_Dips/1.jpg"],
-    "trackingType": "weight_reps",
+    "trackingType": "weighted_bodyweight",
     "isEssential": false
   },
   {
@@ -5638,7 +5660,7 @@
     ],
     "instructionsLanguage": "fr",
     "images": ["Parallel_Bar_Dip/0.jpg", "Parallel_Bar_Dip/1.jpg"],
-    "trackingType": "weight_reps",
+    "trackingType": "weighted_bodyweight",
     "isEssential": false
   },
   {
@@ -5681,7 +5703,7 @@
     ],
     "instructionsLanguage": "fr",
     "images": ["Weighted_Bench_Dip/0.jpg", "Weighted_Bench_Dip/1.jpg"],
-    "trackingType": "weight_reps",
+    "trackingType": "weighted_bodyweight",
     "isEssential": false
   },
   {
@@ -11950,7 +11972,7 @@
     ],
     "instructionsLanguage": "fr",
     "images": ["Muscle_Up/0.jpg", "Muscle_Up/1.jpg"],
-    "trackingType": "weight_reps",
+    "trackingType": "weighted_bodyweight",
     "isEssential": false
   },
   {
@@ -18859,7 +18881,7 @@
     ],
     "instructionsLanguage": "fr",
     "images": ["One_Arm_Chin-Up/0.jpg", "One_Arm_Chin-Up/1.jpg"],
-    "trackingType": "weight_reps",
+    "trackingType": "weighted_bodyweight",
     "isEssential": false
   },
   {
@@ -18907,6 +18929,28 @@
     "isEssential": true
   },
   {
+    "slug": "machine-assisted-pull-up",
+    "name": "Tractions assistées à la machine",
+    "nameEn": "Machine Assisted Pull-Up",
+    "primaryMuscles": ["lats"],
+    "secondaryMuscles": ["biceps", "middle back"],
+    "equipment": "machine",
+    "category": "strength",
+    "force": "pull",
+    "level": "beginner",
+    "mechanic": "compound",
+    "instructions": [
+      "Règle le contrepoids : plus il est lourd, plus la machine t’aide.",
+      "Monte sur la plateforme ou pose les genoux sur le coussin, puis saisis les poignées en prise large, paumes vers l’avant.",
+      "Tire-toi vers le haut en ramenant les coudes vers les hanches, jusqu’à passer le menton au-dessus des poignées.",
+      "Redescends lentement jusqu’à l’extension complète des bras."
+    ],
+    "instructionsLanguage": "fr",
+    "images": ["Pullups/0.jpg", "Pullups/1.jpg"],
+    "trackingType": "assisted_reps",
+    "isEssential": true
+  },
+  {
     "slug": "band-assisted-pull-up",
     "name": "Tractions assistées avec élastique",
     "nameEn": "Band Assisted Pull-Up",
@@ -18925,7 +18969,7 @@
     ],
     "instructionsLanguage": "fr",
     "images": ["Band_Assisted_Pull-Up/0.jpg", "Band_Assisted_Pull-Up/1.jpg"],
-    "trackingType": "weight_reps",
+    "trackingType": "assisted_reps",
     "isEssential": true
   },
   {
@@ -18947,7 +18991,7 @@
     ],
     "instructionsLanguage": "fr",
     "images": ["Side_To_Side_Chins/0.jpg", "Side_To_Side_Chins/1.jpg"],
-    "trackingType": "weight_reps",
+    "trackingType": "weighted_bodyweight",
     "isEssential": false
   },
   {
@@ -18991,7 +19035,7 @@
     ],
     "instructionsLanguage": "fr",
     "images": ["Weighted_Pull_Ups/0.jpg", "Weighted_Pull_Ups/1.jpg"],
-    "trackingType": "weight_reps",
+    "trackingType": "weighted_bodyweight",
     "isEssential": true
   },
   {
@@ -19056,7 +19100,7 @@
     ],
     "instructionsLanguage": "fr",
     "images": ["Mixed_Grip_Chin/0.jpg", "Mixed_Grip_Chin/1.jpg"],
-    "trackingType": "weight_reps",
+    "trackingType": "weighted_bodyweight",
     "isEssential": false
   },
   {
@@ -19099,7 +19143,7 @@
     ],
     "instructionsLanguage": "fr",
     "images": ["Gironda_Sternum_Chins/0.jpg", "Gironda_Sternum_Chins/1.jpg"],
-    "trackingType": "weight_reps",
+    "trackingType": "weighted_bodyweight",
     "isEssential": false
   },
   {

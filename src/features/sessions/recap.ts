@@ -1,4 +1,5 @@
-import { isWorkingSet, type LoggedSet, totalVolume } from '@/domain/volume';
+import type { TrackingType } from '@/db/schema';
+import { countsVolume, isWorkingSet, type LoggedSet, totalVolume } from '@/domain/volume';
 
 // ---------------------------------------------------------------------------
 // Totals
@@ -9,12 +10,14 @@ export type SessionTotals = { durationMs: number; volume: number; setCount: numb
 export function sessionTotals(
   startedAt: Date,
   endedAt: Date,
-  exercises: { sets: LoggedSet[] }[],
+  exercises: { exercise: { trackingType: TrackingType }; sets: LoggedSet[] }[],
 ): SessionTotals {
   const sets = exercises.flatMap((item) => item.sets);
   return {
     durationMs: endedAt.getTime() - startedAt.getTime(),
-    volume: totalVolume(sets),
+    volume: totalVolume(
+      exercises.flatMap((item) => (countsVolume(item.exercise.trackingType) ? item.sets : [])),
+    ),
     setCount: sets.filter(isWorkingSet).length,
   };
 }

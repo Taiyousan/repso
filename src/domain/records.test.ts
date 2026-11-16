@@ -25,6 +25,7 @@ describe('recordKindsFor', () => {
   it('tracks weight, 1RM and volume on weighted exercises', () => {
     expect(recordKindsFor('weight_reps')).toEqual(['weight', 'oneRepMax', 'volume']);
     expect(recordKindsFor('bodyweight_reps')).toEqual(['reps']);
+    expect(recordKindsFor('assisted_reps')).toEqual(['assistance', 'reps']);
     expect(recordKindsFor('duration')).toEqual(['duration']);
   });
 });
@@ -49,6 +50,45 @@ describe('setRecordValues', () => {
       reps: 14,
     });
     expect(setRecordValues(set({ durationSeconds: 45 }), 'duration')).toEqual({ duration: 45 });
+  });
+
+  it('scores the added load and the assistance', () => {
+    expect(setRecordValues(set({ weight: 10, reps: 6 }), 'weighted_bodyweight')).toEqual({
+      addedWeight: 10,
+      reps: 6,
+    });
+    expect(setRecordValues(set({ weight: null, reps: 6 }), 'weighted_bodyweight')).toEqual({
+      reps: 6,
+    });
+    expect(setRecordValues(set({ weight: 0, reps: 5 }), 'assisted_reps')).toEqual({
+      assistance: 0,
+      reps: 5,
+    });
+    expect(setRecordValues(set({ weight: null, reps: 5 }), 'assisted_reps')).toEqual({ reps: 5 });
+  });
+});
+
+describe('assistance records', () => {
+  it('keeps the lowest assistance, 0 included', () => {
+    const records = computeRecords(
+      [
+        dated({ weight: 30, reps: 8 }, 1),
+        dated({ weight: 0, reps: 2 }, 4),
+        dated({ weight: 20 }, 6),
+      ],
+      'assisted_reps',
+    );
+    expect(records.assistance).toEqual({ value: 0, at: at(4) });
+    expect(records.reps).toEqual({ value: 8, at: at(1) });
+  });
+
+  it('beats the record with less assistance only', () => {
+    const records: ExerciseRecords = { assistance: { value: 20, at: at(1) } };
+    expect(recordsBeaten(set({ weight: 15, reps: 1 }), records, 'assisted_reps')).toEqual([
+      'assistance',
+      'reps',
+    ]);
+    expect(recordsBeaten(set({ weight: 25, reps: 1 }), records, 'assisted_reps')).toEqual(['reps']);
   });
 });
 

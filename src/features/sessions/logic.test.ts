@@ -61,6 +61,12 @@ describe('formatPerformance', () => {
     expect(formatPerformance(set({ durationSeconds: 45 }), 'duration')).toBe('45 s');
     expect(formatPerformance(null, 'weight_reps')).toBe('—');
   });
+
+  it('signs an added load and an assistance', () => {
+    expect(formatPerformance(set({ weight: 10, reps: 6 }), 'weighted_bodyweight')).toBe('+10 × 6');
+    expect(formatPerformance(set({ weight: 22.5 }), 'assisted_reps')).toBe('−22,5 × 8');
+    expect(formatPerformance(set({ weight: 0 }), 'assisted_reps')).toBe('× 8');
+  });
 });
 
 describe('resolveSetValues', () => {
@@ -146,6 +152,11 @@ describe('bestSet', () => {
       bestSet([set({ durationSeconds: 40 }), set({ durationSeconds: 60 })], 'duration')
         ?.durationSeconds,
     ).toBe(60);
+  });
+
+  it('prefers less assistance, then more reps', () => {
+    const sets = [set({ weight: 20, reps: 10 }), set({ weight: 10, reps: 4 }), set({ weight: 10 })];
+    expect(bestSet(sets, 'assisted_reps')).toMatchObject({ weight: 10, reps: 8 });
   });
 
   it('returns null without sets', () => {

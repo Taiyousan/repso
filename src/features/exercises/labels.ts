@@ -97,6 +97,8 @@ const MECHANIC_LABELS: Record<string, string> = {
 export const TRACKING_TYPE_LABELS: Record<TrackingType, string> = {
   weight_reps: 'Poids × reps',
   bodyweight_reps: 'Poids du corps',
+  weighted_bodyweight: 'Poids du corps + lest',
+  assisted_reps: 'Poids du corps assisté',
   duration: 'Durée',
   distance: 'Distance',
 };

@@ -1,0 +1,46 @@
+[
+  {
+    "slug": "machine-assisted-pull-up",
+    "name": "Tractions assistées à la machine",
+    "nameEn": "Machine Assisted Pull-Up",
+    "primaryMuscles": ["lats"],
+    "secondaryMuscles": ["biceps", "middle back"],
+    "equipment": "machine",
+    "category": "strength",
+    "force": "pull",
+    "level": "beginner",
+    "mechanic": "compound",
+    "instructions": [
+      "Règle le contrepoids : plus il est lourd, plus la machine t’aide.",
+      "Monte sur la plateforme ou pose les genoux sur le coussin, puis saisis les poignées en prise large, paumes vers l’avant.",
+      "Tire-toi vers le haut en ramenant les coudes vers les hanches, jusqu’à passer le menton au-dessus des poignées.",
+      "Redescends lentement jusqu’à l’extension complète des bras."
+    ],
+    "instructionsLanguage": "fr",
+    "images": ["Pullups/0.jpg", "Pullups/1.jpg"],
+    "trackingType": "assisted_reps",
+    "isEssential": true
+  },
+  {
+    "slug": "machine-assisted-dip",
+    "name": "Dips assistés à la machine",
+    "nameEn": "Machine Assisted Dip",
+    "primaryMuscles": ["triceps"],
+    "secondaryMuscles": ["chest", "shoulders"],
+    "equipment": "machine",
+    "category": "strength",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "compound",
+    "instructions": [
+      "Règle le contrepoids : plus il est lourd, plus la machine t’aide.",
+      "Pose les genoux sur le coussin et saisis les barres parallèles, bras tendus, corps droit.",
+      "Descends lentement en gardant les coudes près du corps, jusqu’à former un angle de 90 degrés aux coudes.",
+      "Remonte en poussant sur les mains jusqu’à la position de départ."
+    ],
+    "instructionsLanguage": "fr",
+    "images": ["Dips_-_Triceps_Version/0.jpg", "Dips_-_Triceps_Version/1.jpg"],
+    "trackingType": "assisted_reps",
+    "isEssential": true
+  }
+]
