@@ -16905,6 +16905,30 @@
     "isEssential": true
   },
   {
+    "slug": "dumbbell-romanian-deadlift",
+    "name": "Soulevé de terre roumain aux haltères",
+    "nameEn": "Dumbbell Romanian Deadlift",
+    "primaryMuscles": ["hamstrings"],
+    "secondaryMuscles": ["glutes", "lower back"],
+    "equipment": "dumbbell",
+    "category": "strength",
+    "force": "pull",
+    "level": "beginner",
+    "mechanic": "compound",
+    "instructions": [
+      "Debout, un haltère dans chaque main devant les cuisses, genoux légèrement fléchis.",
+      "Pousse les fesses vers l’arrière en gardant le dos plat et les haltères contre les jambes.",
+      "Descends jusqu’à sentir un fort étirement à l’arrière des cuisses (souvent vers le milieu du tibia), puis remonte en poussant les hanches vers l’avant."
+    ],
+    "instructionsLanguage": "fr",
+    "images": [
+      "https://repso-app-android.vercel.app/exercise-images/dumbbell-romanian-deadlift/0.e200fc88b9.jpg",
+      "https://repso-app-android.vercel.app/exercise-images/dumbbell-romanian-deadlift/1.dd8ea4c69c.jpg"
+    ],
+    "trackingType": "weight_reps",
+    "isEssential": true
+  },
+  {
     "slug": "romanian-deadlift-from-deficit",
     "name": "Soulevé de terre roumain en déficit",
     "nameEn": "Romanian Deadlift from Deficit",
@@ -18946,7 +18970,10 @@
       "Redescends lentement jusqu’à l’extension complète des bras."
     ],
     "instructionsLanguage": "fr",
-    "images": ["Pullups/0.jpg", "Pullups/1.jpg"],
+    "images": [
+      "https://repso-app-android.vercel.app/exercise-images/machine-assisted-pull-up/0.7a0966ef9e.jpg",
+      "https://repso-app-android.vercel.app/exercise-images/machine-assisted-pull-up/1.062865fa8a.jpg"
+    ],
     "trackingType": "assisted_reps",
     "isEssential": true
   },

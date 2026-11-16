@@ -131,6 +131,12 @@ L'asset doit s'appeler `repso.apk` : c'est le nom du lien `releases/latest/downl
 - Code : licence [MIT](LICENSE).
 - Exercices et illustrations : [free-exercise-db](https://github.com/yuhonas/free-exercise-db)
   (domaine public, Unlicense).
+- Illustrations de `src/data/exercise-images/dumbbell-romanian-deadlift/` et
+  `machine-assisted-pull-up/` : [Everkinetic](https://commons.wikimedia.org/wiki/File:Dead-lifts-2-1.png)
+  ([CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/)). Celles des tractions assistées
+  sont adaptées de [Pull ups 1](https://commons.wikimedia.org/wiki/File:Pull_ups_1.svg) et
+  [Pull ups 2](https://commons.wikimedia.org/wiki/File:Pull_ups_2.svg) (coussin de la machine ajouté),
+  sous la même licence.
 - Carte des muscles : [react-native-body-highlighter](https://github.com/HichamELBSI/react-native-body-highlighter)
   (MIT).
 - Polices [Nunito](https://fonts.google.com/specimen/Nunito) et

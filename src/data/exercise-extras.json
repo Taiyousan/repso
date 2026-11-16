@@ -42,5 +42,26 @@
     "images": ["Dips_-_Triceps_Version/0.jpg", "Dips_-_Triceps_Version/1.jpg"],
     "trackingType": "assisted_reps",
     "isEssential": true
+  },
+  {
+    "slug": "dumbbell-romanian-deadlift",
+    "name": "Soulevé de terre roumain aux haltères",
+    "nameEn": "Dumbbell Romanian Deadlift",
+    "primaryMuscles": ["hamstrings"],
+    "secondaryMuscles": ["glutes", "lower back"],
+    "equipment": "dumbbell",
+    "category": "strength",
+    "force": "pull",
+    "level": "beginner",
+    "mechanic": "compound",
+    "instructions": [
+      "Debout, un haltère dans chaque main devant les cuisses, genoux légèrement fléchis.",
+      "Pousse les fesses vers l’arrière en gardant le dos plat et les haltères contre les jambes.",
+      "Descends jusqu’à sentir un fort étirement à l’arrière des cuisses (souvent vers le milieu du tibia), puis remonte en poussant les hanches vers l’avant."
+    ],
+    "instructionsLanguage": "fr",
+    "images": ["Stiff-Legged_Dumbbell_Deadlift/0.jpg", "Stiff-Legged_Dumbbell_Deadlift/1.jpg"],
+    "trackingType": "weight_reps",
+    "isEssential": true
   }
 ]
