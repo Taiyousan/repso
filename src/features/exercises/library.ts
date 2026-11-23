@@ -12,7 +12,7 @@ import { isLocalImage, localImageFile, localImageName } from './local-images';
  * Bump when src/data/exercise-library.json changes: installed apps re-import it, from the site
  * once it is deployed (remote-library.ts), from the app itself after an update.
  */
-export const LIBRARY_VERSION = 7;
+export const LIBRARY_VERSION = 8;
 const LIBRARY_VERSION_KEY = 'exercise_library_version';
 
 /** An image is a photo kept on the phone or an image of the library. */

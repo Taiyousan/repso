@@ -63,5 +63,27 @@
     "images": ["Stiff-Legged_Dumbbell_Deadlift/0.jpg", "Stiff-Legged_Dumbbell_Deadlift/1.jpg"],
     "trackingType": "weight_reps",
     "isEssential": true
+  },
+  {
+    "slug": "seated-triceps-press-machine",
+    "name": "Presse triceps assise à la machine",
+    "nameEn": "Seated Triceps Press Machine",
+    "primaryMuscles": ["triceps"],
+    "secondaryMuscles": ["chest", "shoulders"],
+    "equipment": "machine",
+    "category": "strength",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "compound",
+    "instructions": [
+      "Règle le siège pour que les poignées soient à hauteur de poitrine, choisis la charge et assieds-toi le dos bien calé contre le dossier.",
+      "Saisis les poignées, coudes fléchis et serrés contre le corps.",
+      "En expirant, pousse les poignées vers le bas jusqu’à tendre les bras, sans verrouiller les coudes ni décoller le dos.",
+      "Remonte lentement en inspirant, sans reposer la charge avant la fin de la série."
+    ],
+    "instructionsLanguage": "fr",
+    "images": ["Dip_Machine/0.jpg", "Dip_Machine/1.jpg"],
+    "trackingType": "weight_reps",
+    "isEssential": true
   }
 ]
