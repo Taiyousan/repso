@@ -8,6 +8,8 @@
  * - src/data/exercise-instructions.fr.json  { slug: steps[] }, translated exercises only
  * - src/data/exercise-essentials.json       [slug], exercises shown by default
  * - src/data/exercise-extras.json           complete exercises missing from free-exercise-db
+ * - src/data/exercise-removed.json          { slug: replacement slug | null }, exercises taken out
+ *                                           of the library (and out of installed apps)
  * - src/data/exercise-images/<slug>/        photos replacing the images of an exercise
  *
  * Images of an extra exercise are paths in free-exercise-db, or full URLs. Photos of
@@ -74,11 +76,12 @@ const response = await fetch(SOURCE_URL);
 if (!response.ok) throw new Error(`Download failed: ${response.status}`);
 const source = await response.json();
 
-const [frenchNames, frenchInstructions, essentials, extras] = await Promise.all([
+const [frenchNames, frenchInstructions, essentials, extras, removed] = await Promise.all([
   readJson('exercise-names.fr.json'),
   readJson('exercise-instructions.fr.json'),
   readJson('exercise-essentials.json'),
   readJson('exercise-extras.json'),
+  readJson('exercise-removed.json'),
 ]);
 
 const slugs = new Set(source.map((exercise) => toSlug(exercise.id)));
@@ -96,35 +99,49 @@ if (takenSlugs.length > 0) {
 
 const essentialSlugs = new Set(essentials);
 
-const library = source.map((exercise) => {
-  const slug = toSlug(exercise.id);
-  const translatedInstructions = frenchInstructions[slug];
-  return {
-    slug,
-    name: frenchNames[slug] ?? exercise.name.trim(),
-    nameEn: exercise.name.trim(),
-    primaryMuscles: exercise.primaryMuscles,
-    secondaryMuscles: exercise.secondaryMuscles,
-    equipment: exercise.equipment ?? null,
-    category: exercise.category ?? null,
-    force: exercise.force ?? null,
-    level: exercise.level ?? null,
-    mechanic: exercise.mechanic ?? null,
-    instructions: translatedInstructions ?? exercise.instructions,
-    instructionsLanguage: translatedInstructions ? 'fr' : 'en',
-    images: exercise.images,
-    trackingType: trackingTypeOf(exercise, slug),
-    isEssential: essentialSlugs.has(slug),
-  };
-});
+/** A free-exercise-db exercise is removed by leaving it out; an extra, by deleting its entry. */
+const extraSlugs = new Set(extras.map((extra) => extra.slug));
+const removedExtras = Object.keys(removed).filter((slug) => extraSlugs.has(slug));
+if (removedExtras.length > 0) {
+  throw new Error(`exercise-removed.json: delete ${removedExtras} from exercise-extras.json`);
+}
+
+const library = source
+  .filter((exercise) => !(toSlug(exercise.id) in removed))
+  .map((exercise) => {
+    const slug = toSlug(exercise.id);
+    const translatedInstructions = frenchInstructions[slug];
+    return {
+      slug,
+      name: frenchNames[slug] ?? exercise.name.trim(),
+      nameEn: exercise.name.trim(),
+      primaryMuscles: exercise.primaryMuscles,
+      secondaryMuscles: exercise.secondaryMuscles,
+      equipment: exercise.equipment ?? null,
+      category: exercise.category ?? null,
+      force: exercise.force ?? null,
+      level: exercise.level ?? null,
+      mechanic: exercise.mechanic ?? null,
+      instructions: translatedInstructions ?? exercise.instructions,
+      instructionsLanguage: translatedInstructions ? 'fr' : 'en',
+      images: exercise.images,
+      trackingType: trackingTypeOf(exercise, slug),
+      isEssential: essentialSlugs.has(slug),
+    };
+  });
 library.push(...extras);
 
+const librarySlugs = new Set(library.map((exercise) => exercise.slug));
+for (const [slug, replacement] of Object.entries(removed)) {
+  if (slug.startsWith('custom-')) throw new Error(`exercise-removed.json: ${slug} is custom`);
+  if (essentialSlugs.has(slug)) throw new Error(`exercise-essentials.json: ${slug} is removed`);
+  if (replacement !== null && !librarySlugs.has(replacement)) {
+    throw new Error(`exercise-removed.json: replacement ${replacement} isn't in the library`);
+  }
+}
+
 const photos = readExerciseImages(fileURLToPath(new URL('exercise-images/', DATA_DIR)));
-assertKnownSlugs(
-  'exercise-images/',
-  [...photos.keys()],
-  new Set(library.map((exercise) => exercise.slug)),
-);
+assertKnownSlugs('exercise-images/', [...photos.keys()], librarySlugs);
 for (const exercise of library) {
   const frames = photos.get(exercise.slug);
   if (frames) exercise.images = frames.map(({ file }) => EXERCISE_IMAGES_URL + file);

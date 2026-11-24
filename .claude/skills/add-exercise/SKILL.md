@@ -1,6 +1,6 @@
 ---
 name: add-exercise
-description: Add, fix, rename, illustrate or hide an exercise in Repso's exercise library and ship it to production. Use whenever the user asks to add an exercise to the library ("ajoute le … à la bibliothèque"), or to change an existing one.
+description: Add, fix, rename, illustrate, hide or remove an exercise in Repso's exercise library and ship it to production. Use whenever the user asks to add an exercise to the library ("ajoute le … à la bibliothèque"), to change an existing one, or to remove one ("supprime le …").
 ---
 
 # Add an exercise to the library
@@ -36,6 +36,15 @@ overhead dumbbell extension, not the machine.
 - **free-exercise-db exercise**: French name in `exercise-names.fr.json`, steps in
   `exercise-instructions.fr.json`, visibility in `exercise-essentials.json`, tracking in
   `TRACKING_OVERRIDES` (`scripts/build-exercise-library.mjs`).
+
+### Removing an exercise
+
+Never just delete it: installed apps keep every exercise they don't hear about. List it in
+`src/data/exercise-removed.json` instead, `"<slug>": "<replacement slug>"` for a duplicate or
+`"<slug>": null`, and delete its entry from `exercise-extras.json` (or its slug from
+`exercise-essentials.json`) if it has one. On install, apps move programs and workouts to the
+replacement and delete the exercise; without a replacement, they delete it if unused, else hide it.
+The replacement must be in the library and not removed itself (the build checks both).
 
 ## 3. Images
 

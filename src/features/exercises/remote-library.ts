@@ -74,7 +74,7 @@ export async function updateExerciseLibrary(): Promise<LibraryUpdate> {
         message: 'La bibliothèque du site est abîmée ou demande une version plus récente de Repso.',
       };
     }
-    installLibrary(library, manifest.version);
+    installLibrary(library, manifest.version, manifest.removed);
     markChecked();
     return { status: 'updated', version: manifest.version };
   } catch (error) {

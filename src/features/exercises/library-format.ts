@@ -9,8 +9,11 @@ import {
 /**
  * The exercise library, bundled in the app (src/data/exercise-library.json) and published by the
  * site (site/src/pages/library/) so installed apps get its updates without a new build:
- * - /library/manifest.json: { format, version, url } — a few bytes, read first
+ * - /library/manifest.json: { format, version, url, removed } — a few bytes, read first
  * - /library/v<version>.json: the library itself, downloaded only when its version is newer
+ *
+ * `removed` (src/data/exercise-removed.json) lists the exercises taken out of the library, by slug,
+ * each with the slug of the exercise replacing it or null. Apps before it ignore the key.
  */
 export const LIBRARY_FORMAT = 'repso.library';
 
@@ -22,7 +25,10 @@ export type LibraryExercise = Omit<
   instructionsLanguage: ContentLanguage;
 };
 
-export type LibraryManifest = { version: number; url: string };
+/** Slug of a removed exercise → slug of its replacement, or null. */
+export type RemovedExercises = Record<string, string | null>;
+
+export type LibraryManifest = { version: number; url: string; removed: RemovedExercises };
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -34,10 +40,29 @@ export function parseLibraryManifest(value: unknown): LibraryManifest | null {
   if (typeof version !== 'number' || !Number.isInteger(version) || version < 1) return null;
   // A file next to the manifest: the app never follows a link elsewhere.
   if (typeof url !== 'string' || !/^v\d+\.json$/.test(url)) return null;
-  return { version, url };
+  const removed = parseRemovedExercises(value.removed ?? {});
+  if (!removed) return null;
+  return { version, url, removed };
 }
 
 const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+const isLibrarySlug = (value: unknown): value is string =>
+  typeof value === 'string' && SLUG.test(value) && !value.startsWith('custom-');
+
+/**
+ * Null when anything is wrong: a custom slug (never removed by the library), a replacement that is
+ * itself removed (it would be deleted right after) or an exercise replaced by itself.
+ */
+export function parseRemovedExercises(value: unknown): RemovedExercises | null {
+  if (!isRecord(value)) return null;
+  const removed: RemovedExercises = {};
+  for (const [slug, replacement] of Object.entries(value)) {
+    if (!isLibrarySlug(slug)) return null;
+    if (replacement !== null && (!isLibrarySlug(replacement) || replacement in value)) return null;
+    removed[slug] = replacement;
+  }
+  return removed;
+}
 
 const isString = (value: unknown): value is string => typeof value === 'string';
 const isOptionalString = (value: unknown) => value === null || isString(value);

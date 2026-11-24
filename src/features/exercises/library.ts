@@ -1,10 +1,11 @@
-import { eq, sql } from 'drizzle-orm';
+import { and, count, eq, sql } from 'drizzle-orm';
 
+import bundledRemovals from '@/data/exercise-removed.json';
 import { db } from '@/db/client';
 import { useLiveData } from '@/db/live';
-import { appMeta, exercises } from '@/db/schema';
+import { appMeta, exercises, sessionExercises, templateExercises } from '@/db/schema';
 
-import type { LibraryExercise } from './library-format';
+import type { LibraryExercise, RemovedExercises } from './library-format';
 import { libraryImageUrl } from './library-images';
 import { isLocalImage, localImageFile, localImageName } from './local-images';
 
@@ -12,7 +13,7 @@ import { isLocalImage, localImageFile, localImageName } from './local-images';
  * Bump when src/data/exercise-library.json changes: installed apps re-import it, from the site
  * once it is deployed (remote-library.ts), from the app itself after an update.
  */
-export const LIBRARY_VERSION = 9;
+export const LIBRARY_VERSION = 10;
 const LIBRARY_VERSION_KEY = 'exercise_library_version';
 
 /** An image is a photo kept on the phone or an image of the library. */
@@ -40,15 +41,71 @@ export function seedExerciseLibrary(): void {
 
   // Required here rather than imported: ~1 MB of JSON that would otherwise be evaluated at every
   // launch, while it only serves on the first one and after an update of the library.
-  installLibrary(require('@/data/exercise-library.json') as LibraryExercise[], LIBRARY_VERSION);
+  installLibrary(
+    require('@/data/exercise-library.json') as LibraryExercise[],
+    LIBRARY_VERSION,
+    bundledRemovals as RemovedExercises,
+  );
+}
+
+type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+const exerciseIdBySlug = (tx: Transaction, slug: string) =>
+  tx
+    .select({ id: exercises.id })
+    .from(exercises)
+    .where(and(eq(exercises.slug, slug), eq(exercises.isCustom, false)))
+    .get()?.id;
+
+/**
+ * Takes the removed exercises out of the database without breaking a program or a workout:
+ * - replaced (a duplicate): programs and workouts move to the replacement, then it is deleted;
+ * - not replaced: deleted when nothing uses it, else hidden, still shown where it was used.
+ * Custom exercises are never touched.
+ */
+function applyRemovals(tx: Transaction, removed: RemovedExercises): void {
+  for (const [slug, replacement] of Object.entries(removed)) {
+    const id = exerciseIdBySlug(tx, slug);
+    if (id == null) continue;
+    const replacementId = replacement == null ? undefined : exerciseIdBySlug(tx, replacement);
+
+    if (replacementId != null) {
+      tx.update(templateExercises)
+        .set({ exerciseId: replacementId })
+        .where(eq(templateExercises.exerciseId, id))
+        .run();
+      tx.update(sessionExercises)
+        .set({ exerciseId: replacementId })
+        .where(eq(sessionExercises.exerciseId, id))
+        .run();
+    } else {
+      const used = [templateExercises, sessionExercises].some(
+        (table) =>
+          (tx.select({ value: count() }).from(table).where(eq(table.exerciseId, id)).get()?.value ??
+            0) > 0,
+      );
+      if (used) {
+        tx.update(exercises)
+          .set({ isHidden: true, isEssential: false })
+          .where(eq(exercises.id, id))
+          .run();
+        continue;
+      }
+    }
+    tx.delete(exercises).where(eq(exercises.id, id)).run();
+  }
 }
 
 /**
- * Upserts the library by slug and records its version, in one transaction. Custom exercises use a
- * `custom-` slug prefix and are never touched; exercises dropped from the library stay, as
- * programs and workouts may use them.
+ * Upserts the library by slug, applies its removals and records its version, in one transaction.
+ * Custom exercises use a `custom-` slug prefix and are never touched; exercises dropped from the
+ * library without being listed as removed stay as they are.
  */
-export function installLibrary(library: LibraryExercise[], version: number): void {
+export function installLibrary(
+  library: LibraryExercise[],
+  version: number,
+  removed: RemovedExercises,
+): void {
   db.transaction((tx) => {
     const CHUNK_SIZE = 100;
     for (let i = 0; i < library.length; i += CHUNK_SIZE) {
@@ -75,6 +132,8 @@ export function installLibrary(library: LibraryExercise[], version: number): voi
         })
         .run();
     }
+    // After the upsert: a replacement can arrive with the same version.
+    applyRemovals(tx, removed);
 
     tx.insert(appMeta)
       .values({ key: LIBRARY_VERSION_KEY, value: String(version) })

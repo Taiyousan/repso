@@ -75,6 +75,13 @@ mettre à jour sans nouvelle version de l'app :
 2. Incrémenter `LIBRARY_VERSION` dans `src/features/exercises/library.ts`.
 3. Pousser sur `main` : Vercel publie `/library/manifest.json` et `/library/v<version>.json`.
 
+Pour retirer un exercice, l'inscrire dans `src/data/exercise-removed.json` avec le slug de l'exercice qui le
+remplace (un doublon) ou `null`, et supprimer son entrée de `exercise-extras.json` s'il y en a une. Le
+manifest publie cette liste, et les apps l'appliquent en installant la bibliothèque : les programmes et
+séances passent sur le remplaçant puis l'exercice est supprimé ; sans remplaçant, il est supprimé s'il ne
+sert nulle part, masqué sinon (il reste visible là où il a servi). Les versions de l'app d'avant le
+24/11/2026 ignorent la liste et gardent l'exercice.
+
 Le site expose aussi la bibliothèque à tout le monde : une page par exercice (`/exercices/<slug>/`),
 une liste avec recherche et filtres (`/exercices/`), le JSON à une adresse fixe
 (`/library/latest.json`, lisible depuis un autre site) et sa description pour les IA (`/llms.txt`).
