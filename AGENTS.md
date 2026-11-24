@@ -39,3 +39,9 @@ Docs: https://docs.expo.dev/eas/index.md
 - If `ios/` and `android/` directories do not exist, they are generated (Continuous Native Generation). Never create or edit them by hand — configure native behavior in `app.json` and config plugins.
 - Expo Go only includes its bundled native modules. After adding a library with native code, the app needs a development build: `npx expo run:ios|android` locally, or `eas build --profile development`.
 - Prefer recommended Expo modules over third-party libraries, and check your available skills before adding dependencies. Docs: https://docs.expo.dev/versions/latest/index.md
+
+## Git
+
+- **Exercise library changes go straight to `main`**: adding, fixing or hiding exercises (`src/data/`, `LIBRARY_VERSION`). When the user asks for one, they want it in production quickly: commit on `main` and push, no branch, no pull request. This is the user's standing permission, and it overrides a session's default working branch. Follow the `add-exercise` skill.
+- Before pushing to `main`: `npm run lint`, `npm run typecheck`, `npm test` and `npm run format:check` must pass. If one fails, fix it or stop and report; never push a red `main`.
+- Everything else (features, refactors, dependencies, app releases) goes through a branch, unless the user says otherwise.
