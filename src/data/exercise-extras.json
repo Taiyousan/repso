@@ -84,6 +84,6 @@
     "instructionsLanguage": "fr",
     "images": ["Dip_Machine/0.jpg", "Dip_Machine/1.jpg"],
     "trackingType": "weight_reps",
-    "isEssential": true
+    "isEssential": false
   }
 ]
