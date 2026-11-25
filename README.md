@@ -25,15 +25,17 @@ npm start          # serveur de dev pour ce development build
 
 ## Scripts
 
-| Script                     | Rôle                                                            |
-| -------------------------- | --------------------------------------------------------------- |
-| `npm run check`            | Lint + typecheck + tests                                        |
-| `npm run format`           | Formatage Prettier                                              |
-| `npm run db:generate`      | Génère une migration SQL après modification du schéma           |
-| `npm run build:dev`        | APK de développement sur EAS (`com.taiyoudev.repso.dev`)        |
-| `npm run build:preview`    | APK de l'app réelle sur EAS (`com.taiyoudev.repso`)             |
-| `npm run build:production` | AAB signé pour le Play Store (`com.taiyoudev.repso`)            |
-| `npm run site:build`       | Site web (`site/`, Astro) dans `site/dist/`, déployé par Vercel |
+| Script                      | Rôle                                                            |
+| --------------------------- | --------------------------------------------------------------- |
+| `npm run check`             | Lint + typecheck + tests                                        |
+| `npm run format`            | Formatage Prettier                                              |
+| `npm run db:generate`       | Génère une migration SQL après modification du schéma           |
+| `npm run build:dev`         | APK de développement sur EAS (`com.taiyoudev.repso.dev`)        |
+| `npm run build:preview`     | APK de l'app réelle sur EAS (`com.taiyoudev.repso`)             |
+| `npm run build:production`  | AAB signé pour le Play Store (`com.taiyoudev.repso`)            |
+| `npm run update:preview`    | Mise à jour OTA des APK preview (voir plus bas)                 |
+| `npm run update:production` | Mise à jour OTA de l'app du Play Store                          |
+| `npm run site:build`        | Site web (`site/`, Astro) dans `site/dist/`, déployé par Vercel |
 
 ## Structure
 
@@ -132,6 +134,26 @@ gh release create v1.0.0 repso.apk --repo Taiyousan/repso --title "Repso 1.0.0"
 ```
 
 L'asset doit s'appeler `repso.apk` : c'est le nom du lien `releases/latest/download/repso.apk`.
+
+## Mises à jour OTA
+
+Les APK `preview` et `production` embarquent `expo-updates` : à chaque lancement, l'app demande à EAS
+Update s'il existe un bundle JavaScript plus récent pour son canal (`preview` ou `production`, voir
+`eas.json`) et sa version runtime, le télécharge et l'applique au lancement suivant. Un correctif
+qui ne touche que du JavaScript ou des images part donc sans nouvel APK :
+
+```bash
+npm run update:preview -- -m "Corrige le blocage pendant la mise à jour de la bibliothèque"
+```
+
+Le canal `preview` est celui des APK publiés en Release : une mise à jour y atteint tous ceux qui ont
+installé l'app depuis le site. Le build de développement charge son code depuis Metro et n'est pas
+concerné.
+
+La version runtime est la `version` de `app.json` (`runtimeVersion.policy: "appVersion"`) : un bundle
+ne va qu'aux APK de la même version. Tout changement natif (module avec du code natif, plugin ou
+permission dans `app.json`, police, `modules/`) impose donc d'incrémenter `version` et de construire un
+nouvel APK, sinon l'update serait envoyée à des APK qui n'ont pas le code natif qu'elle appelle.
 
 ## Crédits et licences
 

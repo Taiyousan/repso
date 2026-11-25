@@ -3,6 +3,12 @@
     "name": "Repso",
     "slug": "repso",
     "version": "1.1.0",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/7875f6cd-066b-4117-a3b3-4ec18e966de9"
+    },
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "repso",
