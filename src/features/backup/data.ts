@@ -1,6 +1,7 @@
 import { eq, isNotNull } from 'drizzle-orm';
 import type { SQLiteTable } from 'drizzle-orm/sqlite-core';
 
+import bundledRemovals from '@/data/exercise-removed.json';
 import { db } from '@/db/client';
 import { useLiveData } from '@/db/live';
 import {
@@ -16,6 +17,8 @@ import {
   workoutSessions,
   workoutTemplates,
 } from '@/db/schema';
+import { applyRemovals } from '@/features/exercises/library';
+import type { RemovedExercises } from '@/features/exercises/library-format';
 import { readLocalImages, writeLocalImages } from '@/features/exercises/local-images';
 
 import type { BackupData } from './format';
@@ -120,10 +123,16 @@ export function restoreBackupData(data: BackupData): void {
         .all()
         .map((exercise) => exercise.slug),
     );
+    // A library exercise missing here was removed from the library since the backup (or comes from
+    // a newer one): hidden like a removed exercise still in use, shown again if the library has it.
     insertAll(
       tx,
       exercises,
-      data.exercises.filter((exercise) => !installed.has(exercise.slug)),
+      data.exercises.flatMap((exercise) =>
+        installed.has(exercise.slug)
+          ? []
+          : [exercise.isCustom ? exercise : { ...exercise, isHidden: true, isEssential: false }],
+      ),
     );
     const ids = new Map(
       tx
@@ -157,6 +166,8 @@ export function restoreBackupData(data: BackupData): void {
     insertAll(tx, tags, data.tags);
     insertAll(tx, sessionTags, data.sessionTags);
     insertAll(tx, bodyWeights, data.bodyWeights);
+    // Moves what used a replaced exercise to its replacement, as the library install did.
+    applyRemovals(tx, bundledRemovals as RemovedExercises);
   });
 }
 

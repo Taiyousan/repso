@@ -1,5 +1,3 @@
-/// <reference types="node" />
-
 import { eq } from 'drizzle-orm';
 
 import { db } from '@/db/client';
@@ -15,52 +13,7 @@ import {
 import { installLibrary, readInstalledLibraryVersion } from './library';
 import type { LibraryExercise } from './library-format';
 
-type MockParams = (string | number | null)[];
-
-/** The app's database, migrated, on node:sqlite behind the methods Drizzle's expo-sqlite driver calls. */
-jest.mock('@/db/client', () => {
-  const { readdirSync, readFileSync } = jest.requireActual<typeof import('node:fs')>('node:fs');
-  const { join } = jest.requireActual<typeof import('node:path')>('node:path');
-  const { DatabaseSync } = jest.requireActual<typeof import('node:sqlite')>('node:sqlite');
-  const { drizzle } = jest.requireActual('drizzle-orm/expo-sqlite');
-  const schema = jest.requireActual('@/db/schema');
-
-  const sqlite = new DatabaseSync(':memory:');
-  sqlite.exec('PRAGMA foreign_keys = ON;');
-  const dir = join(__dirname, '../../db/migrations');
-  for (const file of readdirSync(dir)
-    .filter((name) => name.endsWith('.sql'))
-    .sort()) {
-    for (const statement of readFileSync(join(dir, file), 'utf8').split(
-      '--> statement-breakpoint',
-    )) {
-      sqlite.exec(statement);
-    }
-  }
-
-  const client = {
-    prepareSync(query: string) {
-      const statement = sqlite.prepare(query);
-      return {
-        executeSync(params: MockParams) {
-          if (statement.columns().length === 0) {
-            const { changes, lastInsertRowid } = statement.run(...params);
-            return { changes, lastInsertRowId: Number(lastInsertRowid) };
-          }
-          const rows = statement.all(...params);
-          return { getAllSync: () => rows, getFirstSync: () => rows[0] ?? null };
-        },
-        executeForRawResultSync(params: MockParams) {
-          statement.setReturnArrays(true);
-          const rows = statement.all(...params);
-          statement.setReturnArrays(false);
-          return { getAllSync: () => rows };
-        },
-      };
-    },
-  };
-  return { db: drizzle(client, { schema }) };
-});
+jest.mock('@/db/client', () => jest.requireActual('@/db/test-client'));
 jest.mock('./local-images', () => ({}));
 jest.mock('./library-images', () => ({}));
 

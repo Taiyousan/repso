@@ -63,7 +63,7 @@ const exerciseIdBySlug = (tx: Transaction, slug: string) =>
  * - not replaced: deleted when nothing uses it, else hidden, still shown where it was used.
  * Custom exercises are never touched.
  */
-function applyRemovals(tx: Transaction, removed: RemovedExercises): void {
+export function applyRemovals(tx: Transaction, removed: RemovedExercises): void {
   for (const [slug, replacement] of Object.entries(removed)) {
     const id = exerciseIdBySlug(tx, slug);
     if (id == null) continue;
@@ -128,6 +128,8 @@ export function installLibrary(
             images: sql`excluded.images`,
             trackingType: sql`excluded.tracking_type`,
             isEssential: sql`excluded.is_essential`,
+            // Hidden when removed while in use (applyRemovals): shown again if it comes back.
+            isHidden: false,
           },
         })
         .run();
