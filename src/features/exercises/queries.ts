@@ -1,8 +1,8 @@
 import { eq } from 'drizzle-orm';
-import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useMemo } from 'react';
 
 import { db } from '@/db/client';
+import { useLiveData } from '@/db/live';
 import { exercises } from '@/db/schema';
 import { normalizeText } from '@/lib/text';
 
@@ -17,19 +17,28 @@ function sortByName<T extends { name: string }>(items: T[]): T[] {
     .map(({ item }) => item);
 }
 
+/*
+ * Not Drizzle's useLiveQuery: it re-runs its query once per changed row, so installing the
+ * library (~900 upserted rows) queued ~900 reads of the whole table and as many renders, freezing
+ * the app. useLiveData reads once per burst of writes.
+ */
+
 /** The library: every exercise but the hidden ones. */
 export function useExerciseList() {
-  const { data, ...rest } = useLiveQuery(
-    db.select().from(exercises).where(eq(exercises.isHidden, false)),
+  const data = useLiveData(
+    () => db.select().from(exercises).where(eq(exercises.isHidden, false)).all(),
+    ['exercises'],
+    'exercise-list',
   );
   const sorted = useMemo(() => sortByName(data), [data]);
-  return { data: sorted, ...rest };
+  return { data: sorted };
 }
 
 export function useExercise(id: number) {
-  const { data, ...rest } = useLiveQuery(
-    db.select().from(exercises).where(eq(exercises.id, id)).limit(1),
-    [id],
+  const exercise = useLiveData(
+    () => db.select().from(exercises).where(eq(exercises.id, id)).get(),
+    ['exercises'],
+    id,
   );
-  return { exercise: data[0] as (typeof data)[number] | undefined, ...rest };
+  return { exercise };
 }
